@@ -57,7 +57,7 @@ export function hintergrund(ctx, { lage, sy, vw, vh, tau, mobil }) {
   // Sternenhimmel: Mond, ein zartes Sternbild, ab und zu eine Sternschnuppe
   const L2 = lage.verweilen;
   if (sichtbar(L2, sy, vh)) {
-    const mx = vw * (mobil ? .8 : .84), my = L2.top + L2.h * .16 - sy, mr = Math.min(vw * .06, 64);
+    const mx = vw * (mobil ? .82 : .56), my = L2.top + L2.h * (mobil ? .1 : .14) - sy, mr = Math.min(vw * .06, 64);
     const glow = ctx.createRadialGradient(mx, my, mr * .6, mx, my, mr * 3.2);
     glow.addColorStop(0, 'rgba(255,240,200,.28)'); glow.addColorStop(1, 'rgba(255,240,200,0)');
     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(mx, my, mr * 3.2, 0, 7); ctx.fill();
