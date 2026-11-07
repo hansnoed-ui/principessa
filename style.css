@@ -66,17 +66,17 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 
 /* ---------- Auftakt: Titelbild über die ganze Breite ---------- */
 #augenblick { background: var(--hellblau); }
-.kopfbild { width: 100%; aspect-ratio: 16 / 9; position: relative; z-index: 2; }
+.kopfbild { width: 100%; aspect-ratio: 3 / 2; position: relative; z-index: 2; }
 .signatur {
   position: absolute;
-  top: clamp(10px, 2.2vw, 34px);
-  right: clamp(12px, 2.6vw, 42px);
+  top: clamp(12px, 2.4vw, 40px);
+  left: clamp(14px, 3vw, 48px);
   margin: 0;
   color: #111;
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(.72rem, .55rem + .6vw, 1.1rem);
-  letter-spacing: .02em;
+  font-size: clamp(.95rem, .62rem + 1.15vw, 1.65rem);
+  letter-spacing: .015em;
   text-shadow: 0 0 2px #f3d6e6, 0 0 6px #f3d6e6, 0 0 12px rgba(243, 214, 230, .9), 0 0 22px rgba(243, 214, 230, .7);
 }
 .kopfbild canvas { width: 100%; height: 100%; display: block; }
@@ -140,24 +140,23 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 .links { margin-right: auto; }
 .rechts { margin-left: auto; }
 
-#schweben { background: linear-gradient(var(--hellblau), #a2c6f0); }
-#gestalten { background: linear-gradient(#a2c6f0, #93bdee); }
-#gluecksbringer { background: linear-gradient(#93bdee, var(--hellblau-tief) 70%, var(--tuerkis)); }
+#schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 62%, #4b5fb4 86%, var(--koenigsblau)); }
 .inhalt.mitte { margin: 0 auto; text-align: center; }
 .bestellen {
   color: inherit;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: .22em;
-  text-decoration-color: rgba(247, 242, 236, .6);
+  text-decoration-color: rgba(42, 34, 48, .45);
   transition: text-decoration-color .3s ease;
 }
 .bestellen:hover, .bestellen:focus-visible { text-decoration-color: var(--gold); }
-#glitzer { background: linear-gradient(var(--tuerkis), var(--tuerkis-tief) 70%, var(--koenigsblau)); color: var(--creme); }
-#verweilen { background: linear-gradient(var(--koenigsblau), var(--nacht) 55%, var(--nacht) 70%, var(--gruen)); color: var(--creme); }
+#glitzer { background: linear-gradient(#0b2f4f, #13708a 9%, #0f5e78 45%, #0b4560 80%, #0a3550); color: var(--creme); }
+#gluecksbringer { background: linear-gradient(#0a3550, #4b3f86 22%, #b98ab6 52%, #eeb7b0 76%, #f4cf9a); }
+#verweilen { background: linear-gradient(var(--koenigsblau), var(--nacht) 40%, var(--nacht) 82%, #0b2f4f); color: var(--creme); }
 #ankommen {
-  background: linear-gradient(var(--gruen), var(--wiese));
-  color: var(--creme);
+  background: linear-gradient(#f4cf9a, #f2dcae 45%, #d9e8bc);
+  color: var(--linie);
   flex-direction: column;
   justify-content: flex-end;
   align-items: stretch;
@@ -395,3 +394,43 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 @media (prefers-reduced-motion: reduce) {
   .karte-innen, .produkt, .bild * { transition: none !important; }
 }
+
+/* ---------- Bestellkarte, moderner ---------- */
+.bestellkarte { background: linear-gradient(var(--erde), #10392b); }
+.karte-innen {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .06);
+}
+.karte-innen h2 {
+  font-family: var(--sans); font-style: normal; font-weight: 600;
+  font-variation-settings: normal; letter-spacing: -.02em;
+  font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem);
+}
+.einleitung { color: #6d6672; opacity: 1; }
+.produkt { background: #f6f4f1; border-radius: 18px; box-shadow: none; }
+.produkt.gewaehlt { background: #fff; box-shadow: 0 0 0 2px #1e1a4c, 0 18px 36px -22px rgba(30, 26, 76, .6); transform: none; }
+.produkt.gewaehlt .haken { background: #1e1a4c; border-color: #1e1a4c; }
+.haken { border-color: rgba(30, 26, 76, .25); }
+.produkt-name { font-family: var(--sans); font-style: normal; font-weight: 600; font-size: 1.08rem; letter-spacing: -.01em; }
+.produkt-text { color: #6d6672; opacity: 1; font-size: .82rem; }
+.option-titel { letter-spacing: .08em; color: #8a8390; opacity: 1; font-size: .7rem; }
+.pille span { border-radius: 10px; border: 0; background: #ece9e4; font-weight: 500; }
+.pille:hover span { background: #e2ded7; }
+.pille input:checked + span { background: #1e1a4c; color: #fff; box-shadow: none; }
+.tupfer input:checked + span { box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .15), 0 0 0 3px #fff, 0 0 0 5px #1e1a4c; }
+.motivwahl svg { border-radius: 12px; background: #f6f4f1; box-shadow: none; }
+.motivwahl input:checked + svg { box-shadow: 0 0 0 2px #1e1a4c; background: #fff; }
+.felder label { color: #4f4856; font-weight: 500; font-size: .84rem; }
+.felder input, .felder textarea { border: 0; background: #f4f2ee; border-radius: 12px; padding: .85rem .95rem; transition: background .2s ease, box-shadow .2s ease; }
+.felder input:focus, .felder textarea:focus { outline: 0; background: #fff; box-shadow: 0 0 0 2px #1e1a4c; }
+.senden {
+  display: inline-flex; align-items: center; gap: .6rem;
+  border-radius: 14px; padding: 1rem 1.6rem;
+  color: #fff; background: #1e1a4c;
+  box-shadow: 0 14px 28px -16px rgba(30, 26, 76, .9);
+}
+.senden::after { content: "→"; font-size: 1.15em; transition: transform .2s ease; }
+.senden:hover::after, .senden:focus-visible::after { transform: translateX(3px); }
+.senden:hover, .senden:focus-visible { background: #2a2466; }
+@media (max-width: 520px) { .senden { width: 100%; justify-content: center; } }
