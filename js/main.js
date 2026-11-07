@@ -168,6 +168,8 @@ function messen() {
 }
 function groesse() {
   const altVw = vw;
+  // tatsächlich sichtbare Höhe, auch wenn der Browser die Leiste ein- oder ausblendet
+  document.documentElement.style.setProperty('--vh', innerHeight + 'px');
   vw = innerWidth; vh = innerHeight; mobil = vw < 700;
   dpr = Math.min(devicePixelRatio || 1, 2);
   if (renderer) { renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); }
@@ -558,6 +560,8 @@ const himmelStaerke = [1.1, 1.15, .95, .6, 1.1];
 
 groesse();
 addEventListener('resize', groesse);
+visualViewport?.addEventListener('resize', groesse);
+addEventListener('orientationchange', () => setTimeout(groesse, 300));
 document.fonts?.ready.then(() => { messen(); wolkeAnlegen(); });
 addEventListener('load', messen);
 {

@@ -67,7 +67,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 /* ---------- Auftakt: Titelbild über die ganze Breite ---------- */
 #augenblick {
   position: relative;
-  height: 100vh; height: 100svh; height: 100dvh;
+  height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid; place-items: center;
   padding: 6vh 5vw 8vh;
   background: #241d55;
@@ -158,7 +158,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 html { scroll-snap-type: y mandatory; }
 #augenblick, .ebene { scroll-snap-align: start; scroll-snap-stop: always; }
 .ebene {
-  height: 100vh; height: 100svh; height: 100dvh;
+  height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 100%;
@@ -201,7 +201,7 @@ html { scroll-snap-type: y mandatory; }
   align-items: stretch;
   padding: 0;
   height: auto;
-  min-height: 100vh; min-height: 100dvh;
+  min-height: 100vh; min-height: var(--vh, 100dvh);
   overflow: visible;
 }
 #ankommen .inhalt { padding: 16vh 8vw 0; }
