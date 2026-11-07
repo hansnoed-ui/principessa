@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Principessa</title>
+<meta name="description" content="Eine Principessa entspringt einem Augenblick und trägt seinen Zauber durch vier Ebenen nach unten.">
+<meta name="theme-color" content="#f7f2ec">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,100;1,9..144,300..700,100&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/":"./vendor/addons/"}}</script>
+</head>
+<body>
+<canvas id="staub" aria-hidden="true"></canvas>
+<canvas id="buehne" aria-hidden="true"></canvas>
+
+<main>
+  <section id="augenblick">
+    <div class="inhalt">
+      <figure class="bild">
+        <canvas id="flach" role="img" aria-label="Zeichnung der Principessa: ovaler Kopf mit Krone, gestreiftes Kleid, zwei Strichbeine"></canvas>
+      </figure>
+      <div class="auftakt">
+        <h1>Principessa</h1>
+        <p>Eine Principessa entspringt einem Augenblick und trägt seinen Zauber mit sich.</p>
+      </div>
+    </div>
+    <p class="hinweis" aria-hidden="true">nach unten</p>
+  </section>
+
+  <section class="ebene" id="schweben">
+    <div class="inhalt links">
+      <p class="marke">Erste Ebene · Hellblau</p>
+      <h2>Schweben</h2>
+      <p>Kaum ist sie draussen, ist alles Luft. Was eben noch Fläche war, hat jetzt ein Oben und ein Unten, und sie entscheidet sich fürs Treiben, als hätte sie nie etwas anderes getan.</p>
+    </div>
+  </section>
+
+  <section class="ebene" id="glitzer">
+    <div class="inhalt rechts">
+      <p class="marke">Zweite Ebene · Türkis</p>
+      <h2>Glitzer</h2>
+      <p>Ein Augenblick hinterlässt Staub, und dieser Staub leuchtet. Er bleibt an ihr hängen, je tiefer sie sinkt. Wer mit dem Finger oder der Maus über diese Ebene fährt, streut ihr neuen hinterher.</p>
+    </div>
+  </section>
+
+  <section class="ebene" id="verweilen">
+    <div class="inhalt links">
+      <p class="marke">Dritte Ebene · Königsblau</p>
+      <h2>Verweilen</h2>
+      <p>Hier hält sie an. Für die Dauer eines Atemzugs hört die Zeit auf zu zählen, die Sterne vergessen das Blinken, und der Glitzer bleibt in der Luft hängen, wo er gerade war.</p>
+      <blockquote><p>Verweile doch! du bist so schön!</p><cite>Goethe, Faust I</cite></blockquote>
+    </div>
+  </section>
+
+  <section class="ebene" id="ankommen">
+    <div class="inhalt rechts">
+      <p class="marke">Vierte Ebene · Grün</p>
+      <h2>Ankommen</h2>
+      <p>Unten ist Boden. Sie landet auf zwei Strichen, verbeugt sich, und aus dem, was sie vom Augenblick mitgebracht hat, wächst eine Wiese.</p>
+    </div>
+    <div class="boden" id="boden"></div>
+  </section>
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
