@@ -1,7 +1,7 @@
 // Verzauberter Text: Wörter erscheinen als Goldglitzer, danach läuft ab und zu eine Glitzerwelle hindurch.
 // Bei jeder Welle meldet das Modul 'zauber', damit auch Kleid und Krone der Principessa aufglitzern.
 const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const WELLE_ALLE = 7000;
+const WELLE_ALLE = 12000;
 
 for (const absatz of document.querySelectorAll('.zauber')) {
   const woerter = absatz.textContent.trim().split(/\s+/);
@@ -18,13 +18,13 @@ for (const absatz of document.querySelectorAll('.zauber')) {
   const sterne = () => {
     const box = absatz.getBoundingClientRect(), eltern = absatz.parentElement.getBoundingClientRect();
     spans.forEach((sp, i) => {
-      if (Math.random() > .85) return;
+      if (Math.random() > .3) return;
       const r = sp.getBoundingClientRect(), st = document.createElement('i');
       st.className = 'funkelstern';
       st.style.left = (r.left - eltern.left + Math.random() * r.width) + 'px';
       st.style.top = (r.top - eltern.top + (Math.random() - .3) * r.height) + 'px';
       st.style.setProperty('--d', (i * 70 + Math.random() * 200) + 'ms');
-      st.style.setProperty('--g', (.9 + Math.random() * 1.1).toFixed(2));
+      st.style.setProperty('--g', (.5 + Math.random() * .5).toFixed(2));
       st.addEventListener('animationend', () => st.remove());
       absatz.parentElement.append(st);
     });

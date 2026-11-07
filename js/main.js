@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { C, F, BEIN_EXTRA, rng, zeichneSticker, silhouette, imBild, baueFigur } from './figur.js';
-import { lage as bildLage, zeichneRahmen, funkelpunkte } from './rahmen.js';
+import { lage as bildLage, zeichneRahmen, funkelpunkte, SONNE } from './rahmen.js';
 import './zauber.js';
 
 // ------------------------------------------------------------------ Hilfen
@@ -157,7 +157,7 @@ function leinen() {
   }
   leinenMuster = fc.createPattern(c, 'repeat'); return leinenMuster;
 }
-const funkel = funkelpunkte(36);
+const funkel = funkelpunkte(24);
 // Lage des Abziehbilds im Fenster (CSS-Pixel)
 function boxImFenster() {
   const r = flach.getBoundingClientRect(), k = r.width / (flach.width || 1), L = bildLage(flach.width || 1, flach.height || 1);
@@ -202,6 +202,17 @@ function bildZeichnen(z) {
     }
     fc.globalAlpha = 1;
   }
+  // die Sonne schimmert: ein Lichtfleck wandert langsam über das Gold
+  {
+    const sx = g.x + SONNE.x * g.w, sy = g.y + SONNE.y * g.h, sr = SONNE.r * g.w;
+    fc.save(); fc.beginPath(); fc.arc(sx, sy, sr, 0, 7); fc.clip();
+    fc.globalCompositeOperation = 'lighter';
+    const lx = sx + Math.cos(tau * .35) * sr * .55, ly = sy + Math.sin(tau * .5) * sr * .45;
+    const lg = fc.createRadialGradient(lx, ly, 0, lx, ly, sr * .7);
+    lg.addColorStop(0, 'rgba(255,236,170,.32)'); lg.addColorStop(1, 'rgba(255,236,170,0)');
+    fc.fillStyle = lg; fc.fillRect(sx - sr, sy - sr, sr * 2, sr * 2);
+    fc.restore();
+  }
   const sch = fc.createLinearGradient(g.x, g.y, g.x + g.w, g.y + g.h);
   sch.addColorStop(0, 'rgba(255,255,255,.12)'); sch.addColorStop(.3, 'rgba(255,255,255,0)');
   sch.addColorStop(.6, 'rgba(255,255,255,0)'); sch.addColorStop(.68, 'rgba(255,255,255,.08)'); sch.addColorStop(.76, 'rgba(255,255,255,0)');
@@ -216,11 +227,12 @@ function bildZeichnen(z) {
   // Funkeln auf Rahmen und Sonne
   fc.globalCompositeOperation = 'lighter';
   for (const p of funkel) {
-    const a = Math.pow(Math.max(0, Math.sin(tau * p.k + p.ph)), 8); if (a < .02) continue;
+    const a = Math.pow(Math.max(0, Math.sin(tau * p.k + p.ph)), p.art === 'sonne' ? 5 : 8); if (a < .02) continue;
     let x, y;
     if (p.imBild) { x = g.x + p.gx * g.w; y = g.y + p.gy * g.h; }
     else { const d = p.d * f; [x, y] = p.seite === 0 ? [p.u * W, d] : p.seite === 1 ? [W - d, p.u * H] : p.seite === 2 ? [p.u * W, H - d] : [d, p.u * H]; }
-    fc.fillStyle = `rgba(255,248,215,${a})`; stern(fc, x, y, p.gr * W / 300);
+    fc.fillStyle = `rgba(255,248,215,${a})`; stern(fc, x, y, p.gr * W / (p.imBild ? 260 : 300));
+    if (p.imBild) { const hg = fc.createRadialGradient(x, y, 0, x, y, p.gr * W / 45); hg.addColorStop(0, `rgba(255,226,140,${a * .45})`); hg.addColorStop(1, 'rgba(255,226,140,0)'); fc.fillStyle = hg; fc.fillRect(x - W / 40, y - W / 40, W / 20, W / 20); }
   }
   fc.globalCompositeOperation = 'source-over';
 }
@@ -296,8 +308,8 @@ function ziel() {
 
 // ------------------------------------------------------------------ Zustand
 // modus: 'drin' = im Bild, klopft ab und zu · 'aus' = draussen · 'zurueck' = kehrt ins Bild zurück
-const T = { loesen: .35, plopp: .6, flugEnde: 1.5, rueckFlug: 1.1, rueckKleben: 1.75, rueckEnde: 2.6 };
-let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, warUnten = false, rueck = null;
+const T = { loesen: .85, plopp: 1.35, flugEnde: 2.75, rueckFlug: 2.0, rueckKleben: 3.0, rueckEnde: 4.1 };
+let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, obenZeit = 0, rueck = null;
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
 let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0, zauberZeit = -99;
 addEventListener('zauber', () => { zauberZeit = performance.now() / 1000; });
@@ -327,19 +339,19 @@ function bild(nowMs) {
   const z = ziel();
 
   // ---- Übergänge: beim Scrollen heraus, ganz oben wieder hinein
-  if (scrollY > vh * .5) warUnten = true;
+  obenZeit = scrollY < 16 ? obenZeit + dt : 0;
   if (modus === 'drin') {
     klopfUhr += dt;
-    if (scrollY > 30) { modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; }
+    if (scrollY > 40) { modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; }
   } else if (modus === 'aus') {
     tI += dt;
-    if (tI >= T.flugEnde && warUnten && scrollY < vh * .12 && renderer) {
+    if (tI >= T.flugEnde && obenZeit > .3 && renderer) {
       modus = 'zurueck'; tR = reduziert ? T.rueckKleben : 0; gelandet = false;
       rueck = { x: fx, y: fy, z: fz, dreh: dreh.rotation.y };
     }
   } else {
     tR += dt;
-    if (tR >= T.rueckEnde) { modus = 'drin'; tI = 0; klopfUhr = -2.5; warUnten = false; plopped = false; }
+    if (tR >= T.rueckEnde) { modus = 'drin'; tI = 0; klopfUhr = -2.5; plopped = false; }
   }
 
   // ---- Bild im Auftakt
@@ -356,9 +368,9 @@ function bild(nowMs) {
         }
       }
     } else if (modus === 'aus') {
-      zb.flach = false; zb.risse = tI >= T.plopp ? eout(seg(tI, T.plopp, T.plopp + .18)) : 0;
+      zb.flach = false; zb.risse = tI >= T.plopp ? eout(seg(tI, T.plopp, T.plopp + .3)) : 0;
     } else {
-      zb.flach = tR >= T.rueckKleben; zb.risse = 1; zb.risseAlpha = 1 - seg(tR, .3, 1.5);
+      zb.flach = tR >= T.rueckKleben; zb.risse = 1; zb.risseAlpha = 1 - seg(tR, .5, 2.6);
       zb.glanz = Math.sin(Math.PI * seg(tR, T.rueckKleben - .15, T.rueckEnde));
     }
     bildZeichnen(zb);
@@ -419,14 +431,14 @@ function bild(nowMs) {
     const u = seg(tI, T.plopp, T.flugEnde), e = eio(u);
     fx = lerp(sx, z.x, e); fy = lerp(sy, zielFuss, e) - Math.sin(Math.PI * u) * vh * .12;
     fz = lerp(sz, 0, e) + Math.sin(Math.PI * u) * figH * .9;
-    skal = lerp(startSkal, 1, eback(seg(tI, T.plopp, T.plopp + .45)));
+    skal = lerp(startSkal, 1, eback(seg(tI, T.plopp, T.plopp + .75), 1.4));
     extraDreh = e * Math.PI * 2;
   } else if (modus === 'zurueck' && rueck) {
     // sanft zurück: in einem leisen Bogen, kleiner werdend, mit dem Gesicht nach vorn
     const u = seg(tR, 0, T.rueckFlug), e = eio(u);
     fx = lerp(rueck.x, sx, e); fy = lerp(rueck.y, sy, e) - Math.sin(Math.PI * u) * vh * .08;
     fz = lerp(rueck.z, sz, e) + Math.sin(Math.PI * u) * figH * .5;
-    skal = lerp(1, startSkal, eio(seg(tR, .15, T.rueckFlug)));
+    skal = lerp(1, startSkal, eio(seg(tR, .3, T.rueckFlug)));
     rueckDreh = lerp(rueck.dreh, Math.round(rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
   } else {
     fx = daempfe(fx, gelandet ? fx : z.x, 4.5, dt);
