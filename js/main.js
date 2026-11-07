@@ -680,8 +680,8 @@ function bild(nowMs) {
     skal = lerp(1, startSkal, eio(seg(tR, .3, T.rueckFlug)));
     rueckDreh = lerp(rueck.dreh, Math.round(rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
   } else {
-    fx = daempfe(fx, gelandet ? fx : z.x, 2.2, dt);
-    fy = gelandet ? zielFuss : daempfe(fy, zielFuss, amBoden ? 2.6 : 3, dt);
+    fx = daempfe(fx, gelandet ? fx : z.x, 1.4, dt);
+    fy = gelandet ? zielFuss : daempfe(fy, zielFuss, amBoden ? 2.2 : 1.8, dt);
     fz = daempfe(fz, 0, 4, dt);
   }
   const fxAlt = figur.userData.fx ?? fx; vxF = daempfe(vxF, (fx - fxAlt) / Math.max(dt, 1e-3), 6, dt); figur.userData.fx = fx;
@@ -705,14 +705,14 @@ function bild(nowMs) {
   }
 
   const schwebt = !gelandet && draussen && modus === 'aus';
-  const wipp = schwebt && !reduziert ? Math.sin(tau * 1.7) * figH * .018 : 0;
+  const wipp = schwebt && !reduziert ? Math.sin(tau * 1.1) * figH * .012 : 0;
   figur.position.copy(welt(fx, fy + wipp, fz));
   const basis = figH / LOKAL_H * skal;
   figur.scale.set(basis * (1 + sq * .5), basis * (1 - sq), basis * (1 + sq * .5) * tiefe);
   figur.rotation.x = verbeug;
   schwenk.rotation.z = schwebt ? clamp(-vxF * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .9) * .03) : daempfe(schwenk.rotation.z, 0, 8, dt);
   schwenk.rotation.x = schwebt ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk.rotation.x, 0, 8, dt);
-  dreh.rotation.y = rueckDreh ?? (z.drehungen * Math.PI * 2 + extraDreh + (schwebt && !reduziert ? Math.sin(tau * .8) * .2 : 0));
+  dreh.rotation.y = rueckDreh ?? (z.drehungen * Math.PI * 2 + extraDreh + (schwebt && !reduziert ? Math.sin(tau * .5) * .08 : 0));
 
   // Blinzeln
   const bp = (tau % 4.3);
@@ -800,11 +800,12 @@ function bild(nowMs) {
   }
   {
     const draussen2 = (P2.modus === 'aus' && P2.t >= T.plopp) || (P2.modus === 'zurueck' && P2.tR < T.rueckFlug);
-    figur2.visible = !!renderer && draussen2;
+    const heim2 = clamp((scrollY + vh - lage.verweilen.top) / (vh * .6));
+    figur2.visible = !!renderer && draussen2 && heim2 > 0;
+    figur2.traverse(o => { if (o.material) { o.material.transparent = true; o.material.opacity = heim2; } });
     const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
     const amBoden2 = bodenTop < vh * .8;
-    if (begleitet) P2.seite = daempfe(P2.seite, fx > vw * .5 ? -1 : 1, 1.5, dt);
-    const zx = clamp(begleitet ? fx + P2.seite * figH * .95 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
+    const zx = clamp(begleitet ? fx + figH * .95 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy + figH * .06 : clamp(b2.y + b2.s, figH, vh * .92);
     if (amBoden2) zf = bodenTop + 5;
     let tiefe2 = 1, skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
@@ -823,8 +824,8 @@ function bild(nowMs) {
       skal2 = lerp(1, start2, eio(seg(P2.tR, .3, T.rueckFlug)));
       rueckDreh2 = lerp(P2.rueck.dreh, Math.round(P2.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
     } else {
-      P2.x = daempfe(P2.x, zx, P2.gelandet ? 1.4 : 1.8, dt);
-      P2.y = P2.gelandet ? zf : daempfe(P2.y, zf, 2.2, dt);
+      P2.x = daempfe(P2.x, zx, 1.3, dt);
+      P2.y = P2.gelandet ? zf : daempfe(P2.y, zf, 1.7, dt);
       P2.z = daempfe(P2.z, begleitet && !amBoden2 ? -figH * .25 : 0, 3, dt);
     }
     const x2alt = figur2.userData.x ?? P2.x; P2.vx = daempfe(P2.vx, (P2.x - x2alt) / Math.max(dt, 1e-3), 6, dt); figur2.userData.x = P2.x;
@@ -839,7 +840,7 @@ function bild(nowMs) {
     figur2.rotation.x = verb2;
     schwenk2.rotation.z = schwebt2 ? clamp(-P2.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk2.rotation.z, 0, 8, dt);
     schwenk2.rotation.x = schwebt2 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk2.rotation.x, 0, 8, dt);
-    dreh2.rotation.y = rueckDreh2 ?? (z.drehungen * Math.PI * 2 + extra2 + (schwebt2 && !reduziert ? Math.sin(tau * .7 + 1) * .25 : 0));
+    dreh2.rotation.y = rueckDreh2 ?? (z.drehungen * Math.PI * 2 + extra2 + (schwebt2 && !reduziert ? Math.sin(tau * .45 + 1) * .08 : 0));
     modell2.kroneMat.emissiveIntensity = .9 + .3 * Math.sin(tau * 2.1 + 1) + zp * 1.6 * (.7 + .3 * Math.sin(now * 27));
   }
 
@@ -913,10 +914,12 @@ function bild(nowMs) {
   }
   {
     const draussen3 = (P3.modus === 'aus' && P3.t >= T.plopp) || (P3.modus === 'zurueck' && P3.tR < T.rueckFlug);
-    figur3.visible = !!renderer && draussen3;
+    const heim3 = clamp((scrollY + vh - lage.glitzer.top) / (vh * .6));
+    figur3.visible = !!renderer && draussen3 && heim3 > 0;
+    figur3.traverse(o => { if (o.material) { o.material.transparent = true; o.material.opacity = heim3; } });
     const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
     const amBoden3 = bodenTop < vh * .8;
-    const zx = clamp(begleitet ? fx - P2.seite * figH * .95 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
+    const zx = clamp(begleitet ? fx - figH * .95 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy - figH * .04 : clamp(b3.y + b3.s, figH, vh * .92);
     if (amBoden3) zf = bodenTop + 5;
     let tiefe3 = 1, skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
@@ -935,8 +938,8 @@ function bild(nowMs) {
       skal3 = lerp(1, start3, eio(seg(P3.tR, .3, T.rueckFlug)));
       rueckDreh3 = lerp(P3.rueck.dreh, Math.round(P3.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
     } else {
-      P3.x = daempfe(P3.x, zx, P3.gelandet ? 1.4 : 1.8, dt);
-      P3.y = P3.gelandet ? zf : daempfe(P3.y, zf, 2.1, dt);
+      P3.x = daempfe(P3.x, zx, 1.3, dt);
+      P3.y = P3.gelandet ? zf : daempfe(P3.y, zf, 1.7, dt);
       P3.z = daempfe(P3.z, begleitet && !amBoden3 ? -figH * .25 : 0, 3, dt);
     }
     const x2alt = figur3.userData.x ?? P3.x; P3.vx = daempfe(P3.vx, (P3.x - x2alt) / Math.max(dt, 1e-3), 6, dt); figur3.userData.x = P3.x;
@@ -951,7 +954,7 @@ function bild(nowMs) {
     figur3.rotation.x = verb3;
     schwenk3.rotation.z = schwebt3 ? clamp(-P3.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk3.rotation.z, 0, 8, dt);
     schwenk3.rotation.x = schwebt3 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk3.rotation.x, 0, 8, dt);
-    dreh3.rotation.y = rueckDreh3 ?? (-z.drehungen * Math.PI * 2 + extra3 + (schwebt3 && !reduziert ? Math.sin(tau * .7 + 1) * .25 : 0));
+    dreh3.rotation.y = rueckDreh3 ?? (-z.drehungen * Math.PI * 2 + extra3 + (schwebt3 && !reduziert ? Math.sin(tau * .45 + 2) * .08 : 0));
     modell3.kroneMat.emissiveIntensity = .9 + .3 * Math.sin(tau * 2.1 + 1) + zp * 1.6 * (.7 + .3 * Math.sin(now * 27));
   }
 
