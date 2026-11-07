@@ -473,8 +473,8 @@ function stern(ctx, x, y, r) {
 // ------------------------------------------------------------------ Flugbahn
 function anker() {
   return mobil
-    ? [['augenblick', Math.min(vw * .5 - figH * .35, bildEl.getBoundingClientRect().width / 2 + figH * .1), .7], ['schweben', vw * .2, .3], ['glitzer', -vw * .2, .3], ['verweilen', vw * .2, .3], ['ankommen', -vw * .12, .3]]
-    : [['augenblick', 0, 0], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', -vw * .14, .44]];
+    ? [['augenblick', Math.min(vw * .5 - figH * .35, bildEl.getBoundingClientRect().width / 2 + figH * .1), .7], ['schweben', vw * .2, .3], ['glitzer', -vw * .2, .3], ['verweilen', vw * .2, .3], ['ankommen', 0, .3]]
+    : [['augenblick', 0, 0], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', 0, .44]];
 }
 // Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
 const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *')];
@@ -847,7 +847,7 @@ function bild(nowMs) {
       skal2 = lerp(1, start2, eio(seg(P2.tR, .3, T.rueckFlug)));
       rueckDreh2 = lerp(P2.rueck.dreh, Math.round(P2.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
     } else {
-      P2.x = daempfe(P2.x, zx, 1.3, dt);
+      P2.x = daempfe(P2.x, zx, P2.gelandet ? 2.2 : 1.3, dt);
       P2.y = P2.gelandet ? zf : daempfe(P2.y, zf, 1.7, dt);
       P2.z = daempfe(P2.z, begleitet && !amBoden2 ? -figH * .25 : 0, 3, dt);
     }
@@ -959,7 +959,7 @@ function bild(nowMs) {
       skal3 = lerp(1, start3, eio(seg(P3.tR, .3, T.rueckFlug)));
       rueckDreh3 = lerp(P3.rueck.dreh, Math.round(P3.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
     } else {
-      P3.x = daempfe(P3.x, zx, 1.3, dt);
+      P3.x = daempfe(P3.x, zx, P3.gelandet ? 2.2 : 1.3, dt);
       P3.y = P3.gelandet ? zf : daempfe(P3.y, zf, 1.7, dt);
       P3.z = daempfe(P3.z, begleitet && !amBoden3 ? -figH * .25 : 0, 3, dt);
     }
