@@ -3,7 +3,7 @@
 import { rng } from './figur.js';
 
 const r = rng(314);
-const WOLKEN = Array.from({ length: 4 }, (_, i) => ({ fx: [.12, .66, .38, .86][i], fy: [.14, .3, .62, .78][i], s: [1, .8, .65, .9][i], v: 4 + r() * 6, tiefe: .1 + r() * .2 }));
+const WOLKEN = Array.from({ length: 4 }, (_, i) => ({ fx: [.12, .66, .38, .86][i], fy: [.1, .24, .38, .5][i], s: [1, .8, .65, .9][i], v: 4 + r() * 6, tiefe: .1 + r() * .2 }));
 const STERNBILD = [[.08, .2], [.14, .13], [.2, .17], [.25, .1], [.31, .15], [.27, .24]];
 const BLASEN = Array.from({ length: 34 }, () => ({ fx: r(), r: 2 + Math.pow(r(), 2) * 9, v: .025 + r() * .04, ph: r(), wob: r() * 7 }));
 const SEEGRAS = Array.from({ length: 6 }, (_, i) => ({ fx: [.03, .07, .12, .84, .9, .95][i], h: .55 + r() * .45, b: .8 + r() * .5, ph: r() * 7, farbe: ['#1f7a5c', '#2a9470', '#17654f'][i % 3] }));

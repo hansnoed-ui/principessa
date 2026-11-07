@@ -85,13 +85,13 @@ form.addEventListener('submit', e => {
   e.preventDefault();
   const hinweis = form.querySelector('.hinweis-fehler');
   const gewaehlt = produkte.filter(p => p.querySelector('.wahl input').checked);
-  if (!gewaehlt.length) { hinweis.textContent = 'Bitte wähle mindestens etwas aus: Glückskarten, Tasche oder Shirt.'; hinweis.hidden = false; karte.querySelector('.produkte').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  if (!gewaehlt.length) { hinweis.textContent = 'Bitte wähle mindestens etwas aus: Karten, Tasche oder Shirt.'; hinweis.hidden = false; karte.querySelector('.produkte').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   if (!form.reportValidity()) return;
   hinweis.hidden = true;
   const d = new FormData(form);
   const zeilen = gewaehlt.map(p => ({
-    karte: `– Glückskarten, ${d.get('karte-set')}`,
-    tasche: `– Besondere Tasche, ${d.get('tasche-groesse')}, ${d.get('tasche-anzahl')}`,
+    karte: `– Karten (Postkarten mit Glitzerdruck), ${d.get('karte-set')}`,
+    tasche: `– Tasche, ${d.get('tasche-groesse')}, ${d.get('tasche-anzahl')}`,
     shirt: `– Shirt, ${d.get('shirt-farbe')}, Grösse ${d.get('shirt-groesse')}, Motiv ${d.get('shirt-motiv')}`,
   })[p.dataset.id]);
   const text = [
