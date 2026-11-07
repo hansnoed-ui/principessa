@@ -395,13 +395,32 @@ function anker() {
     ? [['augenblick', 0, .84], ['schweben', vw * .2, .3], ['glitzer', -vw * .2, .3], ['verweilen', vw * .18, .3], ['ankommen', -vw * .12, .3]]
     : [['augenblick', heroX, .58], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .2, .42], ['ankommen', -vw * .14, .44]];
 }
+// Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
+const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *')];
+function ausweichen(x, y) {
+  const halbB = figH * .42, halbH = figH * .58, rand = 14;
+  let oben = Infinity, unten = -Infinity;
+  for (const el of freizuhalten) {
+    const r = el.getBoundingClientRect();
+    if (r.height === 0 || r.bottom < 0 || r.top > vh) continue;
+    if (r.right < x - halbB - rand || r.left > x + halbB + rand) continue;
+    oben = Math.min(oben, r.top); unten = Math.max(unten, r.bottom);
+  }
+  if (oben === Infinity || y + halbH < oben - rand || y - halbH > unten + rand) return y;
+  const mitteOben = oben - rand - halbH, mitteUnten = unten + rand + halbH;
+  const passtOben = mitteOben >= halbH + 8, passtUnten = mitteUnten <= vh - halbH - 8;
+  if (passtOben && (!passtUnten || (oben + unten) / 2 > vh * .5)) return mitteOben;
+  if (passtUnten) return mitteUnten;
+  return y;
+}
 function ziel() {
   const a = anker().map(([k, x, y]) => ({ py: lage[k].top + lage[k].h / 2, x, y }));
   a[0].py = lage.augenblick.top + vh / 2; // Auftakt: Bildschirmmitte
   const c = scrollY + vh / 2;
   let i = 0; while (i < a.length - 2 && c > a[i + 1].py) i++;
   const f = eio(seg(c, a[i].py, a[i + 1].py));
-  return { x: vw / 2 + lerp(a[i].x, a[i + 1].x, f), mitteY: lerp(a[i].y, a[i + 1].y, f) * vh, drehungen: i + f, i, f };
+  const x = vw / 2 + lerp(a[i].x, a[i + 1].x, f);
+  return { x, mitteY: ausweichen(x, lerp(a[i].y, a[i + 1].y, f) * vh), drehungen: i + f, i, f };
 }
 
 // ------------------------------------------------------------------ Zustand
@@ -787,4 +806,4 @@ function bild(nowMs) {
 requestAnimationFrame(bild);
 
 // für Tests: window.__principessa.springe(t) setzt die Auftakt-Uhr
-window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet }) };
+window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet, fx, fy, figH, p2x: P2.x, p2y: P2.y, sichtbar2: figur2.visible }) };
