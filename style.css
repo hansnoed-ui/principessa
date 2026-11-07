@@ -1,0 +1,174 @@
+:root {
+  --creme: #f7f2ec;
+  --papier: #fcfaf6;
+  --linie: #2a2230;
+  --hellblau: #b4d2f4;
+  --hellblau-tief: #8db9ec;
+  --tuerkis: #1f5f6a;
+  --tuerkis-tief: #174a54;
+  --koenigsblau: #1d2668;
+  --nacht: #0e1340;
+  --gruen: #1e7c66;
+  --wiese: #2a8f5c;
+  --erde: #174a36;
+  --gold: #d4a429;
+  --rot: #c8173f;
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--creme); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.18rem);
+  line-height: 1.6;
+  color: var(--linie);
+  overflow-x: hidden;
+}
+
+#staub, #buehne {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
+}
+#staub { z-index: 1; }
+#buehne { z-index: 3; }
+
+section { position: relative; }
+.inhalt { position: relative; z-index: 2; }
+
+h1, h2 {
+  font-family: var(--serif);
+  font-weight: 420;
+  font-style: italic;
+  font-variation-settings: "SOFT" 100, "opsz" 144;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin: 0 0 0.35em;
+}
+h1 { font-size: clamp(2.6rem, 2rem + 3vw, 4.4rem); }
+h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
+
+.marke {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  opacity: 0.75;
+}
+
+/* ---------- Auftakt ---------- */
+#augenblick {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 10vh 6vw 14vh;
+  background: linear-gradient(var(--creme) 62%, var(--hellblau));
+}
+#augenblick .inhalt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2rem;
+}
+.bild {
+  margin: 0;
+  width: min(62vw, 340px, 42vh);
+  aspect-ratio: 1;
+  background: var(--papier);
+  border: 1.5px solid rgba(42, 34, 48, 0.55);
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(42, 34, 48, .08), 0 18px 40px -18px rgba(42, 34, 48, .35);
+}
+.bild canvas { width: 100%; height: 100%; display: block; }
+.auftakt { max-width: 26rem; opacity: 0; transform: translateY(10px); transition: opacity 1.2s ease, transform 1.2s ease; }
+.auftakt.da { opacity: 1; transform: none; }
+.auftakt p { margin: 0; }
+.hinweis {
+  position: absolute;
+  bottom: 4vh;
+  left: 0; right: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.hinweis::after { content: ""; display: block; width: 1px; height: 28px; margin: 10px auto 0; background: currentColor; animation: tropfen 2.2s ease-in-out infinite; }
+.hinweis.da { opacity: .6; }
+@keyframes tropfen { 0%, 100% { transform: scaleY(.3); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } }
+
+/* ---------- Ebenen ---------- */
+.ebene {
+  min-height: 150vh;
+  min-height: 150svh;
+  display: flex;
+  align-items: center;
+  padding: 0 8vw;
+}
+.ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity 1s ease, transform 1s ease; }
+.ebene .inhalt.da { opacity: 1; transform: none; }
+.links { margin-right: auto; }
+.rechts { margin-left: auto; }
+
+#schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 75%, var(--tuerkis)); }
+#glitzer { background: linear-gradient(var(--tuerkis), var(--tuerkis-tief) 70%, var(--koenigsblau)); color: var(--creme); }
+#verweilen { background: linear-gradient(var(--koenigsblau), var(--nacht) 55%, var(--nacht) 70%, var(--gruen)); color: var(--creme); }
+#ankommen {
+  background: linear-gradient(var(--gruen), var(--wiese));
+  color: var(--creme);
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: 0;
+  min-height: 130vh;
+  min-height: 130svh;
+}
+#ankommen .inhalt { padding: 30vh 8vw 18vh; }
+
+blockquote { margin: 1.8rem 0 0; padding-left: 1.1rem; border-left: 1.5px solid rgba(247, 242, 236, .5); }
+blockquote p { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin: 0 0 .3rem; font-variation-settings: "SOFT" 100; }
+blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+
+/* Boden mit Grashalmen am oberen Rand */
+.boden {
+  position: relative;
+  height: 34vh;
+  height: 34svh;
+  min-height: 200px;
+  background: linear-gradient(#2f9a62, var(--erde));
+}
+.boden::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: -22px;
+  height: 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24' viewBox='0 0 60 24'%3E%3Cpath d='M0 24 L4 8 L7 24 L11 2 L14 24 L19 10 L22 24 L27 4 L30 24 L34 12 L37 24 L42 0 L45 24 L49 9 L52 24 L56 5 L60 24 Z' fill='%232f9a62'/%3E%3C/svg%3E") repeat-x bottom / 60px 24px;
+}
+
+@media (max-width: 700px) {
+  .ebene { padding: 0 6vw; align-items: flex-end; padding-bottom: 28vh; }
+  .ebene .inhalt { max-width: none; }
+  .links, .rechts { margin: 0; }
+  #ankommen { padding: 0; }
+  #ankommen .inhalt { padding: 26vh 6vw 22vh; }
+  #augenblick { padding-top: 7vh; place-items: start center; }
+  #augenblick .inhalt { gap: 1.4rem; }
+  .hinweis { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auftakt, .ebene .inhalt, .hinweis { transition: none; }
+  .hinweis::after { animation: none; }
+}
