@@ -25,7 +25,7 @@ const staub = $('#staub'), sc = staub.getContext('2d');
 const flach = $('#flach'), fc = flach.getContext('2d');
 const flach2 = $('#flach2'), fc2 = flach2.getContext('2d');
 const flach3 = $('#flach3'), fc3 = flach3.getContext('2d');
-const bildEl = $('.kopfbild'), boden = $('#boden');
+const bildEl = $('.monitor'), boden = $('#boden');
 
 // Glitzerfüllung für den Titel
 {
@@ -138,7 +138,7 @@ const splitter = [];
   for (let i = 0; i < 34; i++) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute([0, 1, 0, -(.4 + zufall()), -(.3 + zufall() * .6), 0, .4 + zufall(), -(.2 + zufall() * .7), 0], 3));
-    const w = zufall(), m = new THREE.Mesh(g, w < .6 ? gold : rosa); m.visible = false; scene.add(m);
+    const w = zufall(), m = new THREE.Mesh(g, w < .5 ? glas : w < .8 ? gold : rosa); m.visible = false; scene.add(m);
     splitter.push({ m, v: new THREE.Vector3(), w: new THREE.Vector3(), leben: 0 });
   }
 }
@@ -302,10 +302,23 @@ function bildZeichnen(z) {
     fc.fillStyle = `rgba(255,248,215,${a})`; stern(fc, x, y, g * 2.2);
   }
   fc.globalCompositeOperation = 'source-over';
-  // unten weich ins Hellblau der ersten Ebene
-  const ab = fc.createLinearGradient(0, H * .88, 0, H);
-  ab.addColorStop(0, 'rgba(180,210,244,0)'); ab.addColorStop(1, 'rgba(180,210,244,1)');
-  fc.fillStyle = ab; fc.fillRect(0, H * .88, W, H * .12);
+  // Glas des Monitors: ein leiser Schimmer und, nach dem Sprung, Risse, die langsam vergehen
+  const sch = fc.createLinearGradient(0, 0, W, H);
+  sch.addColorStop(0, 'rgba(255,255,255,.1)'); sch.addColorStop(.32, 'rgba(255,255,255,0)'); sch.addColorStop(.62, 'rgba(255,255,255,0)'); sch.addColorStop(.7, 'rgba(255,255,255,.06)'); sch.addColorStop(.78, 'rgba(255,255,255,0)');
+  fc.fillStyle = sch; fc.fillRect(0, 0, W, H);
+  if (z.risse > 0 && z.risseAlpha > 0) {
+    const ox = cx, oy = by - 1.2 * s, mm = box.s * 1.5;
+    fc.lineJoin = 'round'; fc.lineCap = 'round'; fc.globalAlpha = z.risseAlpha;
+    for (const [farbe, breite, dx] of [['rgba(30,20,40,.35)', lw * .9, lw * .4], ['rgba(255,255,255,.92)', lw * .65, 0]]) {
+      fc.strokeStyle = farbe; fc.lineWidth = breite;
+      for (const pts of risse) {
+        fc.beginPath(); const n = Math.max(2, Math.ceil(pts.length * z.risse));
+        for (let i = 0; i < n; i++) { const X = ox + pts[i][0] * mm + dx, Y = oy + pts[i][1] * mm + dx; i ? fc.lineTo(X, Y) : fc.moveTo(X, Y); }
+        fc.stroke();
+      }
+    }
+    fc.globalAlpha = 1;
+  }
 }
 
 // --- Die zweite Principessa liegt flach auf der Seite, unter dem Text
@@ -445,7 +458,7 @@ function stern(ctx, x, y, r) {
 function anker() {
   return mobil
     ? [['augenblick', vw * .2, .6], ['schweben', vw * .2, .3], ['verweilen', vw * .2, .3], ['glitzer', -vw * .2, .3], ['gluecksbringer', vw * .18, .3], ['ankommen', -vw * .12, .3]]
-    : [['augenblick', vw * .28, .5], ['schweben', vw * .22, .44], ['verweilen', -vw * .02, .42], ['glitzer', -vw * .22, .44], ['gluecksbringer', vw * .2, .44], ['ankommen', -vw * .14, .44]];
+    : [['augenblick', Math.min(vw * .5 - figH * .4, bildEl.getBoundingClientRect().width / 2 + figH * .5), .5], ['schweben', vw * .22, .44], ['verweilen', -vw * .02, .42], ['glitzer', -vw * .22, .44], ['gluecksbringer', vw * .2, .44], ['ankommen', -vw * .14, .44]];
 }
 // Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
 const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *, .mitlauf .inhalt > *')];
@@ -478,7 +491,7 @@ function ziel() {
 // ------------------------------------------------------------------ Zustand
 // modus: 'drin' = im Bild, klopft ab und zu · 'aus' = draussen · 'zurueck' = kehrt ins Bild zurück
 const T = { loesen: .85, plopp: 1.35, flugEnde: 2.75, rueckFlug: 2.0, rueckKleben: 3.0, rueckEnde: 4.1 };
-let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, obenZeit = 0, rueck = null, warWeg = false, bremse1 = 0, anstoss = false;
+let ersterSprung = false, modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, obenZeit = 0, rueck = null, warWeg = false, bremse1 = 0, anstoss = false;
 
 // Wie weit man durch eine Ebene gescrollt ist: 0 = Bildschirmmitte an ihrem Anfang, 1 = an ihrem Ende
 const fort = k => (scrollY + vh * .5 - lage[k].top) / lage[k].h;
@@ -543,7 +556,7 @@ function bild(nowMs) {
   if (scrollY > 120) warWeg = true;
   if (modus === 'drin') {
     klopfUhr += dt;
-    if (scrollY > 4 || anstoss) { modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; warWeg = false; bremse1 = scrollY; }
+    if (scrollY > 4 || anstoss || (!ersterSprung && !reduziert && klopfUhr > 2.4)) { ersterSprung = true; modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; warWeg = false; bremse1 = scrollY; }
   } else if (modus === 'aus') {
     tI += dt;
     if (tI >= T.flugEnde && warWeg && obenZeit > .3 && renderer) {
