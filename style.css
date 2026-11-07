@@ -129,12 +129,20 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 
 /* ---------- Ebenen ---------- */
 .ebene {
-  min-height: 150vh;
-  min-height: 150svh;
+  min-height: 125vh;
+  min-height: 125svh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 0 8vw;
 }
+/* Der erste Text läuft durch Himmel und Sternenhimmel mit */
+.paar { position: relative; }
+.mitlauf { position: sticky; top: 20vh; top: 20svh; height: 0; z-index: 2; padding: 0 8vw; pointer-events: none; }
+.mitlauf .inhalt { max-width: 31rem; padding-top: 1px; color: var(--linie); }
+#schweben { min-height: 105vh; min-height: 105svh; }
+#verweilen .inhalt { margin-top: 42vh; }
+/* Texte laufen mit: sie bleiben stehen, solange ihre Ebene durchläuft */
+.ebene:not(#ankommen) .inhalt { position: sticky; top: 20vh; top: 20svh; margin-top: 16vh; margin-bottom: 16vh; }
 .ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity 1s ease, transform 1s ease; }
 .ebene .inhalt.da { opacity: 1; transform: none; }
 .links { margin-right: auto; }
@@ -152,10 +160,11 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 }
 .bestellen:hover, .bestellen:focus-visible { text-decoration-color: var(--gold); }
 #glitzer { background: linear-gradient(#0b2f4f, #13708a 9%, #0f5e78 45%, #0b4560 80%, #0a3550); color: var(--creme); }
-#gluecksbringer { background: linear-gradient(#0a3550, #4b3f86 22%, #b98ab6 52%, #eeb7b0 76%, #f4cf9a); }
+#gluecksbringer { background: linear-gradient(#0a3550, #2e2f72 20%, #5b4790 50%, #8e5f9c 78%, #b9759a); color: var(--creme); }
+#gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
 #verweilen { background: linear-gradient(var(--koenigsblau), var(--nacht) 40%, var(--nacht) 82%, #0b2f4f); color: var(--creme); }
 #ankommen {
-  background: linear-gradient(#f4cf9a, #f2dcae 45%, #d9e8bc);
+  background: linear-gradient(#b9759a, #e7a7a0 22%, #f4cf9a 55%, #f2dcae 75%, #d9e8bc);
   color: var(--linie);
   flex-direction: column;
   justify-content: flex-end;
@@ -240,8 +249,10 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 }
 
 @media (max-width: 700px) {
-  .ebene { padding: 0 6vw; align-items: flex-end; padding-bottom: 28vh; }
-  #schweben { align-items: flex-start; padding-top: 34vh; padding-bottom: 0; min-height: 125svh; }
+  .ebene { padding: 0 6vw; }
+  .ebene:not(#ankommen) .inhalt { top: 9vh; top: 9svh; margin-top: 9vh; margin-bottom: 12vh; }
+  .mitlauf { top: 9vh; top: 9svh; padding: 0 6vw; }
+  #verweilen .inhalt { margin-top: 34vh; top: 34vh; top: 34svh; }
   .ebene .inhalt { max-width: none; }
   .links, .rechts { margin: 0; }
   #ankommen { padding: 0; }

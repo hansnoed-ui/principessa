@@ -41,7 +41,8 @@ const bildEl = $('.kopfbild'), boden = $('#boden');
 const S = { augenblick: $('#augenblick'), schweben: $('#schweben'), gluecksbringer: $('#gluecksbringer'), glitzer: $('#glitzer'), verweilen: $('#verweilen'), ankommen: $('#ankommen') };
 
 const sichtbar = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('da'); }), { threshold: .2 });
-document.querySelectorAll('.ebene .inhalt').forEach(el => sichtbar.observe(el));
+document.querySelectorAll('.ebene .inhalt, .mitlauf .inhalt').forEach(el => sichtbar.observe(el));
+const mitlauf = $('.mitlauf .inhalt');
 
 // ------------------------------------------------------------------ Bühne
 let renderer;
@@ -444,10 +445,10 @@ function stern(ctx, x, y, r) {
 function anker() {
   return mobil
     ? [['augenblick', vw * .2, .6], ['schweben', vw * .2, .3], ['verweilen', vw * .2, .3], ['glitzer', -vw * .2, .3], ['gluecksbringer', vw * .18, .3], ['ankommen', -vw * .12, .3]]
-    : [['augenblick', vw * .28, .5], ['schweben', vw * .22, .44], ['verweilen', vw * .2, .42], ['glitzer', -vw * .22, .44], ['gluecksbringer', vw * .2, .44], ['ankommen', -vw * .14, .44]];
+    : [['augenblick', vw * .28, .5], ['schweben', vw * .22, .44], ['verweilen', -vw * .02, .42], ['glitzer', -vw * .22, .44], ['gluecksbringer', vw * .2, .44], ['ankommen', -vw * .14, .44]];
 }
 // Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
-const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *')];
+const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *, .mitlauf .inhalt > *')];
 function ausweichen(x, y) {
   const halbB = figH * .42, halbH = figH * .58, rand = 14;
   let oben = Infinity, unten = -Infinity;
@@ -478,6 +479,9 @@ function ziel() {
 // modus: 'drin' = im Bild, klopft ab und zu · 'aus' = draussen · 'zurueck' = kehrt ins Bild zurück
 const T = { loesen: .85, plopp: 1.35, flugEnde: 2.75, rueckFlug: 2.0, rueckKleben: 3.0, rueckEnde: 4.1 };
 let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, obenZeit = 0, rueck = null, warWeg = false, bremse1 = 0, anstoss = false;
+
+// Wie weit man durch eine Ebene gescrollt ist: 0 = Bildschirmmitte an ihrem Anfang, 1 = an ihrem Ende
+const fort = k => (scrollY + vh * .5 - lage[k].top) / lage[k].h;
 
 // Scroll-Bremse: Solange eine Principessa springt, lässt sich nur langsam weiterscrollen
 function scrollGrenze() {
@@ -693,10 +697,10 @@ function bild(nowMs) {
   if (P2.modus === 'drin') {
     P2.klopf += dt;
     if (b2.unten < 0) { P2.modus = 'aus'; P2.t = 99; P2.plopped = true; P2.sofort = true; P2.gelandet = false; }
-    else if (b2.mitte < vh * .5) { P2.modus = 'aus'; P2.t = reduziert ? T.flugEnde : 0; P2.plopped = reduziert; P2.gelandet = false; P2.bremse = scrollY; }
+    else if (fort('verweilen') > .28) { P2.modus = 'aus'; P2.t = reduziert ? T.flugEnde : 0; P2.plopped = reduziert; P2.gelandet = false; P2.bremse = scrollY; }
   } else if (P2.modus === 'aus') {
     P2.t += dt;
-    P2.obenZeit = b2.mitte > vh * .62 ? P2.obenZeit + dt : 0;
+    P2.obenZeit = fort('verweilen') < .1 ? P2.obenZeit + dt : 0;
     if (P2.t >= T.flugEnde && P2.obenZeit > .3 && renderer) {
       const h = heilStand(P2.t);
       P2.modus = 'zurueck'; P2.tR = reduziert ? T.rueckKleben : 0; P2.gelandet = false;
@@ -797,12 +801,12 @@ function bild(nowMs) {
   const b3 = box3ImFenster(), figH3 = figH * .95;
   if (P3.modus === 'drin') {
     P3.klopf += dt;
-    P3.bau = reduziert ? 1 : clamp((vh * .95 - b3.oben) / (vh * .55));
+    P3.bau = reduziert ? 1 : clamp((fort('glitzer') + .12) / .5);
     if (b3.unten < 0) { P3.modus = 'aus'; P3.t = 99; P3.plopped = true; P3.sofort = true; P3.gelandet = false; }
-    else if (P3.bau >= 1 && b3.mitte < vh * .36) { P3.modus = 'aus'; P3.t = reduziert ? T.flugEnde : 0; P3.plopped = reduziert; P3.gelandet = false; P3.bremse = scrollY; }
+    else if (P3.bau >= 1 && fort('glitzer') > .5) { P3.modus = 'aus'; P3.t = reduziert ? T.flugEnde : 0; P3.plopped = reduziert; P3.gelandet = false; P3.bremse = scrollY; }
   } else if (P3.modus === 'aus') {
     P3.t += dt;
-    P3.obenZeit = b3.mitte > vh * .62 ? P3.obenZeit + dt : 0;
+    P3.obenZeit = fort('glitzer') < .15 ? P3.obenZeit + dt : 0;
     if (P3.t >= T.flugEnde && P3.obenZeit > .3 && renderer) {
       const h = heilStand(P3.t);
       P3.modus = 'zurueck'; P3.tR = reduziert ? T.rueckKleben : 0; P3.gelandet = false;
@@ -925,6 +929,8 @@ function bild(nowMs) {
   sc.setTransform(dpr, 0, 0, dpr, 0, 0);
   sc.clearRect(0, 0, vw, vh);
   hintergrund(sc, { lage, sy: scrollY, vw, vh, tau, mobil });
+  // der mitlaufende Text wird im Sternenhimmel hell
+  { const u = clamp((fort('verweilen') + .12) / .3); mitlauf.style.color = `rgb(${Math.round(lerp(42, 247, u))},${Math.round(lerp(34, 242, u))},${Math.round(lerp(48, 236, u))})`;  mitlauf.style.opacity = 1 - glatt(.8, .93, fort('verweilen')); }
 
   // Sterne
   const L3 = lage.verweilen;
