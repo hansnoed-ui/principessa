@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Principesse</title>
 <meta name="description" content="Eine Principessa entspringt einem Augenblick und trägt seinen Zauber durch vier Ebenen nach unten.">
-<meta name="theme-color" content="#1a1842">
+<meta name="theme-color" content="#cf9cc0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,100;1,9..144,300..700,100&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611071948">
-<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/":"./vendor/addons/","./js/figur.js":"./js/figur.js?v=202611071948","./js/rahmen.js":"./js/rahmen.js?v=202611071948","./js/zauber.js":"./js/zauber.js?v=202611071948"}}</script>
+<link rel="stylesheet" href="style.css?v=202611072015">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/":"./vendor/addons/","./js/figur.js":"./js/figur.js?v=202611072015","./js/rahmen.js":"./js/rahmen.js?v=202611072015","./js/zauber.js":"./js/zauber.js?v=202611072015","./js/bestellen.js":"./js/bestellen.js?v=202611072015"}}</script>
 </head>
 <body>
 <canvas id="staub" aria-hidden="true"></canvas>
@@ -18,11 +18,10 @@
 
 <main>
   <section id="augenblick">
-    <div class="inhalt">
-      <h1 class="titel">Principesse</h1>
-      <figure class="bild">
-        <canvas id="flach" role="img" aria-label="Gemälde in verziertem Goldrahmen: rosa Himmel mit goldener Glitzersonne über einer Stadt aus Kuppeltürmen; davor steht die Principessa."></canvas>
-      </figure>
+    <h1 class="unsichtbar">Principesse</h1>
+    <div class="kopfbild">
+      <p class="signatur">Principesse by Katharina Strickler</p>
+      <canvas id="flach" role="img" aria-label="Titelbild: Ausschnitt eines Gemäldes mit goldener Glitzersonne über einer Stadt aus bunten Kuppeltürmen auf rosa Himmel; davor steht die Principessa."></canvas>
     </div>
   </section>
 
@@ -32,6 +31,21 @@
       <div class="liegt">
         <canvas id="flach2" role="img" aria-label="Eine zweite Principessa liegt flach unter dem Text: schief gelegter Kopf, geschlossene Augen, roter Mund, Glitzerkrone, rosa Tupfenkleid, die Hände in den Hüften."></canvas>
       </div>
+    </div>
+  </section>
+
+  <section class="ebene" id="gestalten">
+    <div class="inhalt rechts">
+      <p class="zauber">Eine Principessa kann man sich gut selber gestalten. Schwierig ist das nicht. Ich selber beginne dabei mit ihrem Kopf.</p>
+      <div class="liegt">
+        <canvas id="flach3" role="img" aria-label="Eine Meerjungfrau-Principessa setzt sich zusammen: zuerst der Kopf mit blonden Locken und geschlossenen Augen, dann die hohe Krone, der Oberkörper und der glitzernde Fischschwanz."></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section class="ebene" id="gluecksbringer">
+    <div class="inhalt links">
+      <p class="zauber">Eine Principessa ist ein Glücksbringer. Sie erzählt von besonderen Momenten. Und sie kann dabei helfen, Momente besonders zu machen.</p>
     </div>
   </section>
 
@@ -53,15 +67,115 @@
   </section>
 
   <section class="ebene" id="ankommen">
-    <div class="inhalt rechts">
-      <p class="marke">Vierte Ebene · Grün</p>
-      <h2>Ankommen</h2>
-      <p>Unten ist Boden. Sie landet auf zwei Strichen, verbeugt sich, und aus dem, was sie vom Augenblick mitgebracht hat, wächst eine Wiese.</p>
+    <div class="inhalt mitte">
+      <p class="zauber">Wer eine Principessa von mir will, kann sie <a class="bestellen" href="#bestellkarte" aria-controls="bestellkarte" aria-expanded="false">hier bestellen</a>.</p>
     </div>
     <div class="boden" id="boden"></div>
+    <div class="bestellkarte" id="bestellkarte" hidden>
+      <div class="karte-innen">
+        <button type="button" class="zu" aria-label="Bestellkarte schliessen">×</button>
+        <h2>Deine Principessa</h2>
+        <p class="einleitung">Wähle, in welcher Form sie zu dir kommen soll. Du kannst auch mehreres wählen.</p>
+        <form novalidate>
+          <div class="produkte">
+            <section class="produkt" data-id="karte" data-name="Glückskarten">
+              <label class="wahl">
+                <input type="checkbox" name="produkt" value="karte">
+                <span class="haken" aria-hidden="true"></span>
+                <svg class="bild" viewBox="0 0 200 200" aria-hidden="true">
+                  <ellipse cx="100" cy="184" rx="66" ry="6" fill="rgba(60,40,20,.14)"/>
+                  <rect class="stapel" data-i="5" x="52" y="30" width="96" height="140" rx="5" fill="#f6efe2" stroke="#d9b45a" stroke-width="1.5" transform="translate(4.2 -2.2) rotate(2.6 100 170)"/><rect class="stapel" data-i="4" x="52" y="30" width="96" height="140" rx="5" fill="#f6efe2" stroke="#d9b45a" stroke-width="1.5" transform="translate(8.4 -4.4) rotate(5.2 100 170)"/><rect class="stapel" data-i="3" x="52" y="30" width="96" height="140" rx="5" fill="#f6efe2" stroke="#d9b45a" stroke-width="1.5" transform="translate(12.6 -6.6) rotate(7.8 100 170)"/><rect class="stapel" data-i="2" x="52" y="30" width="96" height="140" rx="5" fill="#f6efe2" stroke="#d9b45a" stroke-width="1.5" transform="translate(16.8 -8.8) rotate(10.4 100 170)"/><rect class="stapel" data-i="1" x="52" y="30" width="96" height="140" rx="5" fill="#f6efe2" stroke="#d9b45a" stroke-width="1.5" transform="translate(21.0 -11.0) rotate(13.0 100 170)"/><rect class="stapel" data-i="0" x="52" y="30" width="96" height="140" rx="5" fill="#f6efe2" stroke="#d9b45a" stroke-width="1.5" transform="translate(25.2 -13.2) rotate(15.6 100 170)"/>
+                  <rect x="52" y="30" width="96" height="140" rx="5" fill="#fcfaf6" stroke="#d4a429" stroke-width="2.5"/>
+                  <rect x="59" y="37" width="82" height="126" rx="3" fill="none" stroke="#e6c76a" stroke-width="1" stroke-dasharray="2 3"/>
+                  <image href="assets/principessa2-figur.png?v=202611072015" x="55" y="50" width="90" height="90"/>
+                  <path d="M132 44 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z M68 142 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5z" fill="#e2b548"/>
+                </svg>
+                <span class="produkt-name">Glückskarten</span>
+                <span class="produkt-text">Gefaltete Karten mit Umschlag</span>
+              </label>
+              <div class="optionen">
+                <div class="option" role="radiogroup" aria-label="Set"><span class="option-titel">Set</span>
+                  <label class="pille"><input type="radio" name="karte-set" value="3er-Set" checked><span>3er-Set</span></label><label class="pille"><input type="radio" name="karte-set" value="5er-Set"><span>5er-Set</span></label><label class="pille"><input type="radio" name="karte-set" value="10er-Set"><span>10er-Set</span></label>
+                </div>
+              </div>
+            </section>
+
+            <section class="produkt" data-id="tasche" data-name="Besondere Tasche">
+              <label class="wahl">
+                <input type="checkbox" name="produkt" value="tasche">
+                <span class="haken" aria-hidden="true"></span>
+                <svg class="bild" viewBox="0 0 200 200" aria-hidden="true">
+                  <ellipse cx="100" cy="186" rx="66" ry="6" fill="rgba(60,40,20,.14)"/>
+                  <g class="tasche-koerper">
+                    <path d="M64 74 C64 22 96 22 96 74 M104 74 C104 22 136 22 136 74" fill="none" stroke="#cdbb97" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M44 72 H156 L163 184 H37 Z" fill="#eadfca" stroke="#d3c3a2" stroke-width="1.5" stroke-linejoin="round"/>
+                    <image href="assets/principessa3-schwanz.png?v=202611072015" x="55" y="80" width="90" height="90"/><image href="assets/principessa3-rumpf.png?v=202611072015" x="55" y="80" width="90" height="90"/><image href="assets/principessa3-kopf.png?v=202611072015" x="55" y="80" width="90" height="90"/><image href="assets/principessa3-krone.png?v=202611072015" x="55" y="80" width="90" height="90"/>
+                  </g>
+                </svg>
+                <span class="produkt-name">Besondere Tasche</span>
+                <span class="produkt-text">Stofftasche mit Principessa</span>
+              </label>
+              <div class="optionen">
+                <div class="option" role="radiogroup" aria-label="Grösse"><span class="option-titel">Grösse</span>
+                  <label class="pille"><input type="radio" name="tasche-groesse" value="klein"><span>klein</span></label><label class="pille"><input type="radio" name="tasche-groesse" value="gross" checked><span>gross</span></label>
+                </div>
+                <div class="option" role="radiogroup" aria-label="Anzahl"><span class="option-titel">Anzahl</span>
+                  <label class="pille"><input type="radio" name="tasche-anzahl" value="3 Stück" checked><span>3 Stück</span></label><label class="pille"><input type="radio" name="tasche-anzahl" value="5 Stück"><span>5 Stück</span></label><label class="pille"><input type="radio" name="tasche-anzahl" value="10 Stück"><span>10 Stück</span></label>
+                </div>
+              </div>
+            </section>
+
+            <section class="produkt" data-id="shirt" data-name="Shirt">
+              <label class="wahl">
+                <input type="checkbox" name="produkt" value="shirt">
+                <span class="haken" aria-hidden="true"></span>
+                <svg class="bild" viewBox="0 0 200 200" aria-hidden="true">
+                  <ellipse cx="100" cy="186" rx="58" ry="6" fill="rgba(60,40,20,.14)"/>
+                  <path class="shirt-stoff" d="M62 34 L84 26 Q100 40 116 26 L138 34 L172 62 L152 84 L140 74 V180 H60 V74 L48 84 L28 62 Z" fill="#fbf8f3" stroke="rgba(0,0,0,.14)" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M84 26 Q100 40 116 26" fill="none" stroke="rgba(0,0,0,.14)" stroke-width="3"/>
+                  <g class="motiv" data-motiv="Sonne"><image data-principessa="1" x="64" y="60" width="72" height="72"/></g>
+                  <g class="motiv" data-motiv="Tupfen" style="display:none"><image href="assets/principessa2-figur.png?v=202611072015" x="64" y="60" width="72" height="72"/></g>
+                  <g class="motiv" data-motiv="Meerjungfrau" style="display:none"><image href="assets/principessa3-schwanz.png?v=202611072015" x="64" y="60" width="72" height="72"/><image href="assets/principessa3-rumpf.png?v=202611072015" x="64" y="60" width="72" height="72"/><image href="assets/principessa3-kopf.png?v=202611072015" x="64" y="60" width="72" height="72"/><image href="assets/principessa3-krone.png?v=202611072015" x="64" y="60" width="72" height="72"/></g>
+                </svg>
+                <span class="produkt-name">Shirt</span>
+                <span class="produkt-text">Weiches Baumwollshirt</span>
+              </label>
+              <div class="optionen">
+                <div class="option" role="radiogroup" aria-label="Farbe"><span class="option-titel">Farbe</span>
+                  <label class="tupfer" style="--f:#fbf8f3" title="Weiss"><input type="radio" name="shirt-farbe" value="Weiss" checked><span></span><em>Weiss</em></label>
+                  <label class="tupfer" style="--f:#f2c4d2" title="Rosa"><input type="radio" name="shirt-farbe" value="Rosa"><span></span><em>Rosa</em></label>
+                  <label class="tupfer" style="--f:#b4d2f4" title="Hellblau"><input type="radio" name="shirt-farbe" value="Hellblau"><span></span><em>Hellblau</em></label>
+                  <label class="tupfer" style="--f:#1e1a4c" title="Nachtblau"><input type="radio" name="shirt-farbe" value="Nachtblau"><span></span><em>Nachtblau</em></label>
+                </div>
+                <div class="option" role="radiogroup" aria-label="Grösse"><span class="option-titel">Grösse</span>
+                  <label class="pille"><input type="radio" name="shirt-groesse" value="104"><span>104</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="116"><span>116</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="128"><span>128</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="140"><span>140</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="152"><span>152</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="XS"><span>XS</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="S"><span>S</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="M" checked><span>M</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="L"><span>L</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="XL"><span>XL</span></label><label class="pille"><input type="radio" name="shirt-groesse" value="XXL"><span>XXL</span></label>
+                </div>
+                <div class="option motive" role="radiogroup" aria-label="Motiv"><span class="option-titel">Motiv</span>
+                  <label class="motivwahl" title="Sonne und Kuppeln"><input type="radio" name="shirt-motiv" value="Sonne" checked><svg viewBox="0 0 60 60" aria-hidden="true"><image data-principessa="1" x="2" y="2" width="56" height="56"/></svg><em>Sonne</em></label>
+                  <label class="motivwahl" title="Tupfenkleid"><input type="radio" name="shirt-motiv" value="Tupfen"><svg viewBox="0 0 60 60" aria-hidden="true"><image href="assets/principessa2-figur.png?v=202611072015" x="2" y="2" width="56" height="56"/></svg><em>Tupfen</em></label>
+                  <label class="motivwahl" title="Meerjungfrau"><input type="radio" name="shirt-motiv" value="Meerjungfrau"><svg viewBox="0 0 60 60" aria-hidden="true"><image href="assets/principessa3-schwanz.png?v=202611072015" x="2" y="2" width="56" height="56"/><image href="assets/principessa3-rumpf.png?v=202611072015" x="2" y="2" width="56" height="56"/><image href="assets/principessa3-kopf.png?v=202611072015" x="2" y="2" width="56" height="56"/><image href="assets/principessa3-krone.png?v=202611072015" x="2" y="2" width="56" height="56"/></svg><em>Meerjungfrau</em></label>
+                </div>
+              </div>
+            </section>
+          </div>
+          <p class="hinweis-fehler" role="alert" hidden></p>
+
+          <div class="felder">
+            <label>Name <input name="name" autocomplete="name" required></label>
+            <label>E-Mail <input type="email" name="email" autocomplete="email" required></label>
+            <label>Strasse und Nummer <input name="strasse" autocomplete="street-address" required></label>
+            <label>PLZ und Ort <input name="ort" required></label>
+            <label class="breit">Wünsche, Namen, Anlass <textarea name="wunsch" rows="4"></textarea></label>
+          </div>
+          <button type="submit" class="senden">Bestellung senden</button>
+          <p class="danke" hidden>Dein Mailprogramm öffnet sich mit der fertigen Bestellung. Du musst sie nur noch abschicken.</p>
+        </form>
+      </div>
+    </div>
+
   </section>
 </main>
 
-<script type="module" src="js/main.js?v=202611071948"></script>
+<script type="module" src="js/main.js?v=202611072015"></script>
 </body>
 </html>

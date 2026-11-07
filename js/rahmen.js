@@ -1,7 +1,7 @@
 // Das Bild im Auftakt: Gemälde, verzierter Goldrahmen und die Lage der Principessa darin.
 import { rng } from './figur.js';
 
-export const GEMAELDE = { w: 878, h: 1180 };            // Pixelmasse von assets/augenblick.jpg
+export const GEMAELDE = { w: 878, h: 1180 };            // Pixelmasse des Original-Gemäldes
 export const RAHMEN = 0.13;                             // Rahmenbreite relativ zur Gemäldebreite
 export const SEITENVERHAELTNIS = (1 + 2 * RAHMEN) / (GEMAELDE.h / GEMAELDE.w + 2 * RAHMEN);
 const FIGUR = { x: 0.5, y: 0.64, h: 0.40 };              // Füsse und Höhe der Principessa, relativ zum Gemälde
