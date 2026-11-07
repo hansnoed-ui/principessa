@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { C, F, BEIN_EXTRA, rng, zeichneSticker, silhouette, imBild, baueFigur } from './figur.js';
+import { C, F, F2, BEIN_EXTRA, rng, zeichneSticker, silhouette, imBild, baueFigur, baueFigur2 } from './figur.js';
 import { lage as bildLage, zeichneRahmen, funkelpunkte, SONNE } from './rahmen.js';
 import './zauber.js';
 
@@ -15,11 +15,13 @@ const eout = t => 1 - Math.pow(1 - t, 3);
 const eback = (t, s = 1.9) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
 const daempfe = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
 const zufall = rng(2026);
+const VERSION = new URL(import.meta.url).searchParams.get('v');
 
 // ------------------------------------------------------------------ DOM
 const $ = s => document.querySelector(s);
 const staub = $('#staub'), sc = staub.getContext('2d');
 const flach = $('#flach'), fc = flach.getContext('2d');
+const flach2 = $('#flach2'), fc2 = flach2.getContext('2d');
 const bildEl = $('.bild'), titel = $('.titel'), boden = $('#boden');
 
 // Glitzerfüllung für den Titel
@@ -67,20 +69,20 @@ figur.add(schwenk); schwenk.add(versatz); versatz.add(dreh); dreh.add(modell.gru
 modell.gruppe.position.y = BEIN_EXTRA; schwenk.position.y = MITTE; versatz.position.y = -MITTE;
 figur.visible = false; scene.add(figur);
 
-// Abziehbild: dieselbe Zeichnung wie im Bild, als biegsame Fläche
-const KG = 1024, kc = document.createElement('canvas'); kc.width = kc.height = KG;
-{ const { cx, by, s } = imBild(KG); zeichneSticker(kc.getContext('2d'), cx, by, s, KG * .009); }
-const kTex = new THREE.CanvasTexture(kc); kTex.colorSpace = THREE.SRGBColorSpace; kTex.anisotropy = 8;
-const kGeo = new THREE.PlaneGeometry(1, 1, 1, 60); kGeo.translate(0, .5, 0);
-const kBasis = Float32Array.from(kGeo.attributes.position.array);
-const karte = new THREE.Group();
-karte.add(new THREE.Mesh(kGeo, new THREE.MeshBasicMaterial({ map: kTex, alphaTest: .5, toneMapped: false, side: THREE.FrontSide })));
-karte.add(new THREE.Mesh(kGeo, new THREE.MeshStandardMaterial({ color: '#d9d2c6', alphaMap: kTex, alphaTest: .5, roughness: .85, side: THREE.BackSide })));
-karte.visible = false; scene.add(karte);
-function rollen(p, r = .09) {
-  const a = kGeo.attributes.position, L = 1 - p, AMAX = Math.PI * .8;
+// Abziehbilder: biegsame Flächen, vorn das Bild, hinten Papier
+function machKarte(tex) {
+  const geo = new THREE.PlaneGeometry(1, 1, 1, 60); geo.translate(0, .5, 0);
+  const basis = Float32Array.from(geo.attributes.position.array);
+  const gruppe = new THREE.Group();
+  gruppe.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, alphaTest: .5, toneMapped: false, side: THREE.FrontSide })));
+  gruppe.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: '#d9d2c6', alphaMap: tex, alphaTest: .5, roughness: .85, side: THREE.BackSide })));
+  gruppe.visible = false; scene.add(gruppe);
+  return { gruppe, geo, basis };
+}
+function rollen(k, p, r = .09) {
+  const a = k.geo.attributes.position, L = 1 - p, AMAX = Math.PI * .8;
   for (let i = 0; i < a.count; i++) {
-    const x = kBasis[i * 3], y0 = kBasis[i * 3 + 1];
+    const x = k.basis[i * 3], y0 = k.basis[i * 3 + 1];
     let y = y0, z = 0;
     if (y0 > L) {
       const d = y0 - L, w = d / r;
@@ -89,8 +91,23 @@ function rollen(p, r = .09) {
     }
     a.setXYZ(i, x, y, z);
   }
-  a.needsUpdate = true; kGeo.computeVertexNormals();
+  a.needsUpdate = true; k.geo.computeVertexNormals();
 }
+const KG = 1024, kc = document.createElement('canvas'); kc.width = kc.height = KG;
+{ const { cx, by, s } = imBild(KG); zeichneSticker(kc.getContext('2d'), cx, by, s, KG * .009); }
+const kTex = new THREE.CanvasTexture(kc); kTex.colorSpace = THREE.SRGBColorSpace; kTex.anisotropy = 8;
+const K1 = machKarte(kTex), karte = K1.gruppe;
+const k2Tex = new THREE.TextureLoader().load('assets/principessa2-figur.png' + (VERSION ? '?v=' + VERSION : ''));
+k2Tex.colorSpace = THREE.SRGBColorSpace; k2Tex.anisotropy = 8;
+const K2 = machKarte(k2Tex);
+
+// Die zweite Principessa, gleich aufgehängt wie die erste
+const modell2 = baueFigur2();
+const LOKAL_H2 = F2.hoehe, MITTE2 = LOKAL_H2 * .5;
+const figur2 = new THREE.Group(), schwenk2 = new THREE.Group(), versatz2 = new THREE.Group(), dreh2 = new THREE.Group();
+figur2.add(schwenk2); schwenk2.add(versatz2); versatz2.add(dreh2); dreh2.add(modell2.gruppe);
+schwenk2.position.y = MITTE2; versatz2.position.y = -MITTE2;
+figur2.visible = false; scene.add(figur2);
 
 // Splitter des Bildes
 const splitter = [];
@@ -103,6 +120,18 @@ const splitter = [];
     g.setAttribute('position', new THREE.Float32BufferAttribute([0, 1, 0, -(.4 + zufall()), -(.3 + zufall() * .6), 0, .4 + zufall(), -(.2 + zufall() * .7), 0], 3));
     const w = zufall(), m = new THREE.Mesh(g, w < .55 ? glas : w < .82 ? gold : rosa); m.visible = false; scene.add(m);
     splitter.push({ m, v: new THREE.Vector3(), w: new THREE.Vector3(), leben: 0 });
+  }
+}
+function splittern(x, y, radius) {
+  if (reduziert) return;
+  const m = welt(x, y);
+  for (const sp of splitter) {
+    const a = zufall() * Math.PI * 2, r = zufall() * radius, s = radius * (.04 + zufall() * .08);
+    sp.m.position.set(m.x + Math.cos(a) * r, m.y + Math.sin(a) * r, 2);
+    sp.m.scale.setScalar(s); sp.m.rotation.set(zufall() * 6, zufall() * 6, zufall() * 6);
+    sp.v.set(Math.cos(a) * (150 + zufall() * 500), Math.sin(a) * (120 + zufall() * 400) + 350, 150 + zufall() * 500);
+    sp.w.set((zufall() - .5) * 16, (zufall() - .5) * 16, (zufall() - .5) * 16);
+    sp.leben = 2.2; sp.m.visible = true;
   }
 }
 
@@ -126,13 +155,16 @@ function groesse() {
   figH = clamp(Math.min(vh * (mobil ? .18 : .27), vw * .45), 110, 270);
   const r = flach.getBoundingClientRect();
   flach.width = Math.round(r.width * dpr); flach.height = Math.round(r.height * dpr);
+  const r2 = flach2.getBoundingClientRect();
+  flach2.width = Math.round(r2.width * dpr); flach2.height = Math.round(r2.height * dpr);
   messen();
   if (Math.abs(altVw - vw) > 1) { wolkeAnlegen(); sterneAnlegen(); }
 }
 
-// ------------------------------------------------------------------ Das Bild (2D): Gemälde, Principessa, Glas, Rahmen
-const VERSION = new URL(import.meta.url).searchParams.get('v');
-const gemaelde = new Image(); gemaelde.decoding = 'async'; gemaelde.src = 'assets/augenblick.jpg' + (VERSION ? '?v=' + VERSION : '');
+// ------------------------------------------------------------------ Die Bilder (2D): Gemälde, Principessa, Glas, Rahmen
+const lade = src => { const i = new Image(); i.decoding = 'async'; i.src = src + (VERSION ? '?v=' + VERSION : ''); return i; };
+const geladen = i => i.complete && i.naturalWidth > 0;
+const gemaelde = lade('assets/augenblick.jpg');
 const risse = (() => {
   const r = rng(42), out = [];
   for (let i = 0; i < 11; i++) {
@@ -144,8 +176,8 @@ const risse = (() => {
   }
   return out;
 })();
-let rahmenBild = null, rahmenFuer = '', leinenMuster = null;
-function leinen() {
+let leinenMuster = null;
+function leinen(ctx) {
   if (leinenMuster) return leinenMuster;
   const c = document.createElement('canvas'); c.width = c.height = 64;
   const x = c.getContext('2d'), r = rng(9);
@@ -156,22 +188,86 @@ function leinen() {
     if (r() < .5) { x.moveTo(0, p); x.lineTo(64, p + (r() - .5) * 2); } else { x.moveTo(p, 0); x.lineTo(p + (r() - .5) * 2, 64); }
     x.stroke();
   }
-  leinenMuster = fc.createPattern(c, 'repeat'); return leinenMuster;
+  leinenMuster = ctx.createPattern(c, 'repeat'); return leinenMuster;
 }
-const funkel = funkelpunkte(24);
-// Lage des Abziehbilds im Fenster (CSS-Pixel)
+const funkel = funkelpunkte(24), funkelRahmen = funkel.filter(p => !p.imBild);
+
+// Bausteine für beide Bilder
+function risseZeichnen(ctx, ox, oy, m, lw, wachstum, alpha) {
+  if (wachstum <= 0 || alpha <= 0) return;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.globalAlpha = alpha;
+  for (const [farbe, breite, dx] of [['rgba(30,20,40,.35)', lw * .9, lw * .4], ['rgba(255,255,255,.92)', lw * .65, 0]]) {
+    ctx.strokeStyle = farbe; ctx.lineWidth = breite;
+    for (const pts of risse) {
+      ctx.beginPath(); const n = Math.max(2, Math.ceil(pts.length * wachstum));
+      for (let i = 0; i < n; i++) { const X = ox + pts[i][0] * m + dx, Y = oy + pts[i][1] * m + dx; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+function glasUndSchatten(ctx, g) {
+  const sch = ctx.createLinearGradient(g.x, g.y, g.x + g.w, g.y + g.h);
+  sch.addColorStop(0, 'rgba(255,255,255,.12)'); sch.addColorStop(.3, 'rgba(255,255,255,0)');
+  sch.addColorStop(.6, 'rgba(255,255,255,0)'); sch.addColorStop(.68, 'rgba(255,255,255,.08)'); sch.addColorStop(.76, 'rgba(255,255,255,0)');
+  ctx.fillStyle = sch; ctx.fillRect(g.x, g.y, g.w, g.h);
+  const t = g.w * .05;
+  for (const [x0, y0, x1, y1, rx, ry, rw, rh] of [[0, g.y, 0, g.y + t, g.x, g.y, g.w, t], [g.x, 0, g.x + t, 0, g.x, g.y, t, g.h]]) {
+    const sg = ctx.createLinearGradient(x0, y0, x1, y1); sg.addColorStop(0, 'rgba(25,12,0,.5)'); sg.addColorStop(1, 'rgba(25,12,0,0)');
+    ctx.fillStyle = sg; ctx.fillRect(rx, ry, rw, rh);
+  }
+}
+// Glitzer, mit dem sich das Bild wieder schliesst: jeder Punkt blitzt zu seiner Zeit auf
+function heilGlitzer(ctx, punkte, heil, groesse) {
+  if (heil <= 0 || heil >= 1) return;
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [x, y, o] of punkte) {
+    const u = (heil - o * .75) / .25; if (u <= 0 || u >= 1) continue;
+    const a = Math.sin(Math.PI * u);
+    const hg = ctx.createRadialGradient(x, y, 0, x, y, groesse * 3);
+    hg.addColorStop(0, `rgba(255,228,150,${a * .55})`); hg.addColorStop(1, 'rgba(255,228,150,0)');
+    ctx.fillStyle = hg; ctx.fillRect(x - groesse * 3, y - groesse * 3, groesse * 6, groesse * 6);
+    ctx.fillStyle = `rgba(255,250,225,${a})`; stern(ctx, x, y, groesse * (.5 + a * .6));
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+function rahmenFunkeln(ctx, W, H, f, punkte, g) {
+  ctx.globalCompositeOperation = 'lighter';
+  for (const p of punkte) {
+    const a = Math.pow(Math.max(0, Math.sin(tau * p.k + p.ph)), p.art === 'sonne' ? 5 : 8); if (a < .02) continue;
+    let x, y;
+    if (p.imBild) { x = g.x + p.gx * g.w; y = g.y + p.gy * g.h; }
+    else { const d = p.d * f; [x, y] = p.seite === 0 ? [p.u * W, d] : p.seite === 1 ? [W - d, p.u * H] : p.seite === 2 ? [p.u * W, H - d] : [d, p.u * H]; }
+    ctx.fillStyle = `rgba(255,248,215,${a})`; stern(ctx, x, y, p.gr * W / (p.imBild ? 260 : 300));
+    if (p.imBild) { const hg = ctx.createRadialGradient(x, y, 0, x, y, p.gr * W / 45); hg.addColorStop(0, `rgba(255,226,140,${a * .45})`); hg.addColorStop(1, 'rgba(255,226,140,0)'); ctx.fillStyle = hg; ctx.fillRect(x - W / 40, y - W / 40, W / 20, W / 20); }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+// --- Bild 1: das Gemälde im Auftakt
+let rahmenBild = null, rahmenFuer = '', heil1 = null, heil1Fuer = '';
 function boxImFenster() {
   const r = flach.getBoundingClientRect(), k = r.width / (flach.width || 1), L = bildLage(flach.width || 1, flach.height || 1);
   return { x: r.left + L.box.x * k, y: r.top + L.box.y * k, s: L.box.s * k, unten: r.bottom };
 }
-// z = { flach, klopf, ringe, risse, risseAlpha, glanz }
+function heilpunkte1(W, H, cx, by, s) {
+  if (heil1Fuer === W + 'x' + H) return heil1;
+  const r = rng(77), out = [];
+  fc.save(); silhouette(fc, cx, by, s);
+  for (let i = 0; out.length < 70 && i < 4000; i++) {
+    const x = cx + (r() - .5) * 1.4 * s, y = by - r() * 2.3 * s;
+    if (fc.isPointInPath(x, y)) out.push([x, y, r()]);
+  }
+  fc.restore(); heil1 = out; heil1Fuer = W + 'x' + H; return out;
+}
+// z = { flach, klopf, ringe, risse, risseAlpha, leer, heil, glanz }
 function bildZeichnen(z) {
   const W = flach.width, H = flach.height; if (!W || !H) return;
   if (rahmenFuer !== W + 'x' + H) { rahmenBild = zeichneRahmen(W, H); rahmenFuer = W + 'x' + H; }
   const { f, g, box } = bildLage(W, H);
   const ib = imBild(box.s), cx = box.x + ib.cx, by = box.y + ib.by, s = ib.s, lw = box.s * .009;
   fc.clearRect(0, 0, W, H);
-  if (gemaelde.complete && gemaelde.naturalWidth) fc.drawImage(gemaelde, g.x, g.y, g.w, g.h);
+  if (geladen(gemaelde)) fc.drawImage(gemaelde, g.x, g.y, g.w, g.h);
   else { fc.fillStyle = '#d8b1cf'; fc.fillRect(g.x, g.y, g.w, g.h); }
   fc.save(); fc.beginPath(); fc.rect(g.x, g.y, g.w, g.h); fc.clip();
   if (z.flach) {
@@ -179,30 +275,18 @@ function bildZeichnen(z) {
     fc.save(); fc.translate(cx, by); fc.scale(1 + k * .05, 1 - k * .03); fc.translate(-cx, -by);
     zeichneSticker(fc, cx, by, s, lw); fc.restore();
     for (const u of z.ringe) { fc.strokeStyle = `rgba(255,250,235,${(1 - u) * .75})`; fc.lineWidth = lw * 1.2; fc.beginPath(); fc.arc(cx, by - 1.2 * s, box.s * (.12 + u * .4), 0, 7); fc.stroke(); }
-  } else {
-    // wo sie stand, bleibt rohe Leinwand mit der Vorzeichnung
-    fc.save(); silhouette(fc, cx, by, s); fc.fillStyle = leinen(); fc.fill();
-    fc.strokeStyle = 'rgba(110,95,80,.45)'; fc.lineWidth = lw * .6; fc.stroke(); fc.restore();
+  } else if (z.leer > 0) {
+    // ihre Kontur bleibt kurz als rohe Leinwand mit Vorzeichnung, dann schliesst sich das Bild
+    fc.save(); fc.globalAlpha = z.leer; silhouette(fc, cx, by, s); fc.fillStyle = leinen(fc); fc.fill();
+    fc.strokeStyle = 'rgba(110,95,80,.5)'; fc.lineWidth = lw * .6; fc.stroke(); fc.restore();
   }
+  heilGlitzer(fc, heilpunkte1(W, H, cx, by, s), z.heil, lw * 2.6);
   if (z.glanz > 0) {
     const gr = fc.createRadialGradient(cx, by - 1.1 * s, 0, cx, by - 1.1 * s, s * 1.4);
     gr.addColorStop(0, `rgba(255,232,170,${.2 * z.glanz})`); gr.addColorStop(1, 'rgba(255,232,170,0)');
     fc.globalCompositeOperation = 'lighter'; fc.fillStyle = gr; fc.fillRect(g.x, g.y, g.w, g.h); fc.globalCompositeOperation = 'source-over';
   }
-  // Glas: Risse und ein leiser Schimmer
-  if (z.risse > 0 && z.risseAlpha > 0) {
-    const ox = cx, oy = by - 1.2 * s, m = box.s * 1.5;
-    fc.lineJoin = 'round'; fc.lineCap = 'round'; fc.globalAlpha = z.risseAlpha;
-    for (const [farbe, breite, dx] of [['rgba(30,20,40,.35)', lw * .9, lw * .4], ['rgba(255,255,255,.92)', lw * .65, 0]]) {
-      fc.strokeStyle = farbe; fc.lineWidth = breite;
-      for (const pts of risse) {
-        fc.beginPath(); const n = Math.max(2, Math.ceil(pts.length * z.risse));
-        for (let i = 0; i < n; i++) { const X = ox + pts[i][0] * m + dx, Y = oy + pts[i][1] * m + dx; i ? fc.lineTo(X, Y) : fc.moveTo(X, Y); }
-        fc.stroke();
-      }
-    }
-    fc.globalAlpha = 1;
-  }
+  risseZeichnen(fc, cx, by - 1.2 * s, box.s * 1.5, lw, z.risse, z.risseAlpha);
   // die Sonne schimmert: ein Lichtfleck wandert langsam über das Gold
   {
     const sx = g.x + SONNE.x * g.w, sy = g.y + SONNE.y * g.h, sr = SONNE.r * g.w;
@@ -214,28 +298,47 @@ function bildZeichnen(z) {
     fc.fillStyle = lg; fc.fillRect(sx - sr, sy - sr, sr * 2, sr * 2);
     fc.restore();
   }
-  const sch = fc.createLinearGradient(g.x, g.y, g.x + g.w, g.y + g.h);
-  sch.addColorStop(0, 'rgba(255,255,255,.12)'); sch.addColorStop(.3, 'rgba(255,255,255,0)');
-  sch.addColorStop(.6, 'rgba(255,255,255,0)'); sch.addColorStop(.68, 'rgba(255,255,255,.08)'); sch.addColorStop(.76, 'rgba(255,255,255,0)');
-  fc.fillStyle = sch; fc.fillRect(g.x, g.y, g.w, g.h);
-  const t = g.w * .05;
-  for (const [x0, y0, x1, y1, rx, ry, rw, rh] of [[0, g.y, 0, g.y + t, g.x, g.y, g.w, t], [g.x, 0, g.x + t, 0, g.x, g.y, t, g.h]]) {
-    const sg = fc.createLinearGradient(x0, y0, x1, y1); sg.addColorStop(0, 'rgba(25,12,0,.5)'); sg.addColorStop(1, 'rgba(25,12,0,0)');
-    fc.fillStyle = sg; fc.fillRect(rx, ry, rw, rh);
-  }
+  glasUndSchatten(fc, g);
   fc.restore();
   fc.drawImage(rahmenBild, 0, 0);
-  // Funkeln auf Rahmen und Sonne
-  fc.globalCompositeOperation = 'lighter';
-  for (const p of funkel) {
-    const a = Math.pow(Math.max(0, Math.sin(tau * p.k + p.ph)), p.art === 'sonne' ? 5 : 8); if (a < .02) continue;
-    let x, y;
-    if (p.imBild) { x = g.x + p.gx * g.w; y = g.y + p.gy * g.h; }
-    else { const d = p.d * f; [x, y] = p.seite === 0 ? [p.u * W, d] : p.seite === 1 ? [W - d, p.u * H] : p.seite === 2 ? [p.u * W, H - d] : [d, p.u * H]; }
-    fc.fillStyle = `rgba(255,248,215,${a})`; stern(fc, x, y, p.gr * W / (p.imBild ? 260 : 300));
-    if (p.imBild) { const hg = fc.createRadialGradient(x, y, 0, x, y, p.gr * W / 45); hg.addColorStop(0, `rgba(255,226,140,${a * .45})`); hg.addColorStop(1, 'rgba(255,226,140,0)'); fc.fillStyle = hg; fc.fillRect(x - W / 40, y - W / 40, W / 20, W / 20); }
+  rahmenFunkeln(fc, W, H, f, funkel, g);
+}
+
+// --- Bild 2: die zweite Principessa auf schwarzem Grund
+const B2 = { box: { x: -0.032, y: .1838, s: 1.109 }, fuss: .973, hoehe: .926, heil: [[0.59,0.3615],[0.612,0.4595],[0.439,0.2345],[0.459,0.6189],[0.567,0.6993],[0.356,0.5291],[0.574,0.4304],[0.386,0.623],[0.477,0.2696],[0.471,0.5243],[0.731,0.3831],[0.257,0.5628],[0.572,0.5885],[0.792,0.4541],[0.224,0.3297],[0.662,0.2905],[0.696,0.4757],[0.256,0.3189],[0.495,0.625],[0.647,0.3514],[0.298,0.6182],[0.432,0.4209],[0.37,0.7135],[0.425,0.7149],[0.5,0.452],[0.507,0.7885],[0.485,0.3723],[0.642,0.6182],[0.778,0.5736],[0.444,0.7318],[0.798,0.4466],[0.354,0.2709],[0.303,0.3128],[0.589,0.5811],[0.505,0.6014],[0.568,0.2838],[0.591,0.7426],[0.813,0.4162],[0.3,0.3453],[0.466,0.302],[0.427,0.3162],[0.334,0.3824],[0.372,0.7858],[0.33,0.7068],[0.399,0.6034],[0.738,0.4297],[0.552,0.3047],[0.716,0.3318],[0.541,0.677],[0.733,0.3689],[0.477,0.3872],[0.345,0.3797],[0.563,0.7264],[0.753,0.377],[0.543,0.5507],[0.641,0.323],[0.591,0.2791],[0.315,0.6169],[0.288,0.6811],[0.783,0.4574],[0.73,0.573],[0.421,0.2824],[0.66,0.3777],[0.355,0.6304],[0.373,0.7439],[0.542,0.3304],[0.455,0.4412],[0.395,0.7101],[0.292,0.2905],[0.688,0.4669],[0.421,0.3818],[0.649,0.5412],[0.368,0.5432],[0.62,0.4682],[0.461,0.4399],[0.639,0.5953],[0.624,0.6068],[0.644,0.5703],[0.558,0.7493],[0.58,0.7527],[0.395,0.4486],[0.635,0.5358],[0.532,0.4655],[0.619,0.5284],[0.431,0.3885],[0.646,0.6439],[0.541,0.6986],[0.671,0.4851],[0.307,0.3169],[0.244,0.5669]] };
+const bild2 = { ohne: lade('assets/principessa2-ohne.jpg'), leer: lade('assets/principessa2-leer.jpg'), figur: lade('assets/principessa2-figur.png') };
+let rahmen2 = null, rahmen2Fuer = '';
+function box2ImCanvas(W, H) { const { f, g } = bildLage(W, H); return { x: g.x + B2.box.x * g.w, y: g.y + B2.box.y * g.h, s: B2.box.s * g.w, g, f }; }
+function box2ImFenster() {
+  const r = flach2.getBoundingClientRect(), k = r.width / (flach2.width || 1), b = box2ImCanvas(flach2.width || 1, flach2.height || 1);
+  return { x: r.left + b.x * k, y: r.top + b.y * k, s: b.s * k, mitte: r.top + r.height / 2, unten: r.bottom, oben: r.top };
+}
+function bild2Zeichnen(z) {
+  const W = flach2.width, H = flach2.height; if (!W || !H) return;
+  if (rahmen2Fuer !== W + 'x' + H) { rahmen2 = zeichneRahmen(W, H); rahmen2Fuer = W + 'x' + H; }
+  const b = box2ImCanvas(W, H), g = b.g, lw = b.s * .009;
+  fc2.clearRect(0, 0, W, H);
+  fc2.save(); fc2.beginPath(); fc2.rect(g.x, g.y, g.w, g.h); fc2.clip();
+  if (geladen(bild2.ohne)) fc2.drawImage(bild2.ohne, g.x, g.y, g.w, g.h); else { fc2.fillStyle = '#0d0b0e'; fc2.fillRect(g.x, g.y, g.w, g.h); }
+  if (z.flach && geladen(bild2.figur)) {
+    const fx0 = b.x + b.s / 2, fy0 = b.y + b.s * B2.fuss, k = z.klopf;
+    fc2.save(); fc2.translate(fx0, fy0); fc2.scale(1 + k * .04, 1 - k * .025); fc2.translate(-fx0, -fy0);
+    fc2.drawImage(bild2.figur, b.x, b.y, b.s, b.s); fc2.restore();
+    for (const u of z.ringe) { fc2.strokeStyle = `rgba(255,250,235,${(1 - u) * .6})`; fc2.lineWidth = lw * 1.2; fc2.beginPath(); fc2.arc(fx0, b.y + b.s * .45, b.s * (.1 + u * .35), 0, 7); fc2.stroke(); }
+  } else if (z.leer > 0 && geladen(bild2.leer)) {
+    fc2.globalAlpha = z.leer; fc2.drawImage(bild2.leer, g.x, g.y, g.w, g.h); fc2.globalAlpha = 1;
   }
-  fc.globalCompositeOperation = 'source-over';
+  heilGlitzer(fc2, B2.heil.map(([x, y], i) => [g.x + x * g.w, g.y + y * g.h, (i * .618) % 1]), z.heil, lw * 2.6);
+  if (z.glanz > 0) {
+    const gx = b.x + b.s / 2, gy = b.y + b.s * .45, gr = fc2.createRadialGradient(gx, gy, 0, gx, gy, b.s * .5);
+    gr.addColorStop(0, `rgba(255,232,170,${.18 * z.glanz})`); gr.addColorStop(1, 'rgba(255,232,170,0)');
+    fc2.globalCompositeOperation = 'lighter'; fc2.fillStyle = gr; fc2.fillRect(g.x, g.y, g.w, g.h); fc2.globalCompositeOperation = 'source-over';
+  }
+  risseZeichnen(fc2, b.x + b.s / 2, b.y + b.s * .45, b.s * 1.2, lw, z.risse, z.risseAlpha);
+  glasUndSchatten(fc2, g);
+  fc2.restore();
+  fc2.drawImage(rahmen2, 0, 0);
+  rahmenFunkeln(fc2, W, H, b.f, funkelRahmen, g);
 }
 
 // ------------------------------------------------------------------ Staub, Sterne, Blumen (2D, Seitenkoordinaten)
@@ -248,9 +351,10 @@ function wolkeAnlegen() {
     teilchen.push({ art: 'wolke', x: zufall() * vw, y: L.top + L.h * (.05 + zufall() * .9), vx: 0, vy: 0, r: .9 + Math.pow(zufall(), 2) * 3.4, f: zufall(), ph: zufall() * 7, leben: Infinity });
   }
 }
-let sterne = [];
+let sterne = [], sterneAuftakt = [];
 function sterneAnlegen() {
-  sterne = [];
+  sterne = []; sterneAuftakt = [];
+  for (let i = 0; i < (mobil ? 70 : 140); i++) sterneAuftakt.push({ fx: zufall(), fy: zufall() * .8, r: .4 + Math.pow(zufall(), 3) * 1.8, ph: zufall() * 7, k: 1 + zufall() * 2.5 });
   const n = mobil ? 110 : 220;
   for (let i = 0; i < n; i++) sterne.push({ fx: zufall(), fy: .02 + zufall() * .7, r: .5 + Math.pow(zufall(), 3) * 2.4, ph: zufall() * 7, k: 1.5 + zufall() * 3 });
 }
@@ -311,6 +415,9 @@ function ziel() {
 // modus: 'drin' = im Bild, klopft ab und zu · 'aus' = draussen · 'zurueck' = kehrt ins Bild zurück
 const T = { loesen: .85, plopp: 1.35, flugEnde: 2.75, rueckFlug: 2.0, rueckKleben: 3.0, rueckEnde: 4.1 };
 let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, obenZeit = 0, rueck = null;
+const P2 = { modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, seite: 1, gelandet: false, landZeit: -99, sofort: false };
+// nach dem Herausspringen: Kontur kurz sichtbar, dann schliesst sich das Bild mit Glitzer
+const heilStand = t => ({ leer: 1 - glatt(T.plopp + 1.3, T.plopp + 3.8, t), risseA: 1 - seg(t, T.plopp + 1.3, T.plopp + 3.8), heil: seg(t, T.plopp + 1.1, T.plopp + 4.0) });
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
 let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0, zauberZeit = -99;
 addEventListener('zauber', () => { zauberZeit = performance.now() / 1000; });
@@ -348,7 +455,8 @@ function bild(nowMs) {
     tI += dt;
     if (tI >= T.flugEnde && obenZeit > .3 && renderer) {
       modus = 'zurueck'; tR = reduziert ? T.rueckKleben : 0; gelandet = false;
-      rueck = { x: fx, y: fy, z: fz, dreh: dreh.rotation.y };
+      const h = heilStand(tI);
+      rueck = { x: fx, y: fy, z: fz, dreh: dreh.rotation.y, leer: h.leer, risseA: h.risseA };
     }
   } else {
     tR += dt;
@@ -358,7 +466,7 @@ function bild(nowMs) {
   // ---- Bild im Auftakt
   const bx = boxImFenster();
   if (bx.unten > -40) {
-    const zb = { flach: true, klopf: 0, ringe: [], risse: 0, risseAlpha: 1, glanz: 0 };
+    const zb = { flach: true, klopf: 0, ringe: [], risse: 0, risseAlpha: 1, leer: 0, heil: 0, glanz: 0 };
     if (modus === 'drin') {
       if (!reduziert && klopfUhr > 0) {
         const p = klopfUhr % 7;
@@ -369,9 +477,11 @@ function bild(nowMs) {
         }
       }
     } else if (modus === 'aus') {
+      const h = heilStand(tI);
       zb.flach = false; zb.risse = tI >= T.plopp ? eout(seg(tI, T.plopp, T.plopp + .3)) : 0;
+      zb.risseAlpha = h.risseA; zb.leer = h.leer; zb.heil = h.heil;
     } else {
-      zb.flach = tR >= T.rueckKleben; zb.risse = 1; zb.risseAlpha = 1 - seg(tR, .5, 2.6);
+      zb.flach = tR >= T.rueckKleben; zb.risse = 1; zb.risseAlpha = rueck.risseA * (1 - seg(tR, .3, 1.5)); zb.leer = rueck.leer * (1 - seg(tR, 0, 1));
       zb.glanz = Math.sin(Math.PI * seg(tR, T.rueckKleben - .15, T.rueckEnde));
     }
     bildZeichnen(zb);
@@ -389,25 +499,14 @@ function bild(nowMs) {
     lift = 1 - eio(u); roll = .22 * Math.sin(Math.PI * u);
   }
   if (karte.visible) {
-    rollen(roll);
+    rollen(K1, roll);
     karte.position.copy(welt(bx.x + bx.s / 2, bx.y + bx.s - lift * bx.s * .1, lift * bx.s * .45));
     karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2, 0, Math.sin(lift * Math.PI) * .08);
     karte.scale.setScalar(bx.s);
   }
 
   // ---- Plopp: Glassplitter, Goldflocken, ein Stück Himmel
-  if (modus === 'aus' && tI >= T.plopp && !plopped) {
-    plopped = true;
-    const m = welt(bx.x + bx.s / 2, bx.y + bx.s * .45);
-    for (const sp of splitter) {
-      const a = zufall() * Math.PI * 2, r = zufall() * bx.s * .6, s = bx.s * (.025 + zufall() * .05);
-      sp.m.position.set(m.x + Math.cos(a) * r, m.y + Math.sin(a) * r, 2);
-      sp.m.scale.setScalar(s); sp.m.rotation.set(zufall() * 6, zufall() * 6, zufall() * 6);
-      sp.v.set(Math.cos(a) * (150 + zufall() * 500), Math.sin(a) * (120 + zufall() * 400) + 350, 150 + zufall() * 500);
-      sp.w.set((zufall() - .5) * 16, (zufall() - .5) * 16, (zufall() - .5) * 16);
-      sp.leben = 2.2; sp.m.visible = true;
-    }
-  }
+  if (modus === 'aus' && tI >= T.plopp && !plopped) { plopped = true; splittern(bx.x + bx.s / 2, bx.y + bx.s * .45, bx.s * .6); }
   for (const sp of splitter) {
     if (sp.leben <= 0) continue;
     sp.leben -= dt; sp.v.y -= 1900 * dt;
@@ -500,10 +599,123 @@ function bild(nowMs) {
     himmel.intensity = lerp(himmelStaerke[i], himmelStaerke[i + 1], f);
   }
 
+  // ---- Zweite Principessa: wartet unter dem Text, springt beim Vorbeiscrollen heraus und begleitet die erste
+  const b2 = box2ImFenster(), figH2 = figH * .95;
+  if (P2.modus === 'drin') {
+    P2.klopf += dt;
+    if (b2.unten < 0) { P2.modus = 'aus'; P2.t = 99; P2.plopped = true; P2.sofort = true; P2.gelandet = false; }
+    else if (b2.mitte < vh * .5) { P2.modus = 'aus'; P2.t = reduziert ? T.flugEnde : 0; P2.plopped = reduziert; P2.gelandet = false; }
+  } else if (P2.modus === 'aus') {
+    P2.t += dt;
+    P2.obenZeit = b2.mitte > vh * .62 ? P2.obenZeit + dt : 0;
+    if (P2.t >= T.flugEnde && P2.obenZeit > .3 && renderer) {
+      const h = heilStand(P2.t);
+      P2.modus = 'zurueck'; P2.tR = reduziert ? T.rueckKleben : 0; P2.gelandet = false;
+      P2.rueck = { x: P2.x, y: P2.y, z: P2.z, dreh: dreh2.rotation.y, leer: h.leer, risseA: h.risseA };
+    }
+  } else {
+    P2.tR += dt;
+    if (P2.tR >= T.rueckEnde) { P2.modus = 'drin'; P2.t = 0; P2.klopf = -1; P2.plopped = false; }
+  }
+  if (b2.unten > -40 && b2.oben < vh + 40) {
+    const zb = { flach: true, klopf: 0, ringe: [], risse: 0, risseAlpha: 1, leer: 0, heil: 0, glanz: 0 };
+    if (P2.modus === 'drin') {
+      if (!reduziert && P2.klopf > 0) {
+        const p = P2.klopf % 8;
+        for (const kt of [2.0, 2.45]) {
+          const d = p - kt;
+          if (d > 0 && d < .25) zb.klopf = Math.max(zb.klopf, Math.sin(d / .25 * Math.PI));
+          if (d > 0 && d < .5) zb.ringe.push(d / .5);
+        }
+      }
+    } else if (P2.modus === 'aus') {
+      const h = heilStand(P2.t);
+      zb.flach = false; zb.risse = P2.t >= T.plopp ? eout(seg(P2.t, T.plopp, T.plopp + .3)) : 0;
+      zb.risseAlpha = h.risseA; zb.leer = h.leer; zb.heil = h.heil;
+    } else {
+      zb.flach = P2.tR >= T.rueckKleben; zb.risse = 1;
+      zb.risseAlpha = P2.rueck.risseA * (1 - seg(P2.tR, .3, 1.5)); zb.leer = P2.rueck.leer * (1 - seg(P2.tR, 0, 1));
+      zb.glanz = Math.sin(Math.PI * seg(P2.tR, T.rueckKleben - .15, T.rueckEnde));
+    }
+    bild2Zeichnen(zb);
+  }
+  {
+    let l2 = 0, r2 = 0; K2.gruppe.visible = false;
+    if (renderer && P2.modus === 'aus' && P2.t < T.plopp) {
+      K2.gruppe.visible = true; l2 = eio(seg(P2.t, T.loesen, T.plopp));
+      r2 = eio(seg(P2.t, 0, T.loesen)) * .62 * (1 - eout(seg(P2.t, T.loesen, T.plopp)));
+    } else if (renderer && P2.modus === 'zurueck' && P2.tR >= T.rueckFlug && P2.tR < T.rueckKleben) {
+      K2.gruppe.visible = true; const u = seg(P2.tR, T.rueckFlug, T.rueckKleben); l2 = 1 - eio(u); r2 = .22 * Math.sin(Math.PI * u);
+    }
+    if (K2.gruppe.visible) {
+      rollen(K2, r2);
+      K2.gruppe.position.copy(welt(b2.x + b2.s / 2, b2.y + b2.s - l2 * b2.s * .1, l2 * b2.s * .45));
+      K2.gruppe.rotation.set(-l2 * .25 + Math.sin(l2 * Math.PI) * .2, 0, Math.sin(l2 * Math.PI) * .08);
+      K2.gruppe.scale.setScalar(b2.s);
+    }
+  }
+  if (P2.modus === 'aus' && P2.t >= T.plopp && !P2.plopped) { P2.plopped = true; splittern(b2.x + b2.s / 2, b2.y + b2.s * .45, b2.s * .5); }
+  {
+    const draussen2 = (P2.modus === 'aus' && P2.t >= T.plopp) || (P2.modus === 'zurueck' && P2.tR < T.rueckFlug);
+    figur2.visible = !!renderer && draussen2;
+    const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
+    const amBoden2 = bodenTop < vh * .8;
+    if (begleitet) P2.seite = daempfe(P2.seite, fx > vw * .5 ? -1 : 1, 1.5, dt);
+    const zx = clamp(begleitet ? fx + P2.seite * figH * 1.08 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
+    let zf = begleitet ? fy + figH * .12 : clamp(b2.y + b2.s, figH, vh * .92);
+    if (amBoden2) zf = bodenTop + 5;
+    let skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
+    const start2 = (B2.hoehe * b2.s) / figH2;
+    const sx2 = b2.x + b2.s / 2, sy2 = b2.y + b2.s * (B2.fuss - .1), sz2 = b2.s * .45;
+    if (P2.sofort) { P2.x = zx; P2.y = zf; P2.z = 0; P2.sofort = false; }
+    if (P2.modus === 'aus' && P2.t < T.flugEnde) {
+      const u = seg(P2.t, T.plopp, T.flugEnde), e = eio(u);
+      P2.x = lerp(sx2, zx, e); P2.y = lerp(sy2, zf, e) - Math.sin(Math.PI * u) * vh * .1;
+      P2.z = lerp(sz2, 0, e) + Math.sin(Math.PI * u) * figH * .8;
+      skal2 = lerp(start2, 1, eback(seg(P2.t, T.plopp, T.plopp + .75), 1.4)); extra2 = -e * Math.PI * 2;
+    } else if (P2.modus === 'zurueck' && P2.rueck) {
+      const u = seg(P2.tR, 0, T.rueckFlug), e = eio(u);
+      P2.x = lerp(P2.rueck.x, sx2, e); P2.y = lerp(P2.rueck.y, sy2, e) - Math.sin(Math.PI * u) * vh * .06;
+      P2.z = lerp(P2.rueck.z, sz2, e) + Math.sin(Math.PI * u) * figH * .4;
+      skal2 = lerp(1, start2, eio(seg(P2.tR, .3, T.rueckFlug)));
+      rueckDreh2 = lerp(P2.rueck.dreh, Math.round(P2.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
+    } else {
+      P2.x = daempfe(P2.x, P2.gelandet ? P2.x : zx, 2.6, dt);
+      P2.y = P2.gelandet ? zf : daempfe(P2.y, zf, 3.2, dt);
+      P2.z = daempfe(P2.z, begleitet && !amBoden2 ? -figH * .25 : 0, 3, dt);
+    }
+    const x2alt = figur2.userData.x ?? P2.x; P2.vx = daempfe(P2.vx, (P2.x - x2alt) / Math.max(dt, 1e-3), 6, dt); figur2.userData.x = P2.x;
+    if (P2.modus === 'aus' && P2.t >= T.flugEnde && amBoden2 && !P2.gelandet && Math.abs(P2.y - zf) < 6) { P2.gelandet = true; P2.landZeit = now; }
+    if (!amBoden2 && P2.gelandet) P2.gelandet = false;
+    if (P2.gelandet && !reduziert) { const d = now - P2.landZeit; sq2 = .22 * Math.exp(-d * 7) * Math.cos(d * 24); verb2 = .35 * Math.sin(Math.PI * eio(seg(d, .7, 1.6))); }
+    const schwebt2 = !P2.gelandet && draussen2 && P2.modus === 'aus';
+    const wipp2 = schwebt2 && !reduziert ? Math.sin(tau * 1.5 + 1.3) * figH * .03 : 0;
+    figur2.position.copy(welt(P2.x, P2.y + wipp2, P2.z));
+    const basis2 = figH2 / LOKAL_H2 * skal2;
+    figur2.scale.set(basis2 * (1 + sq2 * .5), basis2 * (1 - sq2), basis2 * (1 + sq2 * .5));
+    figur2.rotation.x = verb2;
+    schwenk2.rotation.z = schwebt2 ? clamp(-P2.vx * .0007, -.35, .35) + (reduziert ? 0 : Math.sin(tau * 1.0 + 2) * .05) : daempfe(schwenk2.rotation.z, 0, 8, dt);
+    schwenk2.rotation.x = schwebt2 ? clamp(scrollV * .0002, -.3, .3) : daempfe(schwenk2.rotation.x, 0, 8, dt);
+    dreh2.rotation.y = rueckDreh2 ?? (z.drehungen * Math.PI * 2 + extra2 + (schwebt2 && !reduziert ? Math.sin(tau * .7 + 1) * .25 : 0));
+    modell2.kroneMat.emissiveIntensity = .9 + .3 * Math.sin(tau * 2.1 + 1) + zp * 1.6 * (.7 + .3 * Math.sin(now * 27));
+  }
+
   // ---- 2D-Schicht
   sc.setTransform(dpr, 0, 0, dpr, 0, 0);
   sc.clearRect(0, 0, vw, vh);
 
+  // Sterne im Nachthimmel des Auftakts
+  const L0 = lage.augenblick;
+  if (L0.top + L0.h - scrollY > 0) {
+    sc.fillStyle = '#f7f2ec';
+    for (const s of sterneAuftakt) {
+      const x = s.fx * vw, y = L0.top + s.fy * L0.h - scrollY;
+      if (y < -10 || y > vh + 10) continue;
+      sc.globalAlpha = .25 + .6 * (.5 + .5 * Math.sin(tau * s.k + s.ph));
+      if (s.r > 1.5) stern(sc, x, y, s.r * .7); else { sc.beginPath(); sc.arc(x, y, s.r, 0, 7); sc.fill(); }
+    }
+    sc.globalAlpha = 1;
+  }
   // Sterne
   const L3 = lage.verweilen;
   if (L3.top - scrollY < vh && L3.top + L3.h - scrollY > 0) {
@@ -523,6 +735,10 @@ function bild(nowMs) {
     if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(fx + figH * .03, bodenTop + 4, figH * .3 * (1 - clamp((bodenTop - fy) / (figH * 3)) * .5), figH * .045, 0, 0, 7); sc.fill(); }
   }
 
+  if (bodenTop < vh + 40 && figur2.visible) {
+    const a = (1 - clamp((bodenTop - P2.y) / (figH * 1.6))) * .3;
+    if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(P2.x, bodenTop + 4, figH * .28, figH * .04, 0, 0, 7); sc.fill(); }
+  }
   // Blumen
   if (geblueht && bodenTop < vh + 80) {
     const d = reduziert ? 9 : now - landZeit;
@@ -574,4 +790,4 @@ function bild(nowMs) {
 requestAnimationFrame(bild);
 
 // für Tests: window.__principessa.springe(t) setzt die Auftakt-Uhr
-window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet }) };
+window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet }) };

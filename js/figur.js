@@ -215,3 +215,92 @@ export function zeichneSticker(ctx, cx, by, s, lw = 3) {
   ctx.restore();
   zeichne(ctx, cx, by, s, lw);
 }
+
+// ------------------------------------------------------------------ Die zweite Principessa
+// Nach dem Gemälde mit schwarzem Grund: schief gelegter Kopf, geschlossene Wimpernaugen, roter Mund,
+// Glitzerkrone, rosa Tupfenkleid, Hände in den Hüften, weisse Strichbeine.
+export const F2 = { hoehe: 2.6 };
+export function baueFigur2() {
+  const g = new THREE.Group();
+  const weiss = new THREE.MeshStandardMaterial({ color: '#f7f5f1', roughness: .6 });
+  const schwarz = new THREE.MeshBasicMaterial({ color: '#141014' });
+  const rosa = '#f2c4d2';
+
+  // Beine und Füsse, die Füsse nach aussen
+  for (const [bx, fuss] of [[-0.24, -0.2], [0.11, 0.21]]) {
+    const bein = new THREE.Mesh(new THREE.CylinderGeometry(.034, .03, .64, 10), weiss);
+    bein.position.set(bx, .32, 0); g.add(bein);
+    const f = new THREE.Mesh(new THREE.CapsuleGeometry(.036, Math.abs(fuss), 4, 8), weiss);
+    f.rotation.z = Math.PI / 2; f.position.set(bx + fuss / 2, .036, .01); g.add(f);
+  }
+
+  // Kleid: rosa mit weissen Tupfen
+  const tc = document.createElement('canvas'); tc.width = 1024; tc.height = 512;
+  const t = tc.getContext('2d'), r = rng(23);
+  t.fillStyle = rosa; t.fillRect(0, 0, 1024, 512);
+  for (let i = 0; i < 1400; i++) { t.fillStyle = `rgba(255,255,255,${r() * .08})`; t.fillRect(r() * 1024, r() * 512, 2 + r() * 10, 1 + r() * 3); }
+  for (let zeile = 0; zeile < 3; zeile++) for (let i = 0; i < 9; i++) {
+    const x = (i + (zeile % 2) * .5) / 9 * 1024 + (r() - .5) * 30, y = 95 + zeile * 150 + (r() - .5) * 30;
+    t.fillStyle = 'rgba(255,255,255,.92)'; t.beginPath(); t.ellipse(x, y, 34 + r() * 6, 30 + r() * 6, 0, 0, 7); t.fill();
+  }
+  const kleidTex = new THREE.CanvasTexture(tc); kleidTex.colorSpace = THREE.SRGBColorSpace; kleidTex.anisotropy = 8;
+  const kleidMat = new THREE.MeshStandardMaterial({ map: kleidTex, roughness: .7 });
+  const kleid = new THREE.Mesh(new THREE.CylinderGeometry(.3, .58, .72, 72, 1, false), kleidMat);
+  kleid.position.y = .61 + .36; kleid.rotation.y = -Math.PI / 2; g.add(kleid);
+  const boden = new THREE.Mesh(new THREE.CircleGeometry(.58, 48), kleidMat); boden.rotation.x = Math.PI / 2; boden.position.y = .61; g.add(boden);
+
+  // Arme in die Hüften gestemmt
+  const armMat = new THREE.MeshStandardMaterial({ color: rosa, roughness: .7 });
+  for (const s of [-1, 1]) {
+    const kurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(s * .26, 1.26, 0), new THREE.Vector3(s * .5, 1.18, .02), new THREE.Vector3(s * .63, 1.03, .03),
+      new THREE.Vector3(s * .56, .92, .05), new THREE.Vector3(s * .44, .86, .1)]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(kurve, 40, .045, 10), armMat));
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(.055, 14, 10), weiss); hand.position.set(s * .42, .86, .11); g.add(hand);
+  }
+
+  // Kopf, schief gelegt
+  const kopf = new THREE.Group(); kopf.position.set(.11, 1.77, 0); kopf.rotation.z = -.33; g.add(kopf);
+  const KR = { x: .8, y: .52, z: .46 };
+  const schale = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 40), new THREE.MeshStandardMaterial({ color: '#fbfaf7', roughness: .5 }));
+  schale.scale.set(KR.x, KR.y, KR.z); kopf.add(schale);
+  const vorn = (x, y, d = 0) => { const u = x / KR.x, v = y / KR.y; return new THREE.Vector3(x, y, KR.z * Math.sqrt(Math.max(0, 1 - u * u - v * v)) + d); };
+  // geschlossene Augen mit Wimpern (Koordinaten im Kopf)
+  const augen = [];
+  for (const [ax, ay, b] of [[-.36, .08, .27], [.3, -.12, .3]]) {
+    const pts = []; for (let i = 0; i <= 16; i++) { const u = i / 16 * 2 - 1; pts.push(vorn(ax + u * b / 2, ay - (1 - u * u) * .06, .004)); }
+    kopf.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, .016, 6), schwarz));
+    for (let k = 0; k < 4; k++) {
+      const u = -.6 + k * .4, p0 = vorn(ax + u * b / 2, ay - (1 - u * u) * .06, .004), p1 = vorn(ax + u * b / 2 + u * .03, ay - (1 - u * u) * .06 - .07, .004);
+      kopf.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(p0, p1), 2, .011, 5), schwarz));
+    }
+    augen.push(ax);
+  }
+  // roter Mund
+  const mundMat = new THREE.MeshStandardMaterial({ color: '#c3162d', roughness: .35 });
+  for (const [dy, sx] of [[.018, .075], [-.02, .065]]) {
+    const l = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), mundMat);
+    l.scale.set(sx, .032, .03); l.position.copy(vorn(-.05, -.25 + dy, -.012)); kopf.add(l);
+  }
+  // Glitzerkrone oben rechts auf dem Kopf
+  const N = 5, SEG = N * 12, kg = new THREE.CylinderGeometry(1, 1, 1, SEG, 1, true), pos = kg.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const oben = pos.getY(i) > 0, idx = i % (SEG + 1), ang = idx / SEG * Math.PI * 2;
+    const zacke = 1 - Math.abs(2 * ((idx % 12) / 12) - 1), h = oben ? .14 + .2 * Math.pow(zacke, 1.4) : 0;
+    const rr = lerp(.36, .42, h / .34); pos.setXYZ(i, Math.sin(ang) * rr, h, Math.cos(ang) * rr);
+  }
+  kg.computeVertexNormals();
+  const kc = document.createElement('canvas'), ke = document.createElement('canvas'); kc.width = ke.width = 1024; kc.height = ke.height = 256;
+  const k1 = kc.getContext('2d'), k2 = ke.getContext('2d'), kr = rng(41);
+  k1.fillStyle = '#d6b85e'; k1.fillRect(0, 0, 1024, 256); k2.fillStyle = '#000'; k2.fillRect(0, 0, 1024, 256);
+  const pastell = ['#fff7d6', '#e9c95a', '#f4e9ff', '#d9f2ff', '#ffe0ec', '#c9a24a', '#ffffff', '#e2b84a'];
+  for (let i = 0; i < 5200; i++) {
+    const x = kr() * 1024, y = kr() * 256, rad = 1.5 + kr() * 4;
+    k1.fillStyle = pastell[Math.floor(kr() * pastell.length)]; k1.beginPath(); k1.arc(x, y, rad, 0, 7); k1.fill();
+    if (kr() < .2) { k2.fillStyle = '#fff'; k2.beginPath(); k2.arc(x, y, rad * .8, 0, 7); k2.fill(); }
+  }
+  const kMap = new THREE.CanvasTexture(kc), kLeucht = new THREE.CanvasTexture(ke); kMap.colorSpace = kLeucht.colorSpace = THREE.SRGBColorSpace;
+  const kroneMat = new THREE.MeshStandardMaterial({ map: kMap, emissive: '#fff', emissiveMap: kLeucht, emissiveIntensity: .9, metalness: .55, roughness: .35, side: THREE.DoubleSide });
+  const krone = new THREE.Mesh(kg, kroneMat); krone.position.set(.24, .3, 0); krone.rotation.z = -.14; krone.scale.set(1.3, 1.55, 1.3); kopf.add(krone);
+  return { gruppe: g, kroneMat, kleidMat };
+}
