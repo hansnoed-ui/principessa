@@ -474,7 +474,7 @@ function stern(ctx, x, y, r) {
 function anker() {
   return mobil
     ? [['augenblick', Math.min(vw * .5 - figH * .35, bildEl.getBoundingClientRect().width / 2 + figH * .1), .7], ['schweben', vw * .2, .3], ['glitzer', -vw * .2, .3], ['verweilen', vw * .2, .3], ['ankommen', -vw * .12, .3]]
-    : [['augenblick', Math.min(vw * .5 - figH * .4, bildEl.getBoundingClientRect().width / 2 + figH * .55), .5], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', -vw * .14, .44]];
+    : [['augenblick', (bildEl.getBoundingClientRect().right + vw) / 2 - vw / 2, .5], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', -vw * .14, .44]];
 }
 // Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
 const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *')];
@@ -502,6 +502,25 @@ function zielFuer(k, idx) {
   if (!PLATZ[k]) return { x: vw / 2 + a[1], y: a[2] * vh };
   const r = PLATZ[k].getBoundingClientRect();
   return { x: r.left + r.width / 2, y: r.top + r.height * (mobil ? .5 : .52) };
+}
+// Freier Bereich der aktuellen Ebene (links/rechts), damit drei nebeneinander Platz finden
+function freierBereich() {
+  const namen = anker().map(([k]) => k), c = scrollY + vh * .5;
+  let i = 0; while (i < namen.length - 1 && lage[namen[i + 1]].top <= c) i++;
+  const k = namen[i];
+  if (PLATZ[k]) { const r = PLATZ[k].getBoundingClientRect(); return [r.left, r.right]; }
+  if (k === 'augenblick' && !mobil) return [bildEl.getBoundingClientRect().right + figH * .1, vw - figH * .2];
+  return [figH * .2, vw - figH * .2];
+}
+// Drei Positionen nebeneinander um die Mitte x, innerhalb [L, R]
+function reihe(x) {
+  const [L, R] = freierBereich();
+  const ab = Math.min(figH * .95, Math.max(figH * .62, (R - L) / 3));
+  let links = x - ab, rechts = x + ab;
+  if (links < L + figH * .3) { links = x + ab; rechts = x + 2 * ab; }
+  else if (rechts > R - figH * .3) { rechts = x - ab; links = x - 2 * ab; }
+  const lo = L + figH * .3, hi = R - figH * .3;
+  return { p2: clamp(rechts, lo, hi), p3: clamp(links, lo, hi) };
 }
 function ziel() {
   const namen = anker().map(([k]) => k), c = scrollY + vh * .5;
@@ -800,12 +819,10 @@ function bild(nowMs) {
   }
   {
     const draussen2 = (P2.modus === 'aus' && P2.t >= T.plopp) || (P2.modus === 'zurueck' && P2.tR < T.rueckFlug);
-    const heim2 = clamp((scrollY + vh - lage.verweilen.top) / (vh * .6));
-    figur2.visible = !!renderer && draussen2 && heim2 > 0;
-    figur2.traverse(o => { if (o.material) { o.material.transparent = true; o.material.opacity = heim2; } });
+    figur2.visible = !!renderer && draussen2;
     const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
     const amBoden2 = bodenTop < vh * .8;
-    const zx = clamp(begleitet ? fx + figH * .95 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
+    const zx = begleitet ? reihe(fx).p2 : clamp(b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy + figH * .06 : clamp(b2.y + b2.s, figH, vh * .92);
     if (amBoden2) zf = bodenTop + 5;
     let tiefe2 = 1, skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
@@ -914,12 +931,10 @@ function bild(nowMs) {
   }
   {
     const draussen3 = (P3.modus === 'aus' && P3.t >= T.plopp) || (P3.modus === 'zurueck' && P3.tR < T.rueckFlug);
-    const heim3 = clamp((scrollY + vh - lage.glitzer.top) / (vh * .6));
-    figur3.visible = !!renderer && draussen3 && heim3 > 0;
-    figur3.traverse(o => { if (o.material) { o.material.transparent = true; o.material.opacity = heim3; } });
+    figur3.visible = !!renderer && draussen3;
     const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
     const amBoden3 = bodenTop < vh * .8;
-    const zx = clamp(begleitet ? fx - figH * .95 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
+    const zx = begleitet ? reihe(fx).p3 : clamp(b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy - figH * .04 : clamp(b3.y + b3.s, figH, vh * .92);
     if (amBoden3) zf = bodenTop + 5;
     let tiefe3 = 1, skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
