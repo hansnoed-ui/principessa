@@ -309,7 +309,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 }
 
 /* ---------- Bestellkarte ---------- */
-.bestellkarte { background: var(--erde); padding: 0 4vw 12vh; color: var(--linie); }
+.bestellkarte { background: var(--erde); padding: 10vh 4vw 12vh; color: var(--linie); }
 .karte-innen {
   position: relative;
   max-width: 1040px;
@@ -317,7 +317,8 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   background: var(--papier);
   border-radius: 8px;
   padding: clamp(1.3rem, 4vw, 3rem);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(212, 164, 41, .55), inset 0 0 0 7px var(--papier), inset 0 0 0 8px rgba(212, 164, 41, .35);
+  border: 1px solid rgba(212, 164, 41, .6);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .55);
   opacity: 0;
   transform: translateY(28px) scale(.98);
   transition: opacity .45s var(--ease-out), transform .45s var(--ease-out);
@@ -454,6 +455,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 .karte-innen {
   background: #fff;
   border-radius: 22px;
+  border: 1px solid rgba(212, 164, 41, .55);
   box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .06);
 }
 .karte-innen h2 {
