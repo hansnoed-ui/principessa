@@ -25,7 +25,7 @@ const staub = $('#staub'), sc = staub.getContext('2d');
 const flach = $('#flach'), fc = flach.getContext('2d');
 const flach2 = $('#flach2'), fc2 = flach2.getContext('2d');
 const flach3 = $('#flach3'), fc3 = flach3.getContext('2d');
-const bildEl = $('.monitor'), boden = $('#boden');
+const bildEl = $('.tablet'), boden = $('#boden');
 
 // Glitzerfüllung für den Titel
 {
@@ -38,11 +38,10 @@ const bildEl = $('.monitor'), boden = $('#boden');
   }
   document.documentElement.style.setProperty('--glitzer', `url(${c.toDataURL()})`);
 }
-const S = { augenblick: $('#augenblick'), schweben: $('#schweben'), gluecksbringer: $('#gluecksbringer'), glitzer: $('#glitzer'), verweilen: $('#verweilen'), ankommen: $('#ankommen') };
+const S = { augenblick: $('#augenblick'), schweben: $('#schweben'), glitzer: $('#glitzer'), verweilen: $('#verweilen'), ankommen: $('#ankommen') };
 
 const sichtbar = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('da'); }), { threshold: .2 });
-document.querySelectorAll('.ebene .inhalt, .mitlauf .inhalt').forEach(el => sichtbar.observe(el));
-const mitlauf = $('.mitlauf .inhalt');
+document.querySelectorAll('.ebene .inhalt').forEach(el => sichtbar.observe(el));
 
 // ------------------------------------------------------------------ Bühne
 let renderer;
@@ -230,8 +229,8 @@ function heilGlitzer(ctx, punkte, heil, groesse) {
   ctx.globalCompositeOperation = 'source-over';
 }
 // --- Das Titelbild: Ausschnitt des Gemäldes über die ganze Breite, 16:9
-const AUSSCHNITT = { y0: .3042, h: .4958 };         // Lage des Ausschnitts im Gemälde (relativ zur Gemäldehöhe)
-const FIGUR1 = { x: .5, y: .64, h: .46 };             // Füsse und Höhe der Principessa im Titelbild
+const AUSSCHNITT = { y0: 0, h: 1 };                // Lage des Ausschnitts im Gemälde (relativ zur Gemäldehöhe)
+const FIGUR1 = { x: .5, y: .67, h: .34 };             // Füsse und Höhe der Principessa im Titelbild
 function kopfLage(W, H) {
   const s = (FIGUR1.h * H) / 0.836, fx0 = FIGUR1.x * W, fy0 = FIGUR1.y * H;
   return { box: { x: fx0 - s / 2, y: fy0 - 0.94 * s, s } };
@@ -353,7 +352,17 @@ function bild2Zeichnen(z) {
 
 // --- Die dritte Principessa liegt unter ihrem Text und setzt sich beim Scrollen zusammen
 const B3 = {"fuss":0.9806,"hoehe":0.9529,"heil":[[0.3888,0.4532],[0.5378,0.6306],[0.5863,0.0374],[0.7602,0.4047],[0.4802,0.4248],[0.5315,0.3188],[0.4026,0.5198],[0.2924,0.3881],[0.6078,0.1788],[0.6667,0.4463],[0.4033,0.6008],[0.4539,0.7838],[0.5828,0.3687],[0.6736,0.5253],[0.6667,0.3888],[0.2633,0.5246],[0.5877,0.3853],[0.6694,0.5315],[0.3763,0.3347],[0.6383,0.2169],[0.4207,0.7138],[0.648,0.1046],[0.4678,0.3895],[0.6369,0.1947],[0.4719,0.4726],[0.3687,0.3209],[0.6549,0.0908],[0.6597,0.4608],[0.6881,0.3375],[0.4879,0.7519],[0.2876,0.4428],[0.4615,0.6632],[0.6078,0.3714],[0.3216,0.5281],[0.6306,0.4331],[0.6001,0.6514],[0.5676,0.6223],[0.6459,0.3222],[0.4893,0.8385],[0.5967,0.2287],[0.4137,0.3909],[0.3174,0.3451],[0.4747,0.7491],[0.5052,0.6611],[0.5814,0.0367],[0.5156,0.7949],[0.5128,0.7866],[0.4089,0.3985],[0.727,0.4103],[0.4705,0.9418],[0.3153,0.4685],[0.5558,0.4906],[0.7367,0.4276],[0.4886,0.9785],[0.4012,0.5475],[0.553,0.4782],[0.3597,0.3825],[0.7942,0.4082],[0.4401,0.894],[0.4643,0.7678],[0.289,0.4823],[0.2807,0.4879],[0.4269,0.6542],[0.3971,0.6542],[0.6431,0.1677],[0.6272,0.2134],[0.3514,0.5308],[0.3001,0.3361],[0.3805,0.3721],[0.5128,0.3271],[0.2945,0.3486],[0.7242,0.4213],[0.5288,0.5419],[0.3624,0.3943],[0.4719,0.9307],[0.5662,0.5094],[0.3721,0.3361],[0.5551,0.4643],[0.7041,0.51],[0.5599,0.359],[0.562,0.4019],[0.4144,0.4033],[0.4532,0.6597],[0.6618,0.1455],[0.325,0.3541],[0.5856,0.6528],[0.7082,0.4172],[0.3915,0.4421],[0.395,0.7623],[0.578,0.352]],"teile":{"kopf":[[0.7699,0.4498],[0.526,0.3243],[0.4615,0.5031],[0.3763,0.377],[0.4387,0.3971],[0.7263,0.3749],[0.474,0.5121],[0.6396,0.5246],[0.6535,0.3604],[0.5204,0.3216],[0.3701,0.3805],[0.4934,0.5177],[0.7824,0.4179],[0.2994,0.3631],[0.3347,0.5454],[0.5461,0.4643],[0.307,0.413],[0.4733,0.4969],[0.4816,0.3652],[0.2987,0.3423],[0.562,0.395],[0.5974,0.3805],[0.6355,0.4636],[0.4643,0.3181],[0.4297,0.5572],[0.5371,0.4213],[0.2814,0.352],[0.4712,0.4809],[0.2772,0.501],[0.2523,0.4116],[0.596,0.4435],[0.3992,0.4109],[0.3853,0.4304],[0.4255,0.4075]],"krone":[[0.6036,0.2841],[0.6403,0.0589],[0.6625,0.1629],[0.5904,0.2419],[0.6334,0.1372],[0.6085,0.2363],[0.5863,0.0534],[0.6466,0.307],[0.6514,0.1268],[0.6119,0.2093],[0.6292,0.2855],[0.5911,0.1282]],"rumpf":[[0.5558,0.6085],[0.5606,0.6064],[0.3929,0.5981],[0.3915,0.5911],[0.5038,0.6119],[0.5371,0.6085],[0.5024,0.614],[0.5676,0.6292],[0.5003,0.5994],[0.5343,0.5863],[0.4373,0.6001],[0.6098,0.675]],"schwanz":[[0.3978,0.7727],[0.4664,0.6549],[0.4269,0.7852],[0.4151,0.9224],[0.4997,0.7277],[0.5274,0.7145],[0.5087,0.973],[0.4608,0.8572],[0.456,0.7568],[0.4539,0.8184],[0.5066,0.7477],[0.4151,0.8559],[0.5094,0.702],[0.4671,0.7734],[0.4255,0.648],[0.3915,0.9473],[0.4324,0.6493],[0.4539,0.781],[0.5073,0.6681],[0.4213,0.7526],[0.4837,0.8482],[0.4463,0.7498]]}};
-const BAU3 = { kopf: [0, .3], krone: [.28, .48], rumpf: [.46, .68], schwanz: [.66, .92] };
+// Zeitplan in Sekunden; jedes Teil kommt auf eigener, verspielter Bahn und federt am Ziel ein
+const BAU3 = { kopf: [0, 1.7], krone: [1.5, 3.1], rumpf: [2.9, 4.4], schwanz: [4.2, 5.9] };
+const BAUZEIT = 5.9, BAU_PAUSE = 1.0;
+const TEILMITTE = { kopf: [.5, .45], krone: [.64, .12], rumpf: [.47, .64], schwanz: [.47, .81] };
+function bahn(n, u, W, H) {
+  const e = eback(u, 1.5), w = 1 - eout(u);
+  if (n === 'kopf') return { dx: Math.sin(u * 9) * w * W * .05, dy: -(1 - e) * H * .55, rot: -.7 * w + Math.sin(u * 12) * .12 * w, sk: .55 + .45 * e };
+  if (n === 'krone') return { dx: (1 - e) * W * .5, dy: -(1 - e) * H * .35 - Math.sin(Math.PI * u) * H * .1, rot: w * Math.PI * 3, sk: .7 + .3 * e };
+  if (n === 'rumpf') return { dx: -(1 - e) * W * .6, dy: Math.sin(u * Math.PI * 3) * w * H * .06, rot: Math.sin(u * 14) * .4 * w, sk: 1 };
+  return { dx: Math.sin(u * 16) * w * W * .09, dy: (1 - e) * H * .5, rot: Math.sin(u * 13) * .3 * w, sk: .85 + .15 * e };
+}
 function box3ImFenster() {
   const r = flach3.getBoundingClientRect();
   return { x: r.left, y: r.top, s: r.width, mitte: r.top + r.height / 2, unten: r.bottom, oben: r.top };
@@ -367,22 +376,22 @@ function bild3Zeichnen(z) {
     const k = z.klopf;
     fc3.save(); fc3.translate(fx0, fy0); fc3.scale(1 + k * .04, 1 - k * .025); fc3.translate(-fx0, -fy0);
     for (const n of TEILE3) {
-      const [a0, a1] = BAU3[n], u = seg(z.bau, a0, a1); if (u <= 0 || !geladen(bild3[n])) continue;
-      const e = eout(u);
-      fc3.save(); fc3.globalAlpha = e;
-      fc3.shadowColor = 'rgba(20,30,70,.3)'; fc3.shadowBlur = W * .022; fc3.shadowOffsetY = W * .01;
-      fc3.translate(0, -(1 - e) * H * .06);
+      const [a0, a1] = BAU3[n], u = seg(z.uhr, a0, a1); if (u <= 0 || !geladen(bild3[n])) continue;
+      const b = bahn(n, u, W, H), [mx, my] = TEILMITTE[n];
+      fc3.save(); fc3.globalAlpha = clamp(u / .15);
+      fc3.shadowColor = 'rgba(10,20,50,.35)'; fc3.shadowBlur = W * .022; fc3.shadowOffsetY = W * .01;
+      fc3.translate(mx * W + b.dx, my * H + b.dy); fc3.rotate(b.rot); fc3.scale(b.sk, b.sk); fc3.translate(-mx * W, -my * H);
       fc3.drawImage(bild3[n], 0, 0, W, H); fc3.restore();
     }
     fc3.restore();
     // Glitzer, wo gerade ein Teil entsteht
     fc3.globalCompositeOperation = 'lighter';
     for (const n of TEILE3) {
-      const [a0, a1] = BAU3[n], u = seg(z.bau, a0, a1); if (u <= 0 || u >= 1) continue;
-      const a = Math.sin(Math.PI * u);
+      const [a0, a1] = BAU3[n], u = seg(z.uhr, a0, a1); if (u < .7 || u >= 1) continue;
+      const a = Math.sin(Math.PI * (u - .7) / .3);
       B3.teile[n].forEach(([x, y], i) => {
         const f = Math.pow(Math.max(0, Math.sin(tau * 6 + i * 2.3)), 2) * a; if (f < .05) return;
-        const X = x * W, Y = y * H - (1 - eout(u)) * H * .06, g = W * .012;
+        const X = x * W, Y = y * H, g = W * .012;
         const hg = fc3.createRadialGradient(X, Y, 0, X, Y, g * 3); hg.addColorStop(0, `rgba(255,228,150,${f * .55})`); hg.addColorStop(1, 'rgba(255,228,150,0)');
         fc3.fillStyle = hg; fc3.fillRect(X - g * 3, Y - g * 3, g * 6, g * 6);
         fc3.fillStyle = `rgba(255,250,225,${f})`; stern(fc3, X, Y, g * (.5 + f * .6));
@@ -457,11 +466,11 @@ function stern(ctx, x, y, r) {
 // ------------------------------------------------------------------ Flugbahn
 function anker() {
   return mobil
-    ? [['augenblick', vw * .2, .6], ['schweben', vw * .2, .3], ['verweilen', vw * .2, .3], ['glitzer', -vw * .2, .3], ['gluecksbringer', vw * .18, .3], ['ankommen', -vw * .12, .3]]
-    : [['augenblick', Math.min(vw * .5 - figH * .4, bildEl.getBoundingClientRect().width / 2 + figH * .5), .5], ['schweben', vw * .22, .44], ['verweilen', -vw * .02, .42], ['glitzer', -vw * .22, .44], ['gluecksbringer', vw * .2, .44], ['ankommen', -vw * .14, .44]];
+    ? [['augenblick', Math.min(vw * .5 - figH * .35, bildEl.getBoundingClientRect().width / 2 + figH * .1), .7], ['schweben', vw * .2, .3], ['glitzer', -vw * .2, .3], ['verweilen', vw * .2, .3], ['ankommen', -vw * .12, .3]]
+    : [['augenblick', Math.min(vw * .5 - figH * .4, bildEl.getBoundingClientRect().width / 2 + figH * .55), .5], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', -vw * .14, .44]];
 }
 // Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
-const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *, .mitlauf .inhalt > *')];
+const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *')];
 function ausweichen(x, y) {
   const halbB = figH * .42, halbH = figH * .58, rand = 14;
   let oben = Infinity, unten = -Infinity;
@@ -504,6 +513,7 @@ function scrollGrenze() {
   if (modus === 'aus') mit(bremse1, tI);
   if (P2.modus === 'aus' && P2.bremse != null) mit(P2.bremse, P2.t);
   if (P3.modus === 'aus' && P3.bremse != null) mit(P3.bremse, P3.t);
+  if (P3.modus === 'drin' && P3.uhr != null && P3.uhr < BAUZEIT + BAU_PAUSE) g = Math.min(g, P3.bremseBau + 24 + vh * .3 * (P3.uhr / (BAUZEIT + BAU_PAUSE)));
   return g;
 }
 const nachUnten = e => {
@@ -519,15 +529,15 @@ addEventListener('touchmove', e => {
 }, { passive: false });
 addEventListener('keydown', e => { if (['ArrowDown', 'PageDown', 'End', ' '].includes(e.key) && !e.target.closest?.('input, textarea, select, button')) nachUnten(e); });
 addEventListener('scroll', () => { const g = scrollGrenze(); if (scrollY > g + 1) scrollTo(0, g); }, { passive: true });
-const P3 = { bremse: null, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, gelandet: false, landZeit: -99, sofort: false, bau: 0 };
+const P3 = { bremse: null, uhr: null, bremseBau: 0, warWeg: false, warZurueck: false, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, gelandet: false, landZeit: -99, sofort: false, bau: 0 };
 const P2 = { bremse: null, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, seite: 1, gelandet: false, landZeit: -99, sofort: false };
 // nach dem Herausspringen: Kontur kurz sichtbar, dann schliesst sich das Bild mit Glitzer
 const heilStand = t => ({ leer: 1 - glatt(T.plopp + 1.3, T.plopp + 3.8, t), risseA: 1 - seg(t, T.plopp + 1.3, T.plopp + 3.8), heil: seg(t, T.plopp + 1.1, T.plopp + 4.0) });
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
 let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0, zauberZeit = -99, treffenZeit = -99, warNah = false, treffenAnzahl = 0;
 addEventListener('zauber', () => { zauberZeit = performance.now() / 1000; });
-const himmelFarben = [new THREE.Color('#fff4e6'), new THREE.Color('#e2efff'), new THREE.Color('#8f9cff'), new THREE.Color('#bdf3f6'), new THREE.Color('#ffe2d8'), new THREE.Color('#fff1d6')];
-const himmelStaerke = [1.1, 1.15, .6, .95, 1.1, 1.1];
+const himmelFarben = [new THREE.Color('#fff4e6'), new THREE.Color('#e2efff'), new THREE.Color('#bdf3f6'), new THREE.Color('#8f9cff'), new THREE.Color('#fff1d6')];
+const himmelStaerke = [1.1, 1.15, .95, .6, 1.1];
 
 groesse();
 addEventListener('resize', groesse);
@@ -814,13 +824,20 @@ function bild(nowMs) {
   const b3 = box3ImFenster(), figH3 = figH * .95;
   if (P3.modus === 'drin') {
     P3.klopf += dt;
-    P3.bau = reduziert ? 1 : clamp((fort('glitzer') + .12) / .5);
-    if (b3.unten < 0) { P3.modus = 'aus'; P3.t = 99; P3.plopped = true; P3.sofort = true; P3.gelandet = false; }
-    else if (P3.bau >= 1 && fort('glitzer') > .5) { P3.modus = 'aus'; P3.t = reduziert ? T.flugEnde : 0; P3.plopped = reduziert; P3.gelandet = false; P3.bremse = scrollY; }
+    const f3 = fort('glitzer');
+    if (reduziert) P3.uhr = BAUZEIT + BAU_PAUSE;
+    else if (P3.uhr == null) { if (f3 > .2) { P3.uhr = 0; P3.bremseBau = scrollY; } }
+    else if (f3 < -.45) { P3.uhr = null; P3.warZurueck = false; }
+    else P3.uhr = Math.min(BAUZEIT + BAU_PAUSE, P3.uhr + dt);
+    P3.bau = clamp((P3.uhr ?? 0) / BAUZEIT);
+    if (b3.unten < 0) { P3.modus = 'aus'; P3.t = 99; P3.plopped = true; P3.sofort = true; P3.gelandet = false; P3.uhr = BAUZEIT + BAU_PAUSE; }
+    else if (P3.uhr >= BAUZEIT + BAU_PAUSE && (!P3.warZurueck || f3 > .45)) { P3.modus = 'aus'; P3.t = reduziert ? T.flugEnde : 0; P3.plopped = reduziert; P3.gelandet = false; P3.bremse = scrollY; }
   } else if (P3.modus === 'aus') {
     P3.t += dt;
-    P3.obenZeit = fort('glitzer') < .15 ? P3.obenZeit + dt : 0;
-    if (P3.t >= T.flugEnde && P3.obenZeit > .3 && renderer) {
+    if (fort('glitzer') > .45) P3.warWeg = true;
+    P3.obenZeit = fort('glitzer') < .1 ? P3.obenZeit + dt : 0;
+    if (P3.t >= T.flugEnde && P3.warWeg && P3.obenZeit > .3 && renderer) {
+      P3.warWeg = false; P3.warZurueck = true;
       const h = heilStand(P3.t);
       P3.modus = 'zurueck'; P3.tR = reduziert ? T.rueckKleben : 0; P3.gelandet = false;
       P3.rueck = { x: P3.x, y: P3.y, z: P3.z, dreh: dreh3.rotation.y, leer: h.leer, risseA: h.risseA };
@@ -830,7 +847,7 @@ function bild(nowMs) {
     if (P3.tR >= T.rueckEnde) { P3.modus = 'drin'; P3.t = 0; P3.klopf = -1; P3.plopped = false; }
   }
   if (b3.unten > -40 && b3.oben < vh + 40) {
-    const zb = { bau: P3.modus === 'drin' ? P3.bau : 1, flach: true, klopf: 0, ringe: [], leer: 0, heil: 0, glanz: 0 };
+    const zb = { uhr: P3.modus === 'drin' ? (P3.uhr ?? 0) : 99, flach: true, klopf: 0, ringe: [], leer: 0, heil: 0, glanz: 0 };
     if (P3.modus === 'drin') {
       if (!reduziert && P3.klopf > 0 && P3.bau >= 1) {
         const p = P3.klopf % 8;
@@ -942,8 +959,6 @@ function bild(nowMs) {
   sc.setTransform(dpr, 0, 0, dpr, 0, 0);
   sc.clearRect(0, 0, vw, vh);
   hintergrund(sc, { lage, sy: scrollY, vw, vh, tau, mobil });
-  // der mitlaufende Text wird im Sternenhimmel hell
-  { const u = clamp((fort('verweilen') + .12) / .3); mitlauf.style.color = `rgb(${Math.round(lerp(42, 247, u))},${Math.round(lerp(34, 242, u))},${Math.round(lerp(48, 236, u))})`;  mitlauf.style.opacity = 1 - glatt(.8, .93, fort('verweilen')); }
 
   // Sterne
   const L3 = lage.verweilen;
@@ -1023,4 +1038,4 @@ function bild(nowMs) {
 requestAnimationFrame(bild);
 
 // für Tests: window.__principessa.springe(t) setzt die Auftakt-Uhr
-window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet, fx, fy, figH, p2x: P2.x, p2y: P2.y, sichtbar2: figur2.visible, p3: P3.modus, p3t: P3.t, p3bau: P3.bau, p3x: P3.x, p3y: P3.y, sichtbar3: figur3.visible, treffenZeit, jetzt: performance.now() / 1000 }) };
+window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet, fx, fy, figH, p2x: P2.x, p2y: P2.y, sichtbar2: figur2.visible, p3: P3.modus, p3t: P3.t, p3bau: P3.bau, p3uhr: P3.uhr, p3x: P3.x, p3y: P3.y, sichtbar3: figur3.visible, treffenZeit, jetzt: performance.now() / 1000 }) };

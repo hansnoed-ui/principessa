@@ -74,34 +74,25 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
     linear-gradient(rgba(180, 210, 244, 0) 80%, var(--hellblau)),
     radial-gradient(ellipse 70% 55% at 50% 44%, #3d3178 0%, #262058 42%, #17153d 78%);
 }
-/* der Monitor: dünner Rand, kleiner Fuss, leises Leuchten */
-.monitor {
+/* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
+.tablet {
   position: relative; z-index: 2;
-  width: min(80vw, 1060px, calc(60vh * 1.5));
-  width: min(80vw, 1060px, calc(60svh * 1.5));
-  padding: clamp(5px, .7vw, 11px);
-  border-radius: clamp(10px, 1.1vw, 18px);
-  background: linear-gradient(160deg, #34343c, #141418 55%, #0d0d10);
+  width: min(64vw, 520px, calc(74vh * .744 + 26px));
+  width: min(64vw, 520px, calc(74svh * .744 + 26px));
+  padding: clamp(9px, 1.1vw, 14px);
+  border-radius: clamp(22px, 2.6vw, 34px);
+  background: linear-gradient(155deg, #3a3a42, #17171b 50%, #0e0e11);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .09),
+    inset 0 0 0 1px rgba(255, 255, 255, .1),
+    inset 0 0 0 3px rgba(0, 0, 0, .5),
     0 50px 80px -40px rgba(0, 0, 0, .8),
-    0 0 140px rgba(255, 196, 228, .2);
+    0 0 140px rgba(255, 196, 228, .22);
 }
-.hals {
-  position: absolute; left: 50%; top: 100%;
-  width: 7%; height: clamp(22px, 5vh, 56px);
-  transform: translateX(-50%);
-  background: linear-gradient(90deg, #17171b, #2e2e35 50%, #17171b);
+.tablet::before {
+  content: ""; position: absolute; top: 50%; right: -2px; width: 3px; height: 9%;
+  transform: translateY(-50%); border-radius: 2px; background: #2b2b31;
 }
-.fuss {
-  position: absolute; left: 50%; top: calc(100% + clamp(22px, 5vh, 56px));
-  width: 26%; height: clamp(6px, .9vw, 11px);
-  transform: translateX(-50%);
-  border-radius: 6px 6px 3px 3px;
-  background: linear-gradient(#34343c, #121216);
-  box-shadow: 0 14px 22px -8px rgba(0, 0, 0, .7);
-}
-.kopfbild { width: 100%; aspect-ratio: 3 / 2; position: relative; border-radius: clamp(3px, .4vw, 6px); overflow: hidden; background: #000; }
+.kopfbild { width: 100%; aspect-ratio: 1200 / 1613; position: relative; border-radius: clamp(13px, 1.6vw, 22px); overflow: hidden; background: #000; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .signatur {
   position: absolute; z-index: 2;
@@ -170,12 +161,6 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   align-items: flex-start;
   padding: 0 8vw;
 }
-/* Der erste Text läuft durch Himmel und Sternenhimmel mit */
-.paar { position: relative; }
-.mitlauf { position: sticky; top: 20vh; top: 20svh; height: 0; z-index: 2; padding: 0 8vw; pointer-events: none; }
-.mitlauf .inhalt { max-width: 31rem; padding-top: 1px; color: var(--linie); }
-#schweben { min-height: 105vh; min-height: 105svh; }
-#verweilen .inhalt { margin-top: 42vh; }
 /* Texte laufen mit: sie bleiben stehen, solange ihre Ebene durchläuft */
 .ebene:not(#ankommen) .inhalt { position: sticky; top: 20vh; top: 20svh; margin-top: 16vh; margin-bottom: 16vh; }
 .ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity 1s ease, transform 1s ease; }
@@ -183,21 +168,23 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 .links { margin-right: auto; }
 .rechts { margin-left: auto; }
 
-#schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 62%, #4b5fb4 86%, var(--koenigsblau)); }
+#schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 60%, #4f9cc4 86%, #13708a); }
 .inhalt.mitte { margin: 0 auto; text-align: center; }
 .bestellen {
+  display: inline-block;
+  margin: .15em .1em;
+  padding: .12em .7em .18em;
   color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: .22em;
-  text-decoration-color: rgba(42, 34, 48, .45);
-  transition: text-decoration-color .3s ease;
+  text-decoration: none;
+  border: 1px solid rgba(42, 34, 48, .55);
+  border-radius: 999px;
+  transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
 }
-.bestellen:hover, .bestellen:focus-visible { text-decoration-color: var(--gold); }
-#glitzer { background: linear-gradient(#0b2f4f, #13708a 9%, #0f5e78 45%, #0b4560 80%, #0a3550); color: var(--creme); }
+.bestellen:hover, .bestellen:focus-visible { border-color: var(--gold); background: rgba(255, 248, 225, .5); box-shadow: 0 0 0 3px rgba(212, 164, 41, .18); outline: none; }
+#glitzer { background: linear-gradient(#13708a, #0f5e78 40%, #0b4560 75%, #141a4a); color: var(--creme); }
 #gluecksbringer { background: linear-gradient(#0a3550, #2e2f72 20%, #5b4790 50%, #8e5f9c 78%, #b9759a); color: var(--creme); }
 #gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
-#verweilen { background: linear-gradient(var(--koenigsblau), var(--nacht) 40%, var(--nacht) 82%, #0b2f4f); color: var(--creme); }
+#verweilen { background: linear-gradient(#141a4a, var(--nacht) 30%, var(--nacht) 70%, #3b2f6e 88%, #b9759a); color: var(--creme); }
 #ankommen {
   background: linear-gradient(#b9759a, #e7a7a0 22%, #f4cf9a 55%, #f2dcae 75%, #d9e8bc);
   color: var(--linie);
@@ -285,11 +272,9 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 
 @media (max-width: 700px) {
   .ebene { padding: 0 6vw; }
-  #augenblick { padding: 12vh 4vw 10vh; }
-  .monitor { width: 92vw; }
+  #augenblick { padding: 10vh 4vw 10vh; }
+  .tablet { width: min(72vw, calc(66svh * .744 + 20px)); }
   .ebene:not(#ankommen) .inhalt { top: 9vh; top: 9svh; margin-top: 9vh; margin-bottom: 12vh; }
-  .mitlauf { top: 9vh; top: 9svh; padding: 0 6vw; }
-  #verweilen .inhalt { margin-top: 34vh; top: 34vh; top: 34svh; }
   .ebene .inhalt { max-width: none; }
   .links, .rechts { margin: 0; }
   #ankommen { padding: 0; }
@@ -482,3 +467,9 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 .senden:hover::after, .senden:focus-visible::after { transform: translateX(3px); }
 .senden:hover, .senden:focus-visible { background: #2a2466; }
 @media (max-width: 520px) { .senden { width: 100%; justify-content: center; } }
+
+.glitzerdruck circle { animation: glitzerdruck 2.4s ease-in-out infinite; }
+.glitzerdruck circle:nth-child(3n) { animation-delay: .8s; }
+.glitzerdruck circle:nth-child(3n+1) { animation-delay: 1.6s; }
+@keyframes glitzerdruck { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .glitzerdruck circle { animation: none; } }
