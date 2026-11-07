@@ -33,11 +33,14 @@ def p2():
             p(f'<path d="M{x0:.0f},{y0:.0f} l{t*10:.0f},22" stroke="{L}" stroke-width="5" stroke-linecap="round"/>')
     # Mund
     p(f'<path d="M405,372 C415,360 430,360 440,368 C450,360 465,362 472,372 C460,390 420,392 405,372 Z" fill="{ROT}"/>')
-    # Krone: breiter Glitzerkranz oben rechts
-    p(f'<path d="M470,120 L500,185 L540,110 L560,180 L610,125 L612,200 L660,170 L640,235 C600,255 520,250 455,210 Z" fill="#cdb79a"/>')
-    for _ in range(420):
-        x = random.uniform(462, 655); y = random.uniform(125, 250)
-        if y < 120 + (x-462)*.2: continue
+    # Krone: breiter Glitzerkranz, fast waagrecht auf dem Kopf
+    p('</g>')
+    p('<g transform="rotate(-6 440 170)">')
+    p(f'<path d="M300,180 L326,118 L364,172 L400,100 L438,170 L476,96 L514,170 L552,104 L586,172 L618,122 L632,186 C570,232 320,236 290,196 Z" fill="#cdb79a"/>')
+    for _ in range(620):
+        x = random.uniform(292, 630); y = random.uniform(104, 232)
+        d = abs(x-461); k = 100 + d*.42
+        if y < k: continue
         p(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{random.uniform(1.5,4.5):.1f}" fill="{random.choice(["#fff7e0","#e8d2a8","#f4e3ff","#d6ecff","#ffdbe8","#c7b48c","#ffffff"])}"/>')
     p('</g>')
     p('</svg>'); return '\n'.join(o)
