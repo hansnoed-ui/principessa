@@ -80,10 +80,11 @@ function machKarte(tex) {
   const geo = new THREE.PlaneGeometry(1, 1, 1, 60); geo.translate(0, .5, 0);
   const basis = Float32Array.from(geo.attributes.position.array);
   const gruppe = new THREE.Group();
-  gruppe.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, alphaTest: .5, toneMapped: false, side: THREE.FrontSide })));
-  gruppe.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: '#d9d2c6', alphaMap: tex, alphaTest: .5, roughness: .85, side: THREE.BackSide })));
+  const vorn = new THREE.MeshBasicMaterial({ map: tex, alphaTest: .5, toneMapped: false, side: THREE.FrontSide, transparent: true });
+  const hinten = new THREE.MeshStandardMaterial({ color: '#d9d2c6', alphaMap: tex, alphaTest: .5, roughness: .85, side: THREE.BackSide, transparent: true });
+  gruppe.add(new THREE.Mesh(geo, vorn), new THREE.Mesh(geo, hinten));
   gruppe.visible = false; scene.add(gruppe);
-  return { gruppe, geo, basis };
+  return { gruppe, geo, basis, deckung: a => { vorn.opacity = hinten.opacity = a; } };
 }
 function rollen(k, p, r = .09) {
   const a = k.geo.attributes.position, L = 1 - p, AMAX = Math.PI * .8;
@@ -167,6 +168,8 @@ function messen() {
 }
 function groesse() {
   const altVw = vw;
+  // tatsächlich sichtbare Höhe, auch wenn der Browser die Leiste ein- oder ausblendet
+  document.documentElement.style.setProperty('--vh', innerHeight + 'px');
   vw = innerWidth; vh = innerHeight; mobil = vw < 700;
   dpr = Math.min(devicePixelRatio || 1, 2);
   if (renderer) { renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); }
@@ -356,15 +359,15 @@ function bild2Zeichnen(z) {
 // --- Die dritte Principessa liegt unter ihrem Text und setzt sich beim Scrollen zusammen
 const B3 = {"fuss":0.9806,"hoehe":0.9529,"heil":[[0.3888,0.4532],[0.5378,0.6306],[0.5863,0.0374],[0.7602,0.4047],[0.4802,0.4248],[0.5315,0.3188],[0.4026,0.5198],[0.2924,0.3881],[0.6078,0.1788],[0.6667,0.4463],[0.4033,0.6008],[0.4539,0.7838],[0.5828,0.3687],[0.6736,0.5253],[0.6667,0.3888],[0.2633,0.5246],[0.5877,0.3853],[0.6694,0.5315],[0.3763,0.3347],[0.6383,0.2169],[0.4207,0.7138],[0.648,0.1046],[0.4678,0.3895],[0.6369,0.1947],[0.4719,0.4726],[0.3687,0.3209],[0.6549,0.0908],[0.6597,0.4608],[0.6881,0.3375],[0.4879,0.7519],[0.2876,0.4428],[0.4615,0.6632],[0.6078,0.3714],[0.3216,0.5281],[0.6306,0.4331],[0.6001,0.6514],[0.5676,0.6223],[0.6459,0.3222],[0.4893,0.8385],[0.5967,0.2287],[0.4137,0.3909],[0.3174,0.3451],[0.4747,0.7491],[0.5052,0.6611],[0.5814,0.0367],[0.5156,0.7949],[0.5128,0.7866],[0.4089,0.3985],[0.727,0.4103],[0.4705,0.9418],[0.3153,0.4685],[0.5558,0.4906],[0.7367,0.4276],[0.4886,0.9785],[0.4012,0.5475],[0.553,0.4782],[0.3597,0.3825],[0.7942,0.4082],[0.4401,0.894],[0.4643,0.7678],[0.289,0.4823],[0.2807,0.4879],[0.4269,0.6542],[0.3971,0.6542],[0.6431,0.1677],[0.6272,0.2134],[0.3514,0.5308],[0.3001,0.3361],[0.3805,0.3721],[0.5128,0.3271],[0.2945,0.3486],[0.7242,0.4213],[0.5288,0.5419],[0.3624,0.3943],[0.4719,0.9307],[0.5662,0.5094],[0.3721,0.3361],[0.5551,0.4643],[0.7041,0.51],[0.5599,0.359],[0.562,0.4019],[0.4144,0.4033],[0.4532,0.6597],[0.6618,0.1455],[0.325,0.3541],[0.5856,0.6528],[0.7082,0.4172],[0.3915,0.4421],[0.395,0.7623],[0.578,0.352]],"teile":{"kopf":[[0.7699,0.4498],[0.526,0.3243],[0.4615,0.5031],[0.3763,0.377],[0.4387,0.3971],[0.7263,0.3749],[0.474,0.5121],[0.6396,0.5246],[0.6535,0.3604],[0.5204,0.3216],[0.3701,0.3805],[0.4934,0.5177],[0.7824,0.4179],[0.2994,0.3631],[0.3347,0.5454],[0.5461,0.4643],[0.307,0.413],[0.4733,0.4969],[0.4816,0.3652],[0.2987,0.3423],[0.562,0.395],[0.5974,0.3805],[0.6355,0.4636],[0.4643,0.3181],[0.4297,0.5572],[0.5371,0.4213],[0.2814,0.352],[0.4712,0.4809],[0.2772,0.501],[0.2523,0.4116],[0.596,0.4435],[0.3992,0.4109],[0.3853,0.4304],[0.4255,0.4075]],"krone":[[0.6036,0.2841],[0.6403,0.0589],[0.6625,0.1629],[0.5904,0.2419],[0.6334,0.1372],[0.6085,0.2363],[0.5863,0.0534],[0.6466,0.307],[0.6514,0.1268],[0.6119,0.2093],[0.6292,0.2855],[0.5911,0.1282]],"rumpf":[[0.5558,0.6085],[0.5606,0.6064],[0.3929,0.5981],[0.3915,0.5911],[0.5038,0.6119],[0.5371,0.6085],[0.5024,0.614],[0.5676,0.6292],[0.5003,0.5994],[0.5343,0.5863],[0.4373,0.6001],[0.6098,0.675]],"schwanz":[[0.3978,0.7727],[0.4664,0.6549],[0.4269,0.7852],[0.4151,0.9224],[0.4997,0.7277],[0.5274,0.7145],[0.5087,0.973],[0.4608,0.8572],[0.456,0.7568],[0.4539,0.8184],[0.5066,0.7477],[0.4151,0.8559],[0.5094,0.702],[0.4671,0.7734],[0.4255,0.648],[0.3915,0.9473],[0.4324,0.6493],[0.4539,0.781],[0.5073,0.6681],[0.4213,0.7526],[0.4837,0.8482],[0.4463,0.7498]]}};
 // Zeitplan in Sekunden; jedes Teil kommt auf eigener, verspielter Bahn und federt am Ziel ein
-const BAU3 = { kopf: [0, 1.7], krone: [1.5, 3.1], rumpf: [2.9, 4.4], schwanz: [4.2, 5.9] };
-const BAUZEIT = 5.9, BAU_PAUSE = 1.0;
-const TEILMITTE = { kopf: [.5, .45], krone: [.64, .12], rumpf: [.47, .64], schwanz: [.47, .81] };
+const BAU3 = { kopf: [0, 1.7], krone: [1.5, 3.1], rumpf: [2.9, 4.9], schwanz: [2.9, 4.9] };   // Oberkörper und Schwanz kommen am Stück
+const BAUZEIT = 4.9, BAU_PAUSE = 1.0;
+const TEILMITTE = { kopf: [.5, .45], krone: [.64, .12], rumpf: [.47, .72], schwanz: [.47, .72] };
 function bahn(n, u, W, H) {
   const e = eback(u, 1.5), w = 1 - eout(u);
   if (n === 'kopf') return { dx: Math.sin(u * 9) * w * W * .05, dy: -(1 - e) * H * .55, rot: -.7 * w + Math.sin(u * 12) * .12 * w, sk: .55 + .45 * e };
   if (n === 'krone') return { dx: (1 - e) * W * .5, dy: -(1 - e) * H * .35 - Math.sin(Math.PI * u) * H * .1, rot: w * Math.PI * 3, sk: .7 + .3 * e };
-  if (n === 'rumpf') return { dx: -(1 - e) * W * .6, dy: Math.sin(u * Math.PI * 3) * w * H * .06, rot: Math.sin(u * 14) * .4 * w, sk: 1 };
-  return { dx: Math.sin(u * 16) * w * W * .09, dy: (1 - e) * H * .5, rot: Math.sin(u * 13) * .3 * w, sk: .85 + .15 * e };
+  // der ganze Unterkörper schlängelt sich von unten heran
+  return { dx: Math.sin(u * 11) * w * W * .07, dy: (1 - e) * H * .55, rot: Math.sin(u * 9) * .22 * w, sk: .9 + .1 * e };
 }
 function box3ImFenster() {
   const r = flach3.getBoundingClientRect();
@@ -557,6 +560,8 @@ const himmelStaerke = [1.1, 1.15, .95, .6, 1.1];
 
 groesse();
 addEventListener('resize', groesse);
+visualViewport?.addEventListener('resize', groesse);
+addEventListener('orientationchange', () => setTimeout(groesse, 300));
 document.fonts?.ready.then(() => { messen(); wolkeAnlegen(); });
 addEventListener('load', messen);
 {
@@ -625,17 +630,17 @@ function bild(nowMs) {
   // ---- Abziehbild: hinaus rollt es sich ab, zurück legt es sich wieder an
   let lift = 0, roll = 0;
   karte.visible = false;
-  if (renderer && modus === 'aus' && tI < T.plopp) {
-    karte.visible = true; lift = eio(seg(tI, T.loesen, T.plopp));
+  if (renderer && modus === 'aus' && tI < T.plopp + 0.35) {
+    karte.visible = true; lift = eio(seg(tI, T.loesen, T.plopp)); K1.deckung(1 - glatt(T.plopp, T.plopp + 0.35, tI));
     roll = eio(seg(tI, 0, T.loesen)) * .62 * (1 - eout(seg(tI, T.loesen, T.plopp)));
   } else if (renderer && modus === 'zurueck' && tR >= T.rueckFlug && tR < T.rueckKleben) {
-    karte.visible = true; const u = seg(tR, T.rueckFlug, T.rueckKleben);
+    karte.visible = true; K1.deckung(1); const u = seg(tR, T.rueckFlug, T.rueckKleben);
     lift = 1 - eio(u); roll = .22 * Math.sin(Math.PI * u);
   }
   if (karte.visible) {
     rollen(K1, roll);
     karte.position.copy(welt(bx.x + bx.s / 2, bx.y + bx.s - lift * bx.s * .1, lift * bx.s * .45));
-    karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2, 0, Math.sin(lift * Math.PI) * .08);
+    karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2 - glatt(T.plopp - .1, T.plopp + 0.35, tI) * .9, 0, Math.sin(lift * Math.PI) * .08);
     karte.scale.setScalar(bx.s);
   }
 
@@ -657,7 +662,7 @@ function bild(nowMs) {
   const amBoden = bodenTop < vh * .8;
   const zielFuss = amBoden ? bodenTop + 5 : Math.min(z.mitteY + figH / 2, bodenTop + 5);
 
-  let skal = 1, sq = 0, verbeug = 0, extraDreh = 0, rueckDreh = null;
+  let tiefe = 1, skal = 1, sq = 0, verbeug = 0, extraDreh = 0, rueckDreh = null;
   const startSkal = (.37 * bx.s * LOKAL_H) / figH;
   const sx = bx.x + bx.s / 2, sy = bx.y + bx.s * .84, sz = bx.s * .45;
   if (modus === 'aus' && tI < T.flugEnde) {
@@ -665,7 +670,7 @@ function bild(nowMs) {
     const u = seg(tI, T.plopp, T.flugEnde), e = eio(u);
     fx = lerp(sx, z.x, e); fy = lerp(sy, zielFuss, e) - Math.sin(Math.PI * u) * vh * .12;
     fz = lerp(sz, 0, e) + Math.sin(Math.PI * u) * figH * .9;
-    skal = lerp(startSkal, 1, eback(seg(tI, T.plopp, T.plopp + .75), 1.4));
+    skal = lerp(startSkal, 1, eio(seg(tI, T.plopp, T.plopp + .9))); tiefe = .06 + .94 * eback(seg(tI, T.plopp, T.plopp + .7), 1.1);
     extraDreh = e * Math.PI * 2;
   } else if (modus === 'zurueck' && rueck) {
     // sanft zurück: in einem leisen Bogen, kleiner werdend, mit dem Gesicht nach vorn
@@ -703,7 +708,7 @@ function bild(nowMs) {
   const wipp = schwebt && !reduziert ? Math.sin(tau * 1.7) * figH * .018 : 0;
   figur.position.copy(welt(fx, fy + wipp, fz));
   const basis = figH / LOKAL_H * skal;
-  figur.scale.set(basis * (1 + sq * .5), basis * (1 - sq), basis * (1 + sq * .5));
+  figur.scale.set(basis * (1 + sq * .5), basis * (1 - sq), basis * (1 + sq * .5) * tiefe);
   figur.rotation.x = verbeug;
   schwenk.rotation.z = schwebt ? clamp(-vxF * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .9) * .03) : daempfe(schwenk.rotation.z, 0, 8, dt);
   schwenk.rotation.x = schwebt ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk.rotation.x, 0, 8, dt);
@@ -773,16 +778,16 @@ function bild(nowMs) {
   }
   {
     let l2 = 0, r2 = 0; K2.gruppe.visible = false;
-    if (renderer && P2.modus === 'aus' && P2.t < T.plopp) {
-      K2.gruppe.visible = true; l2 = eio(seg(P2.t, T.loesen, T.plopp));
+    if (renderer && P2.modus === 'aus' && P2.t < T.plopp + 0.35) {
+      K2.gruppe.visible = true; l2 = eio(seg(P2.t, T.loesen, T.plopp)); K2.deckung(1 - glatt(T.plopp, T.plopp + 0.35, P2.t));
       r2 = eio(seg(P2.t, 0, T.loesen)) * .62 * (1 - eout(seg(P2.t, T.loesen, T.plopp)));
     } else if (renderer && P2.modus === 'zurueck' && P2.tR >= T.rueckFlug && P2.tR < T.rueckKleben) {
-      K2.gruppe.visible = true; const u = seg(P2.tR, T.rueckFlug, T.rueckKleben); l2 = 1 - eio(u); r2 = .22 * Math.sin(Math.PI * u);
+      K2.gruppe.visible = true; K2.deckung(1); const u = seg(P2.tR, T.rueckFlug, T.rueckKleben); l2 = 1 - eio(u); r2 = .22 * Math.sin(Math.PI * u);
     }
     if (K2.gruppe.visible) {
       rollen(K2, r2);
       K2.gruppe.position.copy(welt(b2.x + b2.s / 2, b2.y + b2.s - l2 * b2.s * .1, l2 * b2.s * .45));
-      K2.gruppe.rotation.set(-l2 * .25 + Math.sin(l2 * Math.PI) * .2, 0, Math.sin(l2 * Math.PI) * .08);
+      K2.gruppe.rotation.set(-l2 * .25 + Math.sin(l2 * Math.PI) * .2 - glatt(T.plopp - .1, T.plopp + 0.35, P2.t) * .9, 0, Math.sin(l2 * Math.PI) * .08);
       K2.gruppe.scale.setScalar(b2.s);
     }
   }
@@ -802,7 +807,7 @@ function bild(nowMs) {
     const zx = clamp(begleitet ? fx + P2.seite * figH * .95 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy + figH * .06 : clamp(b2.y + b2.s, figH, vh * .92);
     if (amBoden2) zf = bodenTop + 5;
-    let skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
+    let tiefe2 = 1, skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
     const start2 = (B2.hoehe * b2.s) / figH2;
     const sx2 = b2.x + b2.s / 2, sy2 = b2.y + b2.s * (B2.fuss - .1), sz2 = b2.s * .45;
     if (P2.sofort) { P2.x = zx; P2.y = zf; P2.z = 0; P2.sofort = false; }
@@ -810,7 +815,7 @@ function bild(nowMs) {
       const u = seg(P2.t, T.plopp, T.flugEnde), e = eio(u);
       P2.x = lerp(sx2, zx, e); P2.y = lerp(sy2, zf, e) - Math.sin(Math.PI * u) * vh * .1;
       P2.z = lerp(sz2, 0, e) + Math.sin(Math.PI * u) * figH * .8;
-      skal2 = lerp(start2, 1, eback(seg(P2.t, T.plopp, T.plopp + .75), 1.4)); extra2 = -e * Math.PI * 2;
+      skal2 = lerp(start2, 1, eio(seg(P2.t, T.plopp, T.plopp + .9))); tiefe2 = .06 + .94 * eback(seg(P2.t, T.plopp, T.plopp + .7), 1.1); extra2 = -e * Math.PI * 2;
     } else if (P2.modus === 'zurueck' && P2.rueck) {
       const u = seg(P2.tR, 0, T.rueckFlug), e = eio(u);
       P2.x = lerp(P2.rueck.x, sx2, e); P2.y = lerp(P2.rueck.y, sy2, e) - Math.sin(Math.PI * u) * vh * .06;
@@ -830,7 +835,7 @@ function bild(nowMs) {
     const wipp2 = schwebt2 && !reduziert ? Math.sin(tau * 1.5 + 1.3) * figH * .03 : 0;
     figur2.position.copy(welt(P2.x, P2.y + wipp2, P2.z));
     const basis2 = figH2 / LOKAL_H2 * skal2;
-    figur2.scale.set(basis2 * (1 + sq2 * .5), basis2 * (1 - sq2), basis2 * (1 + sq2 * .5));
+    figur2.scale.set(basis2 * (1 + sq2 * .5), basis2 * (1 - sq2), basis2 * (1 + sq2 * .5) * tiefe2);
     figur2.rotation.x = verb2;
     schwenk2.rotation.z = schwebt2 ? clamp(-P2.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk2.rotation.z, 0, 8, dt);
     schwenk2.rotation.x = schwebt2 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk2.rotation.x, 0, 8, dt);
@@ -886,16 +891,16 @@ function bild(nowMs) {
   }
   {
     let l3 = 0, r3 = 0; K3.gruppe.visible = false;
-    if (renderer && P3.modus === 'aus' && P3.t < T.plopp) {
-      K3.gruppe.visible = true; l3 = eio(seg(P3.t, T.loesen, T.plopp));
+    if (renderer && P3.modus === 'aus' && P3.t < T.plopp + 0.35) {
+      K3.gruppe.visible = true; l3 = eio(seg(P3.t, T.loesen, T.plopp)); K3.deckung(1 - glatt(T.plopp, T.plopp + 0.35, P3.t));
       r3 = eio(seg(P3.t, 0, T.loesen)) * .62 * (1 - eout(seg(P3.t, T.loesen, T.plopp)));
     } else if (renderer && P3.modus === 'zurueck' && P3.tR >= T.rueckFlug && P3.tR < T.rueckKleben) {
-      K3.gruppe.visible = true; const u = seg(P3.tR, T.rueckFlug, T.rueckKleben); l3 = 1 - eio(u); r3 = .22 * Math.sin(Math.PI * u);
+      K3.gruppe.visible = true; K3.deckung(1); const u = seg(P3.tR, T.rueckFlug, T.rueckKleben); l3 = 1 - eio(u); r3 = .22 * Math.sin(Math.PI * u);
     }
     if (K3.gruppe.visible) {
       rollen(K3, r3);
       K3.gruppe.position.copy(welt(b3.x + b3.s / 2, b3.y + b3.s - l3 * b3.s * .1, l3 * b3.s * .45));
-      K3.gruppe.rotation.set(-l3 * .25 + Math.sin(l3 * Math.PI) * .2, 0, Math.sin(l3 * Math.PI) * .08);
+      K3.gruppe.rotation.set(-l3 * .25 + Math.sin(l3 * Math.PI) * .2 - glatt(T.plopp - .1, T.plopp + 0.35, P3.t) * .9, 0, Math.sin(l3 * Math.PI) * .08);
       K3.gruppe.scale.setScalar(b3.s);
     }
   }
@@ -914,7 +919,7 @@ function bild(nowMs) {
     const zx = clamp(begleitet ? fx - P2.seite * figH * .95 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy - figH * .04 : clamp(b3.y + b3.s, figH, vh * .92);
     if (amBoden3) zf = bodenTop + 5;
-    let skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
+    let tiefe3 = 1, skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
     const start3 = (B3.hoehe * b3.s) / figH3;
     const sx3 = b3.x + b3.s / 2, sy3 = b3.y + b3.s * (B3.fuss - .1), sz3 = b3.s * .45;
     if (P3.sofort) { P3.x = zx; P3.y = zf; P3.z = 0; P3.sofort = false; }
@@ -922,7 +927,7 @@ function bild(nowMs) {
       const u = seg(P3.t, T.plopp, T.flugEnde), e = eio(u);
       P3.x = lerp(sx3, zx, e); P3.y = lerp(sy3, zf, e) - Math.sin(Math.PI * u) * vh * .1;
       P3.z = lerp(sz3, 0, e) + Math.sin(Math.PI * u) * figH * .8;
-      skal3 = lerp(start3, 1, eback(seg(P3.t, T.plopp, T.plopp + .75), 1.4)); extra3 = -e * Math.PI * 2;
+      skal3 = lerp(start3, 1, eio(seg(P3.t, T.plopp, T.plopp + .9))); tiefe3 = .06 + .94 * eback(seg(P3.t, T.plopp, T.plopp + .7), 1.1); extra3 = -e * Math.PI * 2;
     } else if (P3.modus === 'zurueck' && P3.rueck) {
       const u = seg(P3.tR, 0, T.rueckFlug), e = eio(u);
       P3.x = lerp(P3.rueck.x, sx3, e); P3.y = lerp(P3.rueck.y, sy3, e) - Math.sin(Math.PI * u) * vh * .06;
@@ -942,7 +947,7 @@ function bild(nowMs) {
     const wipp3 = schwebt3 && !reduziert ? Math.sin(tau * 1.5 + 1.3) * figH * .03 : 0;
     figur3.position.copy(welt(P3.x, P3.y + wipp3, P3.z));
     const basis3 = figH3 / LOKAL_H3 * skal3;
-    figur3.scale.set(basis3 * (1 + sq3 * .5), basis3 * (1 - sq3), basis3 * (1 + sq3 * .5));
+    figur3.scale.set(basis3 * (1 + sq3 * .5), basis3 * (1 - sq3), basis3 * (1 + sq3 * .5) * tiefe3);
     figur3.rotation.x = verb3;
     schwenk3.rotation.z = schwebt3 ? clamp(-P3.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk3.rotation.z, 0, 8, dt);
     schwenk3.rotation.x = schwebt3 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk3.rotation.x, 0, 8, dt);

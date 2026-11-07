@@ -67,7 +67,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 /* ---------- Auftakt: Titelbild über die ganze Breite ---------- */
 #augenblick {
   position: relative;
-  height: 100vh; height: 100svh;
+  height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid; place-items: center;
   padding: 6vh 5vw 8vh;
   background: #241d55;
@@ -76,7 +76,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 .tablet {
   position: relative; z-index: 2;
   width: min(64vw, 520px, calc(76vh * .744 + 12px));
-  width: min(64vw, 520px, calc(76svh * .744 + 12px));
+  width: min(64vw, 520px, calc(76dvh * .744 + 12px));
   padding: clamp(4px, .45vw, 6px);
   border-radius: clamp(16px, 1.8vw, 24px);
   background: #18181c;
@@ -141,7 +141,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 .bild {
   margin: 0;
   width: min(78vw, 430px, calc(66vh * 0.7856));
-  width: min(78vw, 430px, calc(66svh * 0.7856));
+  width: min(78vw, 430px, calc(66dvh * 0.7856));
   aspect-ratio: 0.7856;
   filter: drop-shadow(0 22px 30px rgba(6, 4, 24, .55)) drop-shadow(0 3px 5px rgba(6, 4, 24, .45));
 }
@@ -158,7 +158,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 html { scroll-snap-type: y mandatory; }
 #augenblick, .ebene { scroll-snap-align: start; scroll-snap-stop: always; }
 .ebene {
-  height: 100vh; height: 100svh;
+  height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 100%;
@@ -183,31 +183,33 @@ html { scroll-snap-type: y mandatory; }
   padding: .12em .7em .18em;
   color: inherit;
   text-decoration: none;
-  border: 1px solid rgba(42, 34, 48, .55);
+  border: 1px solid rgba(247, 242, 236, .65);
   border-radius: 999px;
   transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
 }
-.bestellen:hover, .bestellen:focus-visible { border-color: var(--gold); background: rgba(255, 248, 225, .5); box-shadow: 0 0 0 3px rgba(212, 164, 41, .18); outline: none; }
+.bestellen:hover, .bestellen:focus-visible { border-color: var(--gold); background: rgba(255, 248, 225, .18); box-shadow: 0 0 0 3px rgba(212, 164, 41, .18); outline: none; }
 #glitzer { background: #0f5e78; color: var(--creme); }
 #gluecksbringer { background: linear-gradient(#0a3550, #2e2f72 20%, #5b4790 50%, #8e5f9c 78%, #b9759a); color: var(--creme); }
 #gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
 #verweilen { background: var(--nacht); color: var(--creme); }
 #ankommen {
-  background: #f3dcb2;
-  color: var(--linie);
+  background: #b98ab6;
+  color: var(--creme);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
   padding: 0;
   height: auto;
-  min-height: 100vh; min-height: 100svh;
+  min-height: 100vh; min-height: var(--vh, 100dvh);
   overflow: visible;
 }
 #ankommen .inhalt { padding: 16vh 8vw 0; }
 
 /* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
-.zauber { font-size: 1.32em; line-height: 1.55; }
+.zauber { font-size: 1.32em; line-height: 1.5; }
+.zauber .satz { display: block; }
+.zauber .satz + .satz { margin-top: .55em; }
 .zauber .wort {
   display: inline-block;
   --tinte: currentColor;
@@ -284,9 +286,9 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .ebene > .inhalt.links, .ebene > .inhalt.rechts { grid-column: 1; grid-row: 1; justify-self: stretch; }
   .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
   .ebene .inhalt { max-width: none; }
-  .liegt { width: min(46vw, 24svh); margin: 1.2rem auto 0; }
+  .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
   #augenblick { padding: 10vh 4vw 10vh; }
-  .tablet { width: min(72vw, calc(66svh * .744 + 12px)); }
+  .tablet { width: min(72vw, calc(66dvh * .744 + 12px)); }
   #ankommen .inhalt { padding: 12vh 6vw 0; }
 }
 
@@ -483,3 +485,28 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 @media (prefers-reduced-motion: reduce) { .glitzerdruck circle { animation: none; } }
 
 html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none; }
+
+/* ---------- Nach der Apple-Design-Checkliste ---------- */
+/* Rückmeldung beim Drücken, nicht erst beim Loslassen */
+.bestellen:active, .senden:active, .zu:active { transform: scale(.97); transition: transform 100ms ease-out; }
+.pille input:active + span, .wahl:active .bild, .tupfer:active span, .motivwahl:active svg { transform: scale(.96); transition: transform 100ms ease-out; }
+.bild, .wahl .bild { transition: transform 240ms cubic-bezier(.2, .8, .2, 1); }
+/* Typografie: grosse Schrift enger, kleine etwas weiter */
+.signatur strong { letter-spacing: -.02em; line-height: 1.05; }
+.signatur span { letter-spacing: .01em; }
+.karte-innen h2 { letter-spacing: -.025em; line-height: 1.05; }
+.option-titel, .produkt-text, .felder label { letter-spacing: .02em; }
+/* Die Bestellkarte materialisiert: Unschärfe und Grösse zusammen, nicht nur Deckkraft */
+.karte-innen { filter: blur(8px); transition: opacity .6s ease, transform .6s cubic-bezier(.2, .8, .2, 1), filter .6s ease; }
+.bestellkarte.offen .karte-innen { filter: blur(0); }
+/* Fokus sichtbar, ohne Rahmen für die Maus */
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: none; }
+  .karte-innen { filter: none; transition: opacity .25s ease; transform: none; }
+  .bestellen:active, .senden:active, .zu:active { transform: none; }
+}
+@media (prefers-contrast: more) {
+  .bestellen { border-color: currentColor; }
+  .pille span { border: 1.5px solid currentColor; }
+}
