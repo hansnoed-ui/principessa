@@ -79,15 +79,15 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 #augenblick {
   position: relative;
   height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
-  display: grid; place-items: center;
-  padding: 6vh 5vw 8vh;
+  display: grid; place-items: start center;
+  padding: 11vh 5vw 8vh;
   background: var(--e-abend);
 }
 /* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
 .tablet {
   position: relative; z-index: 2;
-  width: min(64vw, 520px, calc(76vh * .744 + 12px));
-  width: min(64vw, 520px, calc(76dvh * .744 + 12px));
+  width: min(64vw, 520px, calc(56vh * .744 + 12px));
+  width: min(64vw, 520px, calc(56dvh * .744 + 12px));
   padding: clamp(4px, .45vw, 6px);
   border-radius: clamp(16px, 1.8vw, 24px);
   background: #18181c;
@@ -298,8 +298,8 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
   .ebene .inhalt { max-width: none; }
   .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
-  #augenblick { padding: 10vh 4vw 10vh; }
-  .tablet { width: min(72vw, calc(66dvh * .744 + 12px)); }
+  #augenblick { padding: 11vh 4vw 8vh; }
+  .tablet { width: min(72vw, calc(56dvh * .744 + 12px)); }
   #ankommen .inhalt { padding: 12vh 6vw 0; }
 }
 
