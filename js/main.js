@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { C, F, BEIN_EXTRA, rng, zeichne, silhouette, imBild, baueFigur } from './figur.js';
+import { C, F, BEIN_EXTRA, rng, zeichneSticker, silhouette, imBild, baueFigur } from './figur.js';
+import { lage as bildLage, zeichneRahmen, funkelpunkte } from './rahmen.js';
 
 // ------------------------------------------------------------------ Hilfen
 const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -18,7 +19,19 @@ const zufall = rng(2026);
 const $ = s => document.querySelector(s);
 const staub = $('#staub'), sc = staub.getContext('2d');
 const flach = $('#flach'), fc = flach.getContext('2d');
-const bildEl = $('.bild'), auftakt = $('.auftakt'), hinweis = $('.hinweis'), boden = $('#boden');
+const bildEl = $('.bild'), titel = $('.titel'), boden = $('#boden');
+
+// Glitzerfüllung für den Titel
+{
+  const c = document.createElement('canvas'); c.width = c.height = 240;
+  const x = c.getContext('2d'), r = rng(31);
+  for (let i = 0; i < 1100; i++) {
+    const rr = .4 + Math.pow(r(), 3) * 2.4, w = r();
+    x.fillStyle = w < .4 ? `rgba(255,255,255,${.55 + r() * .45})` : w < .75 ? `rgba(255,232,140,${.6 + r() * .4})` : `rgba(140,88,18,${.5 + r() * .4})`;
+    x.beginPath(); x.arc(r() * 240, r() * 240, rr, 0, 7); x.fill();
+  }
+  titel.style.setProperty('--glitzer', `url(${c.toDataURL()})`);
+}
 const S = { augenblick: $('#augenblick'), schweben: $('#schweben'), glitzer: $('#glitzer'), verweilen: $('#verweilen'), ankommen: $('#ankommen') };
 
 const sichtbar = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('da'); }), { threshold: .2 });
@@ -55,7 +68,7 @@ figur.visible = false; scene.add(figur);
 
 // Abziehbild: dieselbe Zeichnung wie im Bild, als biegsame Fläche
 const KG = 1024, kc = document.createElement('canvas'); kc.width = kc.height = KG;
-{ const { cx, by, s } = imBild(KG); zeichne(kc.getContext('2d'), cx, by, s, KG * .009); }
+{ const { cx, by, s } = imBild(KG); zeichneSticker(kc.getContext('2d'), cx, by, s, KG * .009); }
 const kTex = new THREE.CanvasTexture(kc); kTex.colorSpace = THREE.SRGBColorSpace; kTex.anisotropy = 8;
 const kGeo = new THREE.PlaneGeometry(1, 1, 1, 60); kGeo.translate(0, .5, 0);
 const kBasis = Float32Array.from(kGeo.attributes.position.array);
@@ -81,12 +94,13 @@ function rollen(p, r = .09) {
 // Splitter des Bildes
 const splitter = [];
 {
-  const papier = new THREE.MeshBasicMaterial({ color: '#fcfaf6', side: THREE.DoubleSide, toneMapped: false });
-  const strich = new THREE.MeshBasicMaterial({ color: C.linie, side: THREE.DoubleSide });
-  for (let i = 0; i < 30; i++) {
+  const glas = new THREE.MeshBasicMaterial({ color: '#eef6f8', transparent: true, opacity: .6, side: THREE.DoubleSide, toneMapped: false });
+  const gold = new THREE.MeshStandardMaterial({ color: '#e2b548', metalness: .7, roughness: .3, side: THREE.DoubleSide });
+  const rosa = new THREE.MeshBasicMaterial({ color: '#dcaacd', side: THREE.DoubleSide, toneMapped: false });
+  for (let i = 0; i < 34; i++) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute([0, 1, 0, -(.4 + zufall()), -(.3 + zufall() * .6), 0, .4 + zufall(), -(.2 + zufall() * .7), 0], 3));
-    const m = new THREE.Mesh(g, zufall() < .82 ? papier : strich); m.visible = false; scene.add(m);
+    const w = zufall(), m = new THREE.Mesh(g, w < .55 ? glas : w < .82 ? gold : rosa); m.visible = false; scene.add(m);
     splitter.push({ m, v: new THREE.Vector3(), w: new THREE.Vector3(), leben: 0 });
   }
 }
@@ -111,12 +125,12 @@ function groesse() {
   figH = clamp(Math.min(vh * (mobil ? .18 : .27), vw * .45), 110, 270);
   const r = flach.getBoundingClientRect();
   flach.width = Math.round(r.width * dpr); flach.height = Math.round(r.height * dpr);
-  bildFertig = false;
   messen();
   if (Math.abs(altVw - vw) > 1) { wolkeAnlegen(); sterneAnlegen(); }
 }
 
-// ------------------------------------------------------------------ Das Bild (2D)
+// ------------------------------------------------------------------ Das Bild (2D): Gemälde, Principessa, Glas, Rahmen
+const gemaelde = new Image(); gemaelde.decoding = 'async'; gemaelde.src = 'assets/augenblick.jpg';
 const risse = (() => {
   const r = rng(42), out = [];
   for (let i = 0; i < 11; i++) {
@@ -128,40 +142,87 @@ const risse = (() => {
   }
   return out;
 })();
-let bildFertig = false, karoMuster = null, karoFuer = 0;
-function karo(g) {
-  if (karoFuer === g) return karoMuster;
-  const q = Math.max(6, Math.round(g / 48)), c = document.createElement('canvas'); c.width = c.height = q * 2;
-  const x = c.getContext('2d'); x.fillStyle = '#dedad5'; x.fillRect(0, 0, q * 2, q * 2); x.fillStyle = '#c2bdb7'; x.fillRect(0, 0, q, q); x.fillRect(q, q, q, q);
-  karoMuster = fc.createPattern(c, 'repeat'); karoFuer = g; return karoMuster;
+let rahmenBild = null, rahmenFuer = '', leinenMuster = null;
+function leinen() {
+  if (leinenMuster) return leinenMuster;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d'), r = rng(9);
+  x.fillStyle = '#ece4d6'; x.fillRect(0, 0, 64, 64); x.lineWidth = .7;
+  for (let i = 0; i < 220; i++) {
+    x.strokeStyle = `rgba(150,130,100,${.08 + r() * .14})`;
+    const p = r() * 64; x.beginPath();
+    if (r() < .5) { x.moveTo(0, p); x.lineTo(64, p + (r() - .5) * 2); } else { x.moveTo(p, 0); x.lineTo(p + (r() - .5) * 2, 64); }
+    x.stroke();
+  }
+  leinenMuster = fc.createPattern(c, 'repeat'); return leinenMuster;
 }
-const T = { klopf: [1.0, 1.5], abrollen: 2.1, loesen: 2.45, plopp: 2.7, flugEnde: 3.6 };
-function bildZeichnen(t) {
-  const g = flach.width; if (!g) return;
-  fc.clearRect(0, 0, g, g);
-  const { cx, by, s } = imBild(g), lw = g * .009;
-  if (t < T.abrollen) {
-    let k = 0;
-    for (const kt of T.klopf) { const d = t - kt; if (d > 0 && d < .25) k = Math.max(k, Math.sin(d / .25 * Math.PI)); }
+const funkel = funkelpunkte(36);
+// Lage des Abziehbilds im Fenster (CSS-Pixel)
+function boxImFenster() {
+  const r = flach.getBoundingClientRect(), k = r.width / (flach.width || 1), L = bildLage(flach.width || 1, flach.height || 1);
+  return { x: r.left + L.box.x * k, y: r.top + L.box.y * k, s: L.box.s * k, unten: r.bottom };
+}
+// z = { flach, klopf, ringe, risse, risseAlpha, glanz }
+function bildZeichnen(z) {
+  const W = flach.width, H = flach.height; if (!W || !H) return;
+  if (rahmenFuer !== W + 'x' + H) { rahmenBild = zeichneRahmen(W, H); rahmenFuer = W + 'x' + H; }
+  const { f, g, box } = bildLage(W, H);
+  const ib = imBild(box.s), cx = box.x + ib.cx, by = box.y + ib.by, s = ib.s, lw = box.s * .009;
+  fc.clearRect(0, 0, W, H);
+  if (gemaelde.complete && gemaelde.naturalWidth) fc.drawImage(gemaelde, g.x, g.y, g.w, g.h);
+  else { fc.fillStyle = '#d8b1cf'; fc.fillRect(g.x, g.y, g.w, g.h); }
+  fc.save(); fc.beginPath(); fc.rect(g.x, g.y, g.w, g.h); fc.clip();
+  if (z.flach) {
+    const k = z.klopf;
     fc.save(); fc.translate(cx, by); fc.scale(1 + k * .05, 1 - k * .03); fc.translate(-cx, -by);
-    zeichne(fc, cx, by, s, lw); fc.restore();
-    for (const kt of T.klopf) {
-      const d = t - kt;
-      if (d > 0 && d < .5) { const u = d / .5; fc.strokeStyle = `rgba(42,34,48,${(1 - u) * .45})`; fc.lineWidth = lw; fc.beginPath(); fc.arc(cx, by - 1.2 * s, g * (.1 + u * .32), 0, 7); fc.stroke(); }
-    }
+    zeichneSticker(fc, cx, by, s, lw); fc.restore();
+    for (const u of z.ringe) { fc.strokeStyle = `rgba(255,250,235,${(1 - u) * .75})`; fc.lineWidth = lw * 1.2; fc.beginPath(); fc.arc(cx, by - 1.2 * s, box.s * (.12 + u * .4), 0, 7); fc.stroke(); }
   } else {
-    fc.save(); silhouette(fc, cx, by, s); fc.fillStyle = karo(g); fc.fill(); fc.restore();
-    if (t >= T.plopp) {
-      const w = eout(seg(t, T.plopp, T.plopp + .18));
-      fc.strokeStyle = C.linie; fc.lineWidth = lw * .75; fc.lineJoin = 'round';
-      const ox = cx, oy = by - 1.2 * s;
+    // wo sie stand, bleibt rohe Leinwand mit der Vorzeichnung
+    fc.save(); silhouette(fc, cx, by, s); fc.lineJoin = 'round';
+    fc.strokeStyle = fc.fillStyle = leinen(); fc.lineWidth = lw * 7; fc.stroke(); fc.fill();
+    fc.strokeStyle = 'rgba(110,95,80,.45)'; fc.lineWidth = lw * .6; fc.stroke(); fc.restore();
+  }
+  if (z.glanz > 0) {
+    const gr = fc.createRadialGradient(cx, by - 1.1 * s, 0, cx, by - 1.1 * s, s * 1.9);
+    gr.addColorStop(0, `rgba(255,236,160,${.6 * z.glanz})`); gr.addColorStop(1, 'rgba(255,236,160,0)');
+    fc.globalCompositeOperation = 'lighter'; fc.fillStyle = gr; fc.fillRect(g.x, g.y, g.w, g.h); fc.globalCompositeOperation = 'source-over';
+  }
+  // Glas: Risse und ein leiser Schimmer
+  if (z.risse > 0 && z.risseAlpha > 0) {
+    const ox = cx, oy = by - 1.2 * s, m = box.s * 1.5;
+    fc.lineJoin = 'round'; fc.lineCap = 'round'; fc.globalAlpha = z.risseAlpha;
+    for (const [farbe, breite, dx] of [['rgba(30,20,40,.35)', lw * .9, lw * .4], ['rgba(255,255,255,.92)', lw * .65, 0]]) {
+      fc.strokeStyle = farbe; fc.lineWidth = breite;
       for (const pts of risse) {
-        fc.beginPath(); const n = Math.max(2, Math.ceil(pts.length * w));
-        for (let i = 0; i < n; i++) { const [x, y] = pts[i]; i ? fc.lineTo(ox + x * g, oy + y * g) : fc.moveTo(ox + x * g, oy + y * g); }
+        fc.beginPath(); const n = Math.max(2, Math.ceil(pts.length * z.risse));
+        for (let i = 0; i < n; i++) { const X = ox + pts[i][0] * m + dx, Y = oy + pts[i][1] * m + dx; i ? fc.lineTo(X, Y) : fc.moveTo(X, Y); }
         fc.stroke();
       }
     }
+    fc.globalAlpha = 1;
   }
+  const sch = fc.createLinearGradient(g.x, g.y, g.x + g.w, g.y + g.h);
+  sch.addColorStop(0, 'rgba(255,255,255,.12)'); sch.addColorStop(.3, 'rgba(255,255,255,0)');
+  sch.addColorStop(.6, 'rgba(255,255,255,0)'); sch.addColorStop(.68, 'rgba(255,255,255,.08)'); sch.addColorStop(.76, 'rgba(255,255,255,0)');
+  fc.fillStyle = sch; fc.fillRect(g.x, g.y, g.w, g.h);
+  const t = g.w * .05;
+  for (const [x0, y0, x1, y1, rx, ry, rw, rh] of [[0, g.y, 0, g.y + t, g.x, g.y, g.w, t], [g.x, 0, g.x + t, 0, g.x, g.y, t, g.h]]) {
+    const sg = fc.createLinearGradient(x0, y0, x1, y1); sg.addColorStop(0, 'rgba(25,12,0,.5)'); sg.addColorStop(1, 'rgba(25,12,0,0)');
+    fc.fillStyle = sg; fc.fillRect(rx, ry, rw, rh);
+  }
+  fc.restore();
+  fc.drawImage(rahmenBild, 0, 0);
+  // Funkeln auf Rahmen und Sonne
+  fc.globalCompositeOperation = 'lighter';
+  for (const p of funkel) {
+    const a = Math.pow(Math.max(0, Math.sin(tau * p.k + p.ph)), 8); if (a < .02) continue;
+    let x, y;
+    if (p.imBild) { x = g.x + p.gx * g.w; y = g.y + p.gy * g.h; }
+    else { const d = p.d * f; [x, y] = p.seite === 0 ? [p.u * W, d] : p.seite === 1 ? [W - d, p.u * H] : p.seite === 2 ? [p.u * W, H - d] : [d, p.u * H]; }
+    fc.fillStyle = `rgba(255,248,215,${a})`; stern(fc, x, y, p.gr * W / 300);
+  }
+  fc.globalCompositeOperation = 'source-over';
 }
 
 // ------------------------------------------------------------------ Staub, Sterne, Blumen (2D, Seitenkoordinaten)
@@ -234,7 +295,9 @@ function ziel() {
 }
 
 // ------------------------------------------------------------------ Zustand
-let tI = reduziert ? 99 : 0, plopped = false;
+// modus: 'drin' = im Bild, klopft ab und zu · 'aus' = draussen · 'zurueck' = kehrt ins Bild zurück
+const T = { loesen: .35, plopp: .6, flugEnde: 1.5, rueckFlug: 1.1, rueckKleben: 1.75, rueckEnde: 2.6 };
+let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, warUnten = false, rueck = null;
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
 let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0;
 const himmelFarben = [new THREE.Color('#fff4e6'), new THREE.Color('#e2efff'), new THREE.Color('#c4f6ee'), new THREE.Color('#8f9cff'), new THREE.Color('#dcffe0')];
@@ -253,13 +316,6 @@ function bild(nowMs) {
   const now = nowMs / 1000, dt = Math.min(.05, now - tAlt); tAlt = now;
   messen();
 
-  // Auftakt-Uhr
-  if (tI < 99) {
-    if (scrollY > 30 && tI < T.abrollen) tI = T.abrollen;
-    tI += dt;
-    if (tI > 30) tI = 99;
-  }
-
   // Verweilen: die Zeit hält an, wenn die dritte Ebene in der Mitte steht
   const vMitte = lage.verweilen.top + lage.verweilen.h / 2;
   const halt = reduziert ? 1 : 1 - glatt(.1, .5, Math.abs(scrollY + vh / 2 - vMitte) / vh);
@@ -269,41 +325,73 @@ function bild(nowMs) {
   scrollV = daempfe(scrollV, (scrollY - letzterScroll) / Math.max(dt, 1e-3), 6, dt); letzterScroll = scrollY;
   const z = ziel();
 
+  // ---- Übergänge: beim Scrollen heraus, ganz oben wieder hinein
+  if (scrollY > vh * .5) warUnten = true;
+  if (modus === 'drin') {
+    klopfUhr += dt;
+    if (scrollY > 30) { modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; }
+  } else if (modus === 'aus') {
+    tI += dt;
+    if (tI >= T.flugEnde && warUnten && scrollY < vh * .12 && renderer) {
+      modus = 'zurueck'; tR = reduziert ? T.rueckKleben : 0; gelandet = false;
+      rueck = { x: fx, y: fy, z: fz, dreh: dreh.rotation.y };
+    }
+  } else {
+    tR += dt;
+    if (tR >= T.rueckEnde) { modus = 'drin'; tI = 0; klopfUhr = -2.5; warUnten = false; plopped = false; }
+  }
+
   // ---- Bild im Auftakt
-  if (!bildFertig) {
-    bildZeichnen(tI);
-    if (tI > T.plopp + .4) bildFertig = true;
-  }
-  if (tI >= T.plopp + .4 && !auftakt.classList.contains('da')) auftakt.classList.add('da');
-  if (tI >= T.flugEnde + .8 && !hinweis.classList.contains('da')) hinweis.classList.add('da');
-  if (scrollY > vh * .4) hinweis.classList.remove('da');
-  bildEl.style.transform = (tI >= T.plopp && tI < T.plopp + .35) ? `translate(${(zufall() - .5) * 8}px, ${(zufall() - .5) * 8}px)` : '';
-
-  const br = flach.getBoundingClientRect(), bw = br.width;
-
-  // ---- Abziehbild
-  karte.visible = !!renderer && tI >= T.abrollen && tI < T.plopp;
-  if (karte.visible) {
-    const lift = eio(seg(tI, T.loesen, T.plopp));
-    rollen(eio(seg(tI, T.abrollen, T.loesen)) * .62 * (1 - eout(seg(tI, T.loesen, T.plopp))));
-    karte.position.copy(welt(br.left + bw / 2, br.bottom - lift * bw * .1, lift * bw * .45));
-    karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2, 0, Math.sin(lift * Math.PI) * .08);
-    karte.scale.setScalar(bw);
-  }
-
-  // ---- Plopp: Splitter
-  if (tI >= T.plopp && !plopped) {
-    plopped = true;
-    if (!reduziert) {
-      const m = welt(br.left + bw / 2, br.top + bw * .45);
-      for (const sp of splitter) {
-        const a = zufall() * Math.PI * 2, r = zufall() * bw * .35, s = bw * (.02 + zufall() * .05);
-        sp.m.position.set(m.x + Math.cos(a) * r, m.y + Math.sin(a) * r, 2);
-        sp.m.scale.setScalar(s); sp.m.rotation.set(zufall() * 6, zufall() * 6, zufall() * 6);
-        sp.v.set(Math.cos(a) * (150 + zufall() * 500), Math.sin(a) * (120 + zufall() * 400) + 350, 150 + zufall() * 500);
-        sp.w.set((zufall() - .5) * 16, (zufall() - .5) * 16, (zufall() - .5) * 16);
-        sp.leben = 2.2; sp.m.visible = true;
+  const bx = boxImFenster();
+  if (bx.unten > -40) {
+    const zb = { flach: true, klopf: 0, ringe: [], risse: 0, risseAlpha: 1, glanz: 0 };
+    if (modus === 'drin') {
+      if (!reduziert && klopfUhr > 0) {
+        const p = klopfUhr % 7;
+        for (const kt of [1.2, 1.65]) {
+          const d = p - kt;
+          if (d > 0 && d < .25) zb.klopf = Math.max(zb.klopf, Math.sin(d / .25 * Math.PI));
+          if (d > 0 && d < .5) zb.ringe.push(d / .5);
+        }
       }
+    } else if (modus === 'aus') {
+      zb.flach = false; zb.risse = tI >= T.plopp ? eout(seg(tI, T.plopp, T.plopp + .18)) : 0;
+    } else {
+      zb.flach = tR >= T.rueckKleben; zb.risse = 1; zb.risseAlpha = 1 - seg(tR, .3, 1.5);
+      zb.glanz = Math.sin(Math.PI * seg(tR, T.rueckKleben - .15, T.rueckEnde));
+    }
+    bildZeichnen(zb);
+  }
+  bildEl.style.transform = (modus === 'aus' && tI >= T.plopp && tI < T.plopp + .35) ? `translate(${(zufall() - .5) * 8}px, ${(zufall() - .5) * 8}px)` : '';
+
+  // ---- Abziehbild: hinaus rollt es sich ab, zurück legt es sich wieder an
+  let lift = 0, roll = 0;
+  karte.visible = false;
+  if (renderer && modus === 'aus' && tI < T.plopp) {
+    karte.visible = true; lift = eio(seg(tI, T.loesen, T.plopp));
+    roll = eio(seg(tI, 0, T.loesen)) * .62 * (1 - eout(seg(tI, T.loesen, T.plopp)));
+  } else if (renderer && modus === 'zurueck' && tR >= T.rueckFlug && tR < T.rueckKleben) {
+    karte.visible = true; const u = seg(tR, T.rueckFlug, T.rueckKleben);
+    lift = 1 - eio(u); roll = .22 * Math.sin(Math.PI * u);
+  }
+  if (karte.visible) {
+    rollen(roll);
+    karte.position.copy(welt(bx.x + bx.s / 2, bx.y + bx.s - lift * bx.s * .1, lift * bx.s * .45));
+    karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2, 0, Math.sin(lift * Math.PI) * .08);
+    karte.scale.setScalar(bx.s);
+  }
+
+  // ---- Plopp: Glassplitter, Goldflocken, ein Stück Himmel
+  if (modus === 'aus' && tI >= T.plopp && !plopped) {
+    plopped = true;
+    const m = welt(bx.x + bx.s / 2, bx.y + bx.s * .45);
+    for (const sp of splitter) {
+      const a = zufall() * Math.PI * 2, r = zufall() * bx.s * .6, s = bx.s * (.025 + zufall() * .05);
+      sp.m.position.set(m.x + Math.cos(a) * r, m.y + Math.sin(a) * r, 2);
+      sp.m.scale.setScalar(s); sp.m.rotation.set(zufall() * 6, zufall() * 6, zufall() * 6);
+      sp.v.set(Math.cos(a) * (150 + zufall() * 500), Math.sin(a) * (120 + zufall() * 400) + 350, 150 + zufall() * 500);
+      sp.w.set((zufall() - .5) * 16, (zufall() - .5) * 16, (zufall() - .5) * 16);
+      sp.leben = 2.2; sp.m.visible = true;
     }
   }
   for (const sp of splitter) {
@@ -315,22 +403,30 @@ function bild(nowMs) {
   }
 
   // ---- Principessa
-  figur.visible = !!renderer && tI >= T.plopp;
+  const draussen = (modus === 'aus' && tI >= T.plopp) || (modus === 'zurueck' && tR < T.rueckFlug);
+  figur.visible = !!renderer && draussen;
   const bodenTop = lage.boden - scrollY;
   // Sobald der Boden gut sichtbar ist, sinkt sie auf ihn hinab
   const amBoden = bodenTop < vh * .8;
   const zielFuss = amBoden ? bodenTop + 5 : Math.min(z.mitteY + figH / 2, bodenTop + 5);
 
-  let skal = 1, sq = 0, verbeug = 0, extraDreh = 0;
-  if (tI < T.flugEnde) {
-    // Auftakt: aus dem Bild heraus zum ersten Ankerpunkt
+  let skal = 1, sq = 0, verbeug = 0, extraDreh = 0, rueckDreh = null;
+  const startSkal = (.37 * bx.s * LOKAL_H) / figH;
+  const sx = bx.x + bx.s / 2, sy = bx.y + bx.s * .84, sz = bx.s * .45;
+  if (modus === 'aus' && tI < T.flugEnde) {
+    // aus dem Bild heraus zum ersten Ankerpunkt
     const u = seg(tI, T.plopp, T.flugEnde), e = eio(u);
-    const sx = br.left + bw / 2, sy = br.bottom - bw * .1;
     fx = lerp(sx, z.x, e); fy = lerp(sy, zielFuss, e) - Math.sin(Math.PI * u) * vh * .12;
-    fz = Math.sin(Math.PI * u) * figH * .9;
-    const start = (.37 * bw * LOKAL_H) / figH;
-    skal = lerp(start, 1, eback(seg(tI, T.plopp, T.plopp + .45)));
+    fz = lerp(sz, 0, e) + Math.sin(Math.PI * u) * figH * .9;
+    skal = lerp(startSkal, 1, eback(seg(tI, T.plopp, T.plopp + .45)));
     extraDreh = e * Math.PI * 2;
+  } else if (modus === 'zurueck' && rueck) {
+    // sanft zurück: in einem leisen Bogen, kleiner werdend, mit dem Gesicht nach vorn
+    const u = seg(tR, 0, T.rueckFlug), e = eio(u);
+    fx = lerp(rueck.x, sx, e); fy = lerp(rueck.y, sy, e) - Math.sin(Math.PI * u) * vh * .08;
+    fz = lerp(rueck.z, sz, e) + Math.sin(Math.PI * u) * figH * .5;
+    skal = lerp(1, startSkal, eio(seg(tR, .15, T.rueckFlug)));
+    rueckDreh = lerp(rueck.dreh, Math.round(rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
   } else {
     fx = daempfe(fx, gelandet ? fx : z.x, 4.5, dt);
     fy = gelandet ? zielFuss : daempfe(fy, zielFuss, amBoden ? 3.5 : 5, dt);
@@ -339,7 +435,7 @@ function bild(nowMs) {
   const fxAlt = figur.userData.fx ?? fx; vxF = daempfe(vxF, (fx - fxAlt) / Math.max(dt, 1e-3), 6, dt); figur.userData.fx = fx;
 
   // Landen
-  if (tI >= T.flugEnde && amBoden && !gelandet && Math.abs(fy - zielFuss) < 6) {
+  if (modus === 'aus' && tI >= T.flugEnde && amBoden && !gelandet && Math.abs(fy - zielFuss) < 6) {
     gelandet = true; landZeit = now; funkenGesprueht = false;
     if (!geblueht) blumenPflanzen(fx);
   }
@@ -356,7 +452,7 @@ function bild(nowMs) {
     }
   }
 
-  const schwebt = !gelandet && tI >= T.plopp;
+  const schwebt = !gelandet && draussen && modus === 'aus';
   const wipp = schwebt && !reduziert ? Math.sin(tau * 1.7) * figH * .035 : 0;
   figur.position.copy(welt(fx, fy + wipp, fz));
   const basis = figH / LOKAL_H * skal;
@@ -364,7 +460,7 @@ function bild(nowMs) {
   figur.rotation.x = verbeug;
   schwenk.rotation.z = schwebt ? clamp(-vxF * .0007, -.35, .35) + (reduziert ? 0 : Math.sin(tau * 1.1) * .05) : daempfe(schwenk.rotation.z, 0, 8, dt);
   schwenk.rotation.x = schwebt ? clamp(scrollV * .00022, -.3, .3) : daempfe(schwenk.rotation.x, 0, 8, dt);
-  dreh.rotation.y = z.drehungen * Math.PI * 2 + extraDreh + (schwebt && !reduziert ? Math.sin(tau * .8) * .2 : 0);
+  dreh.rotation.y = rueckDreh ?? (z.drehungen * Math.PI * 2 + extraDreh + (schwebt && !reduziert ? Math.sin(tau * .8) * .2 : 0));
 
   // Blinzeln
   const bp = (tau % 4.3);
@@ -456,4 +552,4 @@ function bild(nowMs) {
 requestAnimationFrame(bild);
 
 // für Tests: window.__principessa.springe(t) setzt die Auftakt-Uhr
-window.__principessa = { springe: t => { tI = t; }, zustand: () => ({ tI, gesammelt, gelandet }) };
+window.__principessa = { zustand: () => ({ modus, tI, tR, gesammelt, gelandet }) };

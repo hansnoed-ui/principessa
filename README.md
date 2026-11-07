@@ -1,4 +1,4 @@
-# Principessa
+# Principesse
 
 Eine Principessa entspringt einem Augenblick und trägt seinen Zauber durch vier Ebenen nach unten.
 
@@ -7,6 +7,8 @@ Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt i
 ## Aufbau
 
 - `index.html`, `style.css` – die Seite und ihre vier Ebenen
+- `assets/augenblick.jpg` – das Gemälde, aus dem sie herausspringt
+- `js/rahmen.js` – der verzierte Goldrahmen und die Lage der Principessa im Bild
 - `js/figur.js` – die Principessa, flach gezeichnet und als 3D-Figur, beide aus denselben Massen
 - `js/main.js` – Auftakt (Klopfen, Abrollen, Plopp), Flug beim Scrollen, Glitzer, Sterne, Landung und Wiese
 - `vendor/` – Three.js r170 (MIT), lokal mitgeliefert, damit die Seite ohne CDN läuft

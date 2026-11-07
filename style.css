@@ -69,44 +69,52 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   min-height: 100svh;
   display: grid;
   place-items: center;
-  padding: 10vh 6vw 14vh;
-  background: linear-gradient(var(--creme) 62%, var(--hellblau));
+  padding: 5vh 5vw 8vh;
+  background: linear-gradient(var(--creme) 70%, var(--hellblau));
 }
 #augenblick .inhalt {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 2rem;
+  gap: clamp(1rem, 3vh, 2.2rem);
 }
+
+/* Titel: Märchenschrift mit Glitzerfüllung */
+.titel {
+  --glitzer: linear-gradient(transparent, transparent);
+  font-family: "Cinzel Decorative", "Fraunces", Georgia, serif;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: normal;
+  font-size: clamp(2.3rem, 0.9rem + 6.4vw, 6.4rem);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-align: center;
+  margin: 0;
+  color: #c9952e;
+  background-image:
+    var(--glitzer),
+    var(--glitzer),
+    linear-gradient(100deg, #8a5a14 0%, #f3d27a 18%, #b8862a 34%, #fff0b4 50%, #c08d2c 66%, #f6dc8a 82%, #8a5a14 100%);
+  background-size: 240px 240px, 170px 170px, 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(90, 58, 12, .45)) drop-shadow(0 8px 18px rgba(212, 164, 41, .35));
+  animation: funkeln 9s linear infinite;
+}
+@keyframes funkeln {
+  to { background-position: 240px 120px, -170px 85px, -220% 0; }
+}
+
 .bild {
   margin: 0;
-  width: min(62vw, 340px, 42vh);
-  aspect-ratio: 1;
-  background: var(--papier);
-  border: 1.5px solid rgba(42, 34, 48, 0.55);
-  border-radius: 3px;
-  box-shadow: 0 1px 0 rgba(42, 34, 48, .08), 0 18px 40px -18px rgba(42, 34, 48, .35);
+  width: min(78vw, 430px, calc(66vh * 0.7856));
+  width: min(78vw, 430px, calc(66svh * 0.7856));
+  aspect-ratio: 0.7856;
+  filter: drop-shadow(0 22px 26px rgba(60, 36, 8, .35)) drop-shadow(0 3px 4px rgba(60, 36, 8, .3));
 }
 .bild canvas { width: 100%; height: 100%; display: block; }
-.auftakt { max-width: 26rem; opacity: 0; transform: translateY(10px); transition: opacity 1.2s ease, transform 1.2s ease; }
-.auftakt.da { opacity: 1; transform: none; }
-.auftakt p { margin: 0; }
-.hinweis {
-  position: absolute;
-  bottom: 4vh;
-  left: 0; right: 0;
-  margin: 0;
-  text-align: center;
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-.hinweis::after { content: ""; display: block; width: 1px; height: 28px; margin: 10px auto 0; background: currentColor; animation: tropfen 2.2s ease-in-out infinite; }
-.hinweis.da { opacity: .6; }
-@keyframes tropfen { 0%, 100% { transform: scaleY(.3); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } }
 
 /* ---------- Ebenen ---------- */
 .ebene {
@@ -163,12 +171,11 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .links, .rechts { margin: 0; }
   #ankommen { padding: 0; }
   #ankommen .inhalt { padding: 26vh 6vw 22vh; }
-  #augenblick { padding-top: 7vh; place-items: start center; }
-  #augenblick .inhalt { gap: 1.4rem; }
-  .hinweis { display: none; }
+  #augenblick { padding: 4vh 4vw 6vh; }
+  .bild { width: min(88vw, calc(70svh * 0.7856)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .auftakt, .ebene .inhalt, .hinweis { transition: none; }
-  .hinweis::after { animation: none; }
+  .ebene .inhalt { transition: none; }
+  .titel { animation: none; }
 }
