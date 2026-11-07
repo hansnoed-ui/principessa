@@ -16,6 +16,17 @@
   --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
   --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --glitzer: linear-gradient(transparent, transparent);
+  /* Kurven: Eintreten stark auslaufend, Bewegung auf dem Bildschirm beidseitig */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Ebenen: eine Palette aus dem Gemälde */
+  --e-abend: #2b2152;
+  --e-himmel: #bdd1ec;
+  --e-wasser: #176a7e;
+  --e-nacht: #151840;
+  --e-daemmer: #b78bb3;
+  --e-wiese: #3e9868;
 }
 
 * { box-sizing: border-box; }
@@ -70,7 +81,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid; place-items: center;
   padding: 6vh 5vw 8vh;
-  background: #241d55;
+  background: var(--e-abend);
 }
 /* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
 .tablet {
@@ -167,7 +178,7 @@ html { scroll-snap-type: y mandatory; }
   padding: 0 8vw;
   overflow: hidden;
 }
-.ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity 1s ease, transform 1s ease; }
+.ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
 .ebene > .inhalt.links { grid-column: 1; grid-row: 1; justify-self: start; }
 .ebene > .inhalt.rechts { grid-column: 2; grid-row: 1; justify-self: end; }
 .ebene > .inhalt.links ~ .platz { grid-column: 2; grid-row: 1; }
@@ -175,7 +186,7 @@ html { scroll-snap-type: y mandatory; }
 .platz { align-self: stretch; margin: 16vh 0; }
 .ebene .inhalt.da { opacity: 1; transform: none; }
 
-#schweben { background: var(--hellblau); }
+#schweben { background: var(--e-himmel); }
 .inhalt.mitte { margin: 0 auto; text-align: center; }
 .bestellen {
   display: inline-block;
@@ -185,15 +196,15 @@ html { scroll-snap-type: y mandatory; }
   text-decoration: none;
   border: 1px solid rgba(42, 34, 48, .6);
   border-radius: 999px;
-  transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
 }
 .bestellen:hover, .bestellen:focus-visible { border-color: var(--gold); background: rgba(255, 248, 225, .45); box-shadow: 0 0 0 3px rgba(212, 164, 41, .18); outline: none; }
-#glitzer { background: #0f5e78; color: var(--creme); }
+#glitzer { background: var(--e-wasser); color: var(--creme); }
 #gluecksbringer { background: linear-gradient(#0a3550, #2e2f72 20%, #5b4790 50%, #8e5f9c 78%, #b9759a); color: var(--creme); }
 #gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
-#verweilen { background: var(--nacht); color: var(--creme); }
+#verweilen { background: var(--e-nacht); color: var(--creme); }
 #ankommen {
-  background: #b98ab6;
+  background: var(--e-daemmer);
   color: var(--linie);
   display: flex;
   flex-direction: column;
@@ -255,9 +266,9 @@ html { scroll-snap-type: y mandatory; }
   animation: stern-funkeln 1.3s ease-out var(--d) forwards;
 }
 @keyframes stern-funkeln {
-  0% { opacity: 0; transform: scale(0) rotate(0); }
+  0% { opacity: 0; transform: scale(.5) rotate(0); }
   35% { opacity: .75; transform: scale(var(--g)) rotate(45deg); }
-  100% { opacity: 0; transform: scale(0) rotate(90deg); }
+  100% { opacity: 0; transform: scale(.6) rotate(90deg); }
 }
 
 blockquote { margin: 1.8rem 0 0; padding-left: 1.1rem; border-left: 1.5px solid rgba(247, 242, 236, .5); }
@@ -270,7 +281,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   height: 34vh;
   height: 34svh;
   min-height: 180px;
-  background: #2f9a62;
+  background: var(--e-wiese);
 }
 .boden::before {
   content: "";
@@ -278,7 +289,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   left: 0; right: 0;
   top: -22px;
   height: 24px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24' viewBox='0 0 60 24'%3E%3Cpath d='M0 24 L4 8 L7 24 L11 2 L14 24 L19 10 L22 24 L27 4 L30 24 L34 12 L37 24 L42 0 L45 24 L49 9 L52 24 L56 5 L60 24 Z' fill='%232f9a62'/%3E%3C/svg%3E") repeat-x bottom / 60px 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24' viewBox='0 0 60 24'%3E%3Cpath d='M0 24 L4 8 L7 24 L11 2 L14 24 L19 10 L22 24 L27 4 L30 24 L34 12 L37 24 L42 0 L45 24 L49 9 L52 24 L56 5 L60 24 Z' fill='%233e9868'/%3E%3C/svg%3E") repeat-x bottom / 60px 24px;
 }
 
 @media (max-width: 700px) {
@@ -309,7 +320,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(212, 164, 41, .55), inset 0 0 0 7px var(--papier), inset 0 0 0 8px rgba(212, 164, 41, .35);
   opacity: 0;
   transform: translateY(28px) scale(.98);
-  transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+  transition: opacity .45s var(--ease-out), transform .45s var(--ease-out);
 }
 .bestellkarte.offen .karte-innen { opacity: 1; transform: none; }
 .karte-innen h2 { color: var(--linie); margin-bottom: .2em; }
@@ -330,7 +341,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   border-radius: 8px;
   background: #f4eee5;
   box-shadow: inset 0 0 0 1.5px rgba(42, 34, 48, .06);
-  transition: box-shadow .3s ease, background .3s ease, transform .3s ease;
+  transition: box-shadow .2s ease, background .2s ease, transform .2s var(--ease-out);
 }
 .produkt.gewaehlt {
   background: #fdf6e3;
@@ -347,14 +358,14 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 }
 .haken::after {
   content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px;
-  border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) scale(0);
-  transition: transform .25s cubic-bezier(.3, 1.6, .5, 1);
+  border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) scale(.5); opacity: 0;
+  transition: transform .2s var(--ease-out), opacity .15s ease;
 }
 .produkt.gewaehlt .haken { background: var(--gold); border-color: var(--gold); }
-.produkt.gewaehlt .haken::after { transform: rotate(45deg) scale(1); }
+.produkt.gewaehlt .haken::after { transform: rotate(45deg) scale(1); opacity: 1; }
 .wahl input:focus-visible ~ .haken { outline: 2px solid var(--gold); outline-offset: 3px; }
 .bild { width: 100%; max-width: 210px; height: auto; display: block; }
-.bild .stapel, .bild .tasche-koerper, .bild .shirt-stoff { transition: transform .45s cubic-bezier(.2, .8, .2, 1), fill .35s ease; }
+.bild .stapel, .bild .tasche-koerper, .bild .shirt-stoff { transition: transform .3s var(--ease-out), fill .25s ease; }
 .produkt-name { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin-top: .2rem; }
 .produkt-text { font-size: .85rem; opacity: .65; }
 
@@ -439,7 +450,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 }
 
 /* ---------- Bestellkarte, moderner ---------- */
-.bestellkarte { background: #2f9a62; }
+.bestellkarte { background: var(--e-wiese); }
 .karte-innen {
   background: #fff;
   border-radius: 22px;
@@ -490,14 +501,14 @@ html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none;
 /* Rückmeldung beim Drücken, nicht erst beim Loslassen */
 .bestellen:active, .senden:active, .zu:active { transform: scale(.97); transition: transform 100ms ease-out; }
 .pille input:active + span, .wahl:active .bild, .tupfer:active span, .motivwahl:active svg { transform: scale(.96); transition: transform 100ms ease-out; }
-.bild, .wahl .bild { transition: transform 240ms cubic-bezier(.2, .8, .2, 1); }
+.bild, .wahl .bild { transition: transform 200ms var(--ease-out); }
 /* Typografie: grosse Schrift enger, kleine etwas weiter */
 .signatur strong { letter-spacing: -.02em; line-height: 1.05; }
 .signatur span { letter-spacing: .01em; }
 .karte-innen h2 { letter-spacing: -.025em; line-height: 1.05; }
 .option-titel, .produkt-text, .felder label { letter-spacing: .02em; }
 /* Die Bestellkarte materialisiert: Unschärfe und Grösse zusammen, nicht nur Deckkraft */
-.karte-innen { filter: blur(8px); transition: opacity .6s ease, transform .6s cubic-bezier(.2, .8, .2, 1), filter .6s ease; }
+.karte-innen { filter: blur(8px); transition: opacity .4s var(--ease-out), transform .45s var(--ease-drawer), filter .4s var(--ease-out); }
 .bestellkarte.offen .karte-innen { filter: blur(0); }
 /* Fokus sichtbar, ohne Rahmen für die Maus */
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }

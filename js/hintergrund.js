@@ -5,9 +5,9 @@ import { rng } from './figur.js';
 const r = rng(314);
 const WOLKEN = Array.from({ length: 4 }, (_, i) => ({ fx: [.12, .66, .38, .86][i], fy: [.1, .24, .38, .5][i], s: [1, .8, .65, .9][i], v: 4 + r() * 6, tiefe: .1 + r() * .2 }));
 const STERNBILD = [[.08, .2], [.14, .13], [.2, .17], [.25, .1], [.31, .15], [.27, .24]];
-const BLASEN = Array.from({ length: 34 }, () => ({ fx: r(), r: 2 + Math.pow(r(), 2) * 9, v: .025 + r() * .04, ph: r(), wob: r() * 7 }));
-const SEEGRAS = Array.from({ length: 6 }, (_, i) => ({ fx: [.03, .07, .12, .84, .9, .95][i], h: .55 + r() * .45, b: .8 + r() * .5, ph: r() * 7, farbe: ['#1f7a5c', '#2a9470', '#17654f'][i % 3] }));
-const FISCHE = [{ fy: .3, v: .018, ph: .1, s: 1, farbe: '#f2a65a' }, { fy: .62, v: -.013, ph: .6, s: .8, farbe: '#f6c56f' }];
+const BLASEN = Array.from({ length: 22 }, () => ({ fx: r(), r: 2 + Math.pow(r(), 2) * 9, v: .025 + r() * .04, ph: r(), wob: r() * 7 }));
+const SEEGRAS = Array.from({ length: 6 }, (_, i) => ({ fx: [.03, .07, .12, .84, .9, .95][i], h: .55 + r() * .45, b: .8 + r() * .5, ph: r() * 7, farbe: ['#2a8f7a', '#3aa88e', '#1f6f66'][i % 3] }));
+const FISCHE = [{ fy: .3, v: .016, ph: .1, s: 1, farbe: '#e6b84c' }, { fy: .62, v: -.012, ph: .6, s: .8, farbe: '#efc96a' }];
 const KLEE = Array.from({ length: 6 }, (_, i) => ({ fx: [.1, .86, .22, .72, .5, .93][i], fy: [.2, .32, .7, .78, .12, .6][i], s: .7 + r() * .6, dreh: r() * 7, v: .12 + r() * .2, ph: r() * 7 }));
 
 function sichtbar(L, sy, vh) { return L && L.top - sy < vh + 60 && L.top + L.h - sy > -60; }
@@ -61,11 +61,11 @@ export function hintergrund(ctx, { lage, sy, vw, vh, tau, mobil }) {
   if (sichtbar(L2, sy, vh)) {
     const mx = vw * (mobil ? .82 : .56), my = L2.top + L2.h * (mobil ? .1 : .14) - sy, mr = Math.min(vw * .06, 64);
     const glow = ctx.createRadialGradient(mx, my, mr * .6, mx, my, mr * 3.2);
-    glow.addColorStop(0, 'rgba(255,240,200,.28)'); glow.addColorStop(1, 'rgba(255,240,200,0)');
+    glow.addColorStop(0, 'rgba(255,236,190,.2)'); glow.addColorStop(1, 'rgba(255,240,200,0)');
     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(mx, my, mr * 3.2, 0, 7); ctx.fill();
     ctx.save(); ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.clip();
-    ctx.fillStyle = '#fbf1cf'; ctx.fillRect(mx - mr, my - mr, mr * 2, mr * 2);
-    ctx.fillStyle = 'rgba(14,19,64,1)'; ctx.beginPath(); ctx.arc(mx + mr * .42, my - mr * .22, mr * .92, 0, 7); ctx.fill();
+    ctx.fillStyle = '#f6e9c6'; ctx.fillRect(mx - mr, my - mr, mr * 2, mr * 2);
+    ctx.fillStyle = '#151840'; ctx.beginPath(); ctx.arc(mx + mr * .42, my - mr * .22, mr * .92, 0, 7); ctx.fill();
     ctx.restore();
     const sx = mobil ? .5 : 1, ox = mobil ? vw * .4 : vw * .55;
     ctx.strokeStyle = 'rgba(247,242,236,.22)'; ctx.lineWidth = 1; ctx.beginPath();
@@ -107,7 +107,7 @@ export function hintergrund(ctx, { lage, sy, vw, vh, tau, mobil }) {
         links.push([x + dx - w / 2, y]); rechts.push([x + dx + w / 2, y]);
       }
       const g = ctx.createLinearGradient(0, y0, 0, y0 - hh);
-      g.addColorStop(0, s.farbe); g.addColorStop(1, 'rgba(90,190,150,.75)');
+      g.addColorStop(0, s.farbe); g.addColorStop(1, 'rgba(120,205,180,.7)');
       ctx.fillStyle = g; ctx.beginPath();
       links.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py));
       for (let i = rechts.length - 1; i >= 0; i--) ctx.lineTo(rechts[i][0], rechts[i][1]);
