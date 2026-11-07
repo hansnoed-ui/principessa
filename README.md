@@ -13,6 +13,7 @@ Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt i
 - `js/figur.js` – die drei Principesse als Zeichnung und als 3D-Figuren
 - `js/main.js` – Herausspringen, Flug beim Scrollen, Treffen, Glitzer, Sterne, Landung und Wiese
 - `js/rahmen.js` – die Glanzstellen im Gemälde
+- `js/hintergrund.js` – Wolken, Mond und Sternschnuppe, Unterwasserlicht, Seegras, Fische, Blasen, Kleeblätter
 - `js/zauber.js` – verzauberter Text: Wörter erscheinen als Glitzer, danach laufen Glitzerwellen hindurch
 - `js/bestellen.js` – die Bestellkarte: Auswahl, Live-Vorschau und Bestellung per Mail
 - `vendor/` – Three.js r170 (MIT), lokal mitgeliefert, damit die Seite ohne CDN läuft
