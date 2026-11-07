@@ -99,9 +99,12 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   color: var(--creme);
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(.95rem, .62rem + 1.15vw, 1.65rem);
+  font-size: clamp(.9rem, .6rem + 1vw, 1.45rem);
   letter-spacing: .015em;
+  line-height: 1.2;
 }
+.signatur strong { display: block; font-weight: 600; font-size: 1.55em; letter-spacing: .01em; }
+.signatur span { display: block; opacity: .85; }
 .kopfbild canvas { width: 100%; height: 100%; display: block; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
