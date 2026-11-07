@@ -131,7 +131,8 @@ function groesse() {
 }
 
 // ------------------------------------------------------------------ Das Bild (2D): Gemälde, Principessa, Glas, Rahmen
-const gemaelde = new Image(); gemaelde.decoding = 'async'; gemaelde.src = 'assets/augenblick.jpg';
+const VERSION = new URL(import.meta.url).searchParams.get('v');
+const gemaelde = new Image(); gemaelde.decoding = 'async'; gemaelde.src = 'assets/augenblick.jpg' + (VERSION ? '?v=' + VERSION : '');
 const risse = (() => {
   const r = rng(42), out = [];
   for (let i = 0; i < 11; i++) {
