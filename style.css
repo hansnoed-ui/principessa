@@ -118,11 +118,12 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   filter: drop-shadow(0 22px 30px rgba(6, 4, 24, .55)) drop-shadow(0 3px 5px rgba(6, 4, 24, .45));
 }
 .bild canvas { width: 100%; height: 100%; display: block; }
-.bild.bild2 {
-  width: min(74vw, 340px);
-  aspect-ratio: 0.7241;
-  margin-top: 2.4rem;
+.liegt {
+  width: min(62vw, 300px);
+  aspect-ratio: 1;
+  margin-top: 1.6rem;
 }
+.liegt canvas { width: 100%; height: 100%; display: block; }
 
 /* ---------- Ebenen ---------- */
 .ebene {

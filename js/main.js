@@ -304,41 +304,34 @@ function bildZeichnen(z) {
   rahmenFunkeln(fc, W, H, f, funkel, g);
 }
 
-// --- Bild 2: die zweite Principessa auf schwarzem Grund
-const B2 = { box: { x: -0.032, y: .1838, s: 1.109 }, fuss: .973, hoehe: .926, heil: [[0.59,0.3615],[0.612,0.4595],[0.439,0.2345],[0.459,0.6189],[0.567,0.6993],[0.356,0.5291],[0.574,0.4304],[0.386,0.623],[0.477,0.2696],[0.471,0.5243],[0.731,0.3831],[0.257,0.5628],[0.572,0.5885],[0.792,0.4541],[0.224,0.3297],[0.662,0.2905],[0.696,0.4757],[0.256,0.3189],[0.495,0.625],[0.647,0.3514],[0.298,0.6182],[0.432,0.4209],[0.37,0.7135],[0.425,0.7149],[0.5,0.452],[0.507,0.7885],[0.485,0.3723],[0.642,0.6182],[0.778,0.5736],[0.444,0.7318],[0.798,0.4466],[0.354,0.2709],[0.303,0.3128],[0.589,0.5811],[0.505,0.6014],[0.568,0.2838],[0.591,0.7426],[0.813,0.4162],[0.3,0.3453],[0.466,0.302],[0.427,0.3162],[0.334,0.3824],[0.372,0.7858],[0.33,0.7068],[0.399,0.6034],[0.738,0.4297],[0.552,0.3047],[0.716,0.3318],[0.541,0.677],[0.733,0.3689],[0.477,0.3872],[0.345,0.3797],[0.563,0.7264],[0.753,0.377],[0.543,0.5507],[0.641,0.323],[0.591,0.2791],[0.315,0.6169],[0.288,0.6811],[0.783,0.4574],[0.73,0.573],[0.421,0.2824],[0.66,0.3777],[0.355,0.6304],[0.373,0.7439],[0.542,0.3304],[0.455,0.4412],[0.395,0.7101],[0.292,0.2905],[0.688,0.4669],[0.421,0.3818],[0.649,0.5412],[0.368,0.5432],[0.62,0.4682],[0.461,0.4399],[0.639,0.5953],[0.624,0.6068],[0.644,0.5703],[0.558,0.7493],[0.58,0.7527],[0.395,0.4486],[0.635,0.5358],[0.532,0.4655],[0.619,0.5284],[0.431,0.3885],[0.646,0.6439],[0.541,0.6986],[0.671,0.4851],[0.307,0.3169],[0.244,0.5669]] };
-const bild2 = { ohne: lade('assets/principessa2-ohne.jpg'), leer: lade('assets/principessa2-leer.jpg'), figur: lade('assets/principessa2-figur.png') };
-let rahmen2 = null, rahmen2Fuer = '';
-function box2ImCanvas(W, H) { const { f, g } = bildLage(W, H); return { x: g.x + B2.box.x * g.w, y: g.y + B2.box.y * g.h, s: B2.box.s * g.w, g, f }; }
+// --- Die zweite Principessa liegt flach auf der Seite, unter dem Text
+const B2 = { fuss: .973, hoehe: .926, heil: [[0.5609,0.2371],[0.5807,0.3679],[0.4247,0.0677],[0.4427,0.5807],[0.5401,0.688],[0.3499,0.4608],[0.5464,0.3291],[0.3769,0.5861],[0.459,0.1145],[0.4536,0.4544],[0.688,0.266],[0.2606,0.5058],[0.5446,0.5401],[0.743,0.3607],[0.2308,0.1947],[0.6258,0.1424],[0.6564,0.3896],[0.2597,0.1803],[0.4752,0.5888],[0.6123,0.2237],[0.2976,0.5797],[0.4184,0.3164],[0.3625,0.7069],[0.4121,0.7088],[0.4797,0.3579],[0.486,0.807],[0.4662,0.2516],[0.6078,0.5797],[0.7304,0.5202],[0.4292,0.7313],[0.7484,0.3507],[0.3481,0.1162],[0.3021,0.1722],[0.56,0.5302],[0.4842,0.5573],[0.541,0.1335],[0.5618,0.7457],[0.7619,0.3101],[0.2994,0.2155],[0.4491,0.1577],[0.4139,0.1767],[0.33,0.265],[0.3643,0.8034],[0.3264,0.698],[0.3886,0.56],[0.6943,0.3282],[0.5266,0.1613],[0.6745,0.1975],[0.5167,0.6582],[0.6898,0.247],[0.459,0.2714],[0.3399,0.2614],[0.5365,0.7241],[0.7078,0.2578],[0.5185,0.4896],[0.6069,0.1858],[0.5618,0.1272],[0.3129,0.578],[0.2885,0.6637],[0.7349,0.3651],[0.6871,0.5194],[0.4085,0.1316],[0.624,0.2588],[0.349,0.596],[0.3652,0.7475],[0.5176,0.1956],[0.4391,0.3435],[0.385,0.7024],[0.2922,0.1424],[0.6492,0.3778],[0.4085,0.2642],[0.6141,0.477],[0.3607,0.4796],[0.5879,0.3795],[0.4445,0.3418],[0.605,0.5492],[0.5915,0.5645],[0.6096,0.5158],[0.532,0.7547],[0.5518,0.7592],[0.385,0.3534],[0.6014,0.4698],[0.5086,0.3759],[0.587,0.4599],[0.4175,0.2732],[0.6114,0.614],[0.5167,0.687],[0.6339,0.4021],[0.3057,0.1776],[0.2489,0.5113]] };
+const bild2 = { figur: lade('assets/principessa2-figur.png') };
 function box2ImFenster() {
-  const r = flach2.getBoundingClientRect(), k = r.width / (flach2.width || 1), b = box2ImCanvas(flach2.width || 1, flach2.height || 1);
-  return { x: r.left + b.x * k, y: r.top + b.y * k, s: b.s * k, mitte: r.top + r.height / 2, unten: r.bottom, oben: r.top };
+  const r = flach2.getBoundingClientRect();
+  return { x: r.left, y: r.top, s: r.width, mitte: r.top + r.height / 2, unten: r.bottom, oben: r.top };
 }
+// z = { flach, klopf, ringe, leer, heil, glanz }
 function bild2Zeichnen(z) {
   const W = flach2.width, H = flach2.height; if (!W || !H) return;
-  if (rahmen2Fuer !== W + 'x' + H) { rahmen2 = zeichneRahmen(W, H); rahmen2Fuer = W + 'x' + H; }
-  const b = box2ImCanvas(W, H), g = b.g, lw = b.s * .009;
   fc2.clearRect(0, 0, W, H);
-  fc2.save(); fc2.beginPath(); fc2.rect(g.x, g.y, g.w, g.h); fc2.clip();
-  if (geladen(bild2.ohne)) fc2.drawImage(bild2.ohne, g.x, g.y, g.w, g.h); else { fc2.fillStyle = '#0d0b0e'; fc2.fillRect(g.x, g.y, g.w, g.h); }
+  const fx0 = W / 2, fy0 = H * B2.fuss;
   if (z.flach && geladen(bild2.figur)) {
-    const fx0 = b.x + b.s / 2, fy0 = b.y + b.s * B2.fuss, k = z.klopf;
+    const k = z.klopf;
     fc2.save(); fc2.translate(fx0, fy0); fc2.scale(1 + k * .04, 1 - k * .025); fc2.translate(-fx0, -fy0);
-    fc2.drawImage(bild2.figur, b.x, b.y, b.s, b.s); fc2.restore();
-    for (const u of z.ringe) { fc2.strokeStyle = `rgba(255,250,235,${(1 - u) * .6})`; fc2.lineWidth = lw * 1.2; fc2.beginPath(); fc2.arc(fx0, b.y + b.s * .45, b.s * (.1 + u * .35), 0, 7); fc2.stroke(); }
-  } else if (z.leer > 0 && geladen(bild2.leer)) {
-    fc2.globalAlpha = z.leer; fc2.drawImage(bild2.leer, g.x, g.y, g.w, g.h); fc2.globalAlpha = 1;
+    fc2.shadowColor = 'rgba(20,30,70,.35)'; fc2.shadowBlur = W * .025; fc2.shadowOffsetY = W * .01;
+    fc2.drawImage(bild2.figur, 0, 0, W, H); fc2.restore();
+    for (const u of z.ringe) { fc2.strokeStyle = `rgba(255,255,255,${(1 - u) * .7})`; fc2.lineWidth = W * .008; fc2.beginPath(); fc2.arc(fx0, H * .45, W * (.12 + u * .35), 0, 7); fc2.stroke(); }
+  } else if (z.leer > 0 && geladen(bild2.figur)) {
+    // ein Hauch ihrer Kontur bleibt kurz liegen
+    fc2.globalAlpha = z.leer * .22; fc2.drawImage(bild2.figur, 0, 0, W, H); fc2.globalAlpha = 1;
   }
-  heilGlitzer(fc2, B2.heil.map(([x, y], i) => [g.x + x * g.w, g.y + y * g.h, (i * .618) % 1]), z.heil, lw * 2.6);
+  heilGlitzer(fc2, B2.heil.map(([x, y], i) => [x * W, y * H, (i * .618) % 1]), z.heil, W * .012);
   if (z.glanz > 0) {
-    const gx = b.x + b.s / 2, gy = b.y + b.s * .45, gr = fc2.createRadialGradient(gx, gy, 0, gx, gy, b.s * .5);
-    gr.addColorStop(0, `rgba(255,232,170,${.18 * z.glanz})`); gr.addColorStop(1, 'rgba(255,232,170,0)');
-    fc2.globalCompositeOperation = 'lighter'; fc2.fillStyle = gr; fc2.fillRect(g.x, g.y, g.w, g.h); fc2.globalCompositeOperation = 'source-over';
+    const gr = fc2.createRadialGradient(fx0, H * .45, 0, fx0, H * .45, W * .45);
+    gr.addColorStop(0, `rgba(255,240,190,${.22 * z.glanz})`); gr.addColorStop(1, 'rgba(255,240,190,0)');
+    fc2.globalCompositeOperation = 'lighter'; fc2.fillStyle = gr; fc2.fillRect(0, 0, W, H); fc2.globalCompositeOperation = 'source-over';
   }
-  risseZeichnen(fc2, b.x + b.s / 2, b.y + b.s * .45, b.s * 1.2, lw, z.risse, z.risseAlpha);
-  glasUndSchatten(fc2, g);
-  fc2.restore();
-  fc2.drawImage(rahmen2, 0, 0);
-  rahmenFunkeln(fc2, W, H, b.f, funkelRahmen, g);
 }
 
 // ------------------------------------------------------------------ Staub, Sterne, Blumen (2D, Seitenkoordinaten)
@@ -618,7 +611,7 @@ function bild(nowMs) {
     if (P2.tR >= T.rueckEnde) { P2.modus = 'drin'; P2.t = 0; P2.klopf = -1; P2.plopped = false; }
   }
   if (b2.unten > -40 && b2.oben < vh + 40) {
-    const zb = { flach: true, klopf: 0, ringe: [], risse: 0, risseAlpha: 1, leer: 0, heil: 0, glanz: 0 };
+    const zb = { flach: true, klopf: 0, ringe: [], leer: 0, heil: 0, glanz: 0 };
     if (P2.modus === 'drin') {
       if (!reduziert && P2.klopf > 0) {
         const p = P2.klopf % 8;
@@ -630,11 +623,9 @@ function bild(nowMs) {
       }
     } else if (P2.modus === 'aus') {
       const h = heilStand(P2.t);
-      zb.flach = false; zb.risse = P2.t >= T.plopp ? eout(seg(P2.t, T.plopp, T.plopp + .3)) : 0;
-      zb.risseAlpha = h.risseA; zb.leer = h.leer; zb.heil = h.heil;
+      zb.flach = false; zb.leer = h.leer; zb.heil = h.heil;
     } else {
-      zb.flach = P2.tR >= T.rueckKleben; zb.risse = 1;
-      zb.risseAlpha = P2.rueck.risseA * (1 - seg(P2.tR, .3, 1.5)); zb.leer = P2.rueck.leer * (1 - seg(P2.tR, 0, 1));
+      zb.flach = P2.tR >= T.rueckKleben; zb.leer = P2.rueck.leer * (1 - seg(P2.tR, 0, 1));
       zb.glanz = Math.sin(Math.PI * seg(P2.tR, T.rueckKleben - .15, T.rueckEnde));
     }
     bild2Zeichnen(zb);
@@ -654,7 +645,13 @@ function bild(nowMs) {
       K2.gruppe.scale.setScalar(b2.s);
     }
   }
-  if (P2.modus === 'aus' && P2.t >= T.plopp && !P2.plopped) { P2.plopped = true; splittern(b2.x + b2.s / 2, b2.y + b2.s * .45, b2.s * .5); }
+  if (P2.modus === 'aus' && P2.t >= T.plopp && !P2.plopped) {
+    P2.plopped = true;
+    if (!reduziert) for (let i = 0; i < 40; i++) {
+      const a = zufall() * Math.PI * 2, v = 80 + zufall() * 260;
+      teilchen.push({ art: 'funke', x: b2.x + b2.s / 2 + Math.cos(a) * b2.s * .15, y: b2.y + b2.s * .45 + scrollY + Math.sin(a) * b2.s * .15, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 220, r: 1 + zufall() * 2, f: zufall(), ph: zufall() * 7, leben: 1.1 + zufall() * .7 });
+    }
+  }
   {
     const draussen2 = (P2.modus === 'aus' && P2.t >= T.plopp) || (P2.modus === 'zurueck' && P2.tR < T.rueckFlug);
     figur2.visible = !!renderer && draussen2;
