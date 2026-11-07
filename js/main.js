@@ -17,6 +17,9 @@ const eout = t => 1 - Math.pow(1 - t, 3);
 const eback = (t, s = 1.9) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
 const daempfe = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
 const zufall = rng(2026);
+// immer oben beginnen, damit man den Sprung sieht
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+scrollTo(0, 0);
 const VERSION = new URL(import.meta.url).searchParams.get('v');
 
 // ------------------------------------------------------------------ DOM
@@ -230,7 +233,7 @@ function heilGlitzer(ctx, punkte, heil, groesse) {
 }
 // --- Das Titelbild: Ausschnitt des Gemäldes über die ganze Breite, 16:9
 const AUSSCHNITT = { y0: 0, h: 1 };                // Lage des Ausschnitts im Gemälde (relativ zur Gemäldehöhe)
-const FIGUR1 = { x: .5, y: .67, h: .34 };             // Füsse und Höhe der Principessa im Titelbild
+const FIGUR1 = { x: .5, y: .70, h: .34 };             // Füsse und Höhe der Principessa im Titelbild
 function kopfLage(W, H) {
   const s = (FIGUR1.h * H) / 0.836, fx0 = FIGUR1.x * W, fy0 = FIGUR1.y * H;
   return { box: { x: fx0 - s / 2, y: fy0 - 0.94 * s, s } };
@@ -266,7 +269,7 @@ function bildZeichnen(z) {
   else { fc.fillStyle = '#d8a9c9'; fc.fillRect(0, 0, W, H); }
   // die Sonne schimmert: ein Lichtfleck wandert langsam über das Gold
   {
-    const sx = SONNE.x * W, sy = (.332 - AUSSCHNITT.y0) / AUSSCHNITT.h * H, sr = SONNE.r * W;
+    const sx = SONNE.x * W, sy = SONNE.y * H, sr = SONNE.r * W;
     fc.save(); fc.beginPath(); fc.arc(sx, sy, sr, 0, 7); fc.clip();
     fc.globalCompositeOperation = 'lighter';
     const lx = sx + Math.cos(tau * .35) * sr * .55, ly = Math.max(sr * .2, sy + Math.sin(tau * .5) * sr * .45 + sr * .35);
@@ -522,7 +525,7 @@ const fort = k => (scrollY + vh * .5 - lage[k].top) / lage[k].h;
 function scrollGrenze() {
   if (reduziert) return Infinity;
   let g = Infinity;
-  if (modus === 'aus' && tI < T.flugEnde + .4) g = Math.min(g, 0);
+  if (modus === 'drin' || (modus === 'aus' && tI < T.flugEnde + .4)) g = Math.min(g, 0);
   if (P3.modus === 'drin' && P3.uhr != null && P3.uhr < BAUZEIT + BAU_PAUSE) g = Math.min(g, lage.glitzer.top);
   if (P3.modus === 'aus' && P3.t < T.flugEnde + .4) g = Math.min(g, lage.glitzer.top);
   if (P2.modus === 'drin' && P2.sicht > 0) g = Math.min(g, lage.verweilen.top);
@@ -574,15 +577,17 @@ function bild(nowMs) {
   scrollV = daempfe(scrollV, (scrollY - letzterScroll) / Math.max(dt, 1e-3), 6, dt); letzterScroll = scrollY;
   const z = ziel();
 
-  // ---- Übergänge: bei der ersten Scrollbewegung heraus, ganz oben wieder hinein
+  // ---- Bis die erste Principessa draussen ist, steht die Seite still
+  document.documentElement.classList.toggle('gesperrt', !reduziert && (modus === 'drin' || tI < T.flugEnde));
+  // ---- Übergänge: bei der ersten Scrollbewegung heraus
   obenZeit = scrollY < 16 ? obenZeit + dt : 0;
   if (scrollY > 120) warWeg = true;
   if (modus === 'drin') {
     klopfUhr += dt;
-    if (scrollY > 4 || anstoss || (!ersterSprung && !reduziert && klopfUhr > 2.4)) { ersterSprung = true; modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; warWeg = false; bremse1 = scrollY; }
+    if (scrollY > 4 || anstoss || (!ersterSprung && !reduziert && klopfUhr > 1.6)) { ersterSprung = true; modus = 'aus'; tI = reduziert ? T.flugEnde : 0; plopped = reduziert; gelandet = false; warWeg = false; bremse1 = scrollY; }
   } else if (modus === 'aus') {
     tI += dt;
-    if (tI >= T.flugEnde && warWeg && obenZeit > .3 && renderer) {
+    if (false) {
       modus = 'zurueck'; tR = reduziert ? T.rueckKleben : 0; gelandet = false;
       const h = heilStand(tI);
       rueck = { x: fx, y: fy, z: fz, dreh: dreh.rotation.y, leer: h.leer, risseA: h.risseA };
@@ -599,7 +604,7 @@ function bild(nowMs) {
     if (modus === 'drin') {
       if (!reduziert && klopfUhr > 0) {
         const p = klopfUhr % 7;
-        for (const kt of [1.2, 1.65]) {
+        for (const kt of [.45, .9]) {
           const d = p - kt;
           if (d > 0 && d < .25) zb.klopf = Math.max(zb.klopf, Math.sin(d / .25 * Math.PI));
           if (d > 0 && d < .5) zb.ringe.push(d / .5);
@@ -737,7 +742,7 @@ function bild(nowMs) {
   } else if (P2.modus === 'aus') {
     P2.t += dt;
     P2.obenZeit = fort('verweilen') < .1 ? P2.obenZeit + dt : 0;
-    if (P2.t >= T.flugEnde && P2.obenZeit > .3 && renderer) {
+    if (false) {
       const h = heilStand(P2.t);
       P2.modus = 'zurueck'; P2.tR = reduziert ? T.rueckKleben : 0; P2.gelandet = false;
       P2.rueck = { x: P2.x, y: P2.y, z: P2.z, dreh: dreh2.rotation.y, leer: h.leer, risseA: h.risseA };
@@ -849,7 +854,7 @@ function bild(nowMs) {
     P3.t += dt;
     if (fort('glitzer') > .45) P3.warWeg = true;
     P3.obenZeit = fort('glitzer') < .1 ? P3.obenZeit + dt : 0;
-    if (P3.t >= T.flugEnde && P3.warWeg && P3.obenZeit > .3 && renderer) {
+    if (false) {
       P3.warWeg = false; P3.warZurueck = true;
       const h = heilStand(P3.t);
       P3.modus = 'zurueck'; P3.tR = reduziert ? T.rueckKleben : 0; P3.gelandet = false;
