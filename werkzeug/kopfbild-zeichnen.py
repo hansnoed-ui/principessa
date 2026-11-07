@@ -41,7 +41,7 @@ def herz(cx, cy, s, fill):
     cx, cy, s = cx*S, cy*S, s*S
     p(f'<path d="M{cx:.1f},{cy+s*.9:.1f} C{cx-s*1.3:.1f},{cy:.1f} {cx-s*.6:.1f},{cy-s:.1f} {cx:.1f},{cy-s*.25:.1f} C{cx+s*.6:.1f},{cy-s:.1f} {cx+s*1.3:.1f},{cy:.1f} {cx:.1f},{cy+s*.9:.1f} Z" fill="{fill}"/>')
 def goldfassade(x, y, w, h):
-    turm(x, y, w, h, GOLD); glitzer(x+w/2, y+h/2, w*.9, h*.9, int(w*h/40), [GOLD_H, GOLD_D, GOLD_X])
+    turm(x, y, w, h, GOLD); glitzer(x+w/2, y+h/2, w*.9, h*.9, int(w*h/22), [GOLD_H, GOLD_D, GOLD_X, '#ffffff'])
 
 glanz = {'sonne': [], 'himmel': [], 'stadt': [], 'mond': []}
 p(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">')
@@ -67,12 +67,17 @@ p(f'<circle cx="{285*S}" cy="{262*S}" r="{214*S}" fill="{GOLD}"/>')
 for _ in range(700):
     a = random.random()*math.tau; rr = 214 + random.uniform(0, 9)
     p(f'<circle cx="{(285+math.cos(a)*rr)*S:.1f}" cy="{(262+math.sin(a)*rr)*S:.1f}" r="{random.uniform(1.5,4):.1f}" fill="{random.choice([GOLD, GOLD_H, GOLD_D])}"/>')
-for _ in range(4200):
+for _ in range(7000):
     a, rr = random.random()*math.tau, math.sqrt(random.random())*212
     x, y = 285 + math.cos(a)*rr, 262 + math.sin(a)*rr
-    c = random.choices([GOLD_H, GOLD_D, '#d9a63f', '#b07a22', GOLD_X], [3, 3, 3, 2, 1])[0]
+    c = random.choices([GOLD_H, GOLD_D, '#d9a63f', '#b07a22', GOLD_X, '#ffffff'], [3, 3, 3, 2, 2, 1])[0]
     p(f'<circle cx="{x*S:.1f}" cy="{y*S:.1f}" r="{random.uniform(1.5, 5):.1f}" fill="{c}"/>')
     if c == GOLD_X and len(glanz['sonne']) < 60: glanz['sonne'].append([round(x/600, 4), round(y/806, 4)])
+# feiner Glitzerstaub im Himmel
+for _ in range(900):
+    x, y = random.uniform(0, 600), random.uniform(0, 540)
+    if (x-285)**2 + (y-262)**2 < 230**2: continue
+    p(f'<circle cx="{x*S:.1f}" cy="{y*S:.1f}" r="{random.uniform(.6,1.8):.1f}" fill="{random.choice(["#fff6e6", "#f3d9a0", "#ffffff"])}" opacity="{random.uniform(.35,.9):.2f}"/>')
 # Stadt, hinten
 goldfassade(0, 470, 56, 340); fenster(4, 500, 48, 200, 2, 4, NAVY); zwiebel(28, 470, 76, 84, HELL); raster(6, 720, 44, 70, 3, 3, NAVY, 7)
 turm(62, 560, 62, 250, GOLD); raster(70, 575, 46, 60, 3, 3, ROSAH, 8); streifen(62, 650, 62, 150, 7, ROSAH); zwiebel(93, 560, 74, 70, ROSAH)
