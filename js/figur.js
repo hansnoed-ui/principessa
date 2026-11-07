@@ -17,7 +17,8 @@ export const F = {
   beine: [-0.30, 0.05], fuss: 0.14,
   hoehe: 2.26,
 };
-export const BEIN_EXTRA = 0.13; // in 3D etwas längere Beine, damit die Füsse unter dem Saum sichtbar sind
+export const BEIN_EXTRA = 0.13;
+export const ARM = { breite: 0.13, tiefe: 0.36 }; // die U-förmigen Arme am Oberkörper // in 3D etwas längere Beine, damit die Füsse unter dem Saum sichtbar sind
 
 export function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -58,7 +59,7 @@ export function zeichne(ctx, cx, by, s, lw = 3) {
     ctx.fillStyle = C.punkt; ctx.beginPath(); ctx.arc(X(-0.4 + i * 0.16), Y(py), 0.035 * s, 0, 7); ctx.fill(); ctx.lineWidth = lw * .6; ctx.stroke();
   }
   ctx.lineWidth = lw;
-  ctx.beginPath(); ctx.moveTo(X(-0.11), Y(F.kleidOben)); ctx.quadraticCurveTo(X(-0.02), Y(0.78), X(0.11), Y(F.kleidOben)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(-ARM.breite), Y(F.kleidOben)); ctx.quadraticCurveTo(X(-0.02), Y(F.kleidOben - 2 * ARM.tiefe), X(ARM.breite), Y(F.kleidOben)); ctx.stroke();
   ctx.fillStyle = C.kopf; ctx.beginPath(); ctx.ellipse(X(0), Y(F.kopfY), F.krx * s, F.kry * s, 0, 0, 7); ctx.fill(); ctx.stroke();
   ctx.fillStyle = C.linie;
   for (const [ex, ey] of [[-0.27, 1.50], [0.2, 1.47]]) { ctx.beginPath(); ctx.arc(X(ex), Y(ey), 0.03 * s, 0, 7); ctx.fill(); }
@@ -146,7 +147,7 @@ export function baueFigur() {
 
   const kette = [];
   for (let i = 0; i <= 24; i++) {
-    const u = i / 24, x = lerp(-.11, .11, u), y = F.kleidOben - (1 - Math.pow(2 * u - 1, 2)) * .2;
+    const u = i / 24, x = lerp(-ARM.breite, ARM.breite, u), y = F.kleidOben - (1 - Math.pow(2 * u - 1, 2)) * ARM.tiefe;
     kette.push(new THREE.Vector3(x, y, Math.sqrt(Math.max(0, rBei(y) ** 2 - x * x)) + .012));
   }
   g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(kette), 40, .012, 6), linie));
@@ -201,4 +202,17 @@ export function baueFigur() {
     b.position.set(Math.sin(ang) * .34, F.kroneBasis - .04 + .47, Math.cos(ang) * .34); g.add(b);
   }
   return { gruppe: g, augen, kleidMat, kroneMat };
+}
+
+// Wie zeichne(), aber mit weissem Sticker-Rand: so liegt sie als Collage auf dem Bild
+export function zeichneSticker(ctx, cx, by, s, lw = 3) {
+  ctx.save();
+  silhouette(ctx, cx, by, s);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.shadowColor = 'rgba(40,20,30,.35)'; ctx.shadowBlur = lw * 3; ctx.shadowOffsetY = lw * .8;
+  ctx.strokeStyle = '#fffdf8'; ctx.lineWidth = lw * 7; ctx.stroke();
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = '#fffdf8'; ctx.fill(); ctx.stroke();
+  ctx.restore();
+  zeichne(ctx, cx, by, s, lw);
 }
