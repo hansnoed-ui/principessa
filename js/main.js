@@ -171,7 +171,7 @@ function groesse() {
   const d = vh / 2 / Math.tan(THREE.MathUtils.degToRad(15));
   camera.position.set(0, 0, d); camera.near = d * .05; camera.far = d * 4; camera.updateProjectionMatrix();
   staub.width = Math.round(vw * dpr); staub.height = Math.round(vh * dpr);
-  figH = clamp(Math.min(vh * (mobil ? .18 : .27), vw * .45), 110, 270);
+  figH = clamp(Math.min(vh * (mobil ? .17 : .24), vw * .4), 100, 240);
   const r = flach.getBoundingClientRect();
   const kd = Math.min(dpr, 1920 / Math.max(1, r.width));
   flach.width = Math.round(r.width * kd); flach.height = Math.round(r.height * kd);
@@ -450,12 +450,13 @@ addEventListener('touchmove', e => {
 
 let blumen = [], geblueht = false;
 function blumenPflanzen(landX) {
-  blumen = []; const n = clamp(14 + Math.floor(gesammelt / 4), 14, 54);
-  const farben = [C.kugel, C.wange, C.gold, C.punkt, '#fcfaf6', C.hellblau];
+  // wenige, feine Blumen: zarte Stiele, kleine Blütenblätter, zurückhaltende Farben
+  blumen = []; const n = clamp(5 + Math.floor(gesammelt / 30), 5, 9);
+  const farben = ['#f3c6d3', '#fbf3e4', '#e8c56a', '#b9c8f2', '#f0a9b5'];
   for (let i = 0; i < n; i++) {
-    const seite = zufall() < .5 ? -1 : 1, d = Math.pow(zufall(), .75) * vw * .55;
-    const x = clamp(landX + seite * (figH * .35 + d), 10, vw - 10);
-    blumen.push({ x, h: 18 + zufall() * (mobil ? 34 : 52), r: 4 + zufall() * 6, farbe: farben[Math.floor(zufall() * farben.length)], neig: (zufall() - .5) * .5, verz: Math.abs(x - landX) / vw * 1.1 + zufall() * .25, ph: zufall() * 7 });
+    const seite = i % 2 ? -1 : 1, d = (.18 + (i >> 1) * .14 + zufall() * .06) * vw * .55;
+    const x = clamp(landX + seite * (figH * .9 + d), 14, vw - 14);
+    blumen.push({ x, h: 16 + zufall() * (mobil ? 22 : 30), r: 3.2 + zufall() * 2.2, blaetter: 5 + (zufall() < .4 ? 1 : 0), farbe: farben[i % farben.length], neig: (zufall() - .5) * .35, verz: Math.abs(x - landX) / vw * 1.4 + zufall() * .3, ph: zufall() * 7 });
   }
   geblueht = true;
 }
@@ -487,14 +488,26 @@ function ausweichen(x, y) {
   if (passtUnten) return mitteUnten;
   return y;
 }
+// Die fliegenden Principesse halten sich im freien Platz ihrer Ebene, nie im Text.
+// Beim Wechsel der Ebene gleiten sie mit, gewichtet danach, wie viel von jeder Ebene zu sehen ist.
+const PLATZ = Object.fromEntries(['schweben', 'glitzer', 'verweilen'].map(k => [k, S[k].querySelector('.platz')]));
+function zielFuer(k, idx) {
+  const a = anker()[idx];
+  if (!PLATZ[k]) return { x: vw / 2 + a[1], y: a[2] * vh };
+  const r = PLATZ[k].getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height * (mobil ? .5 : .52) };
+}
 function ziel() {
-  const a = anker().map(([k, x, y]) => ({ py: lage[k].top + lage[k].h / 2, x, y }));
-  a[0].py = lage.augenblick.top + vh / 2; // Auftakt: Bildschirmmitte
-  const c = scrollY + vh / 2;
-  let i = 0; while (i < a.length - 2 && c > a[i + 1].py) i++;
-  const f = eio(seg(c, a[i].py, a[i + 1].py));
-  const x = vw / 2 + lerp(a[i].x, a[i + 1].x, f);
-  return { x, mitteY: ausweichen(x, lerp(a[i].y, a[i + 1].y, f) * vh), drehungen: i + f, i, f };
+  const namen = anker().map(([k]) => k), c = scrollY + vh * .5;
+  let i = 0; while (i < namen.length - 1 && lage[namen[i + 1]].top <= c) i++;
+  const jetzt = zielFuer(namen[i], i);
+  let x = jetzt.x, y = jetzt.y, f = 0;
+  if (i > 0) {
+    f = clamp((scrollY + vh - lage[namen[i]].top) / vh);
+    const vor = zielFuer(namen[i - 1], i - 1);
+    x = lerp(vor.x, jetzt.x, eio(f)); y = lerp(vor.y, jetzt.y, f);
+  }
+  return { x, mitteY: y, drehungen: 0, i: Math.max(0, i - 1), f };
 }
 
 // ------------------------------------------------------------------ Zustand
@@ -509,16 +522,16 @@ const fort = k => (scrollY + vh * .5 - lage[k].top) / lage[k].h;
 function scrollGrenze() {
   if (reduziert) return Infinity;
   let g = Infinity;
-  const mit = (start, t) => { if (t < T.flugEnde) g = Math.min(g, start + 24 + vh * .38 * eio(seg(t, 0, T.flugEnde))); };
-  if (modus === 'aus') mit(bremse1, tI);
-  if (P2.modus === 'aus' && P2.bremse != null) mit(P2.bremse, P2.t);
-  if (P3.modus === 'aus' && P3.bremse != null) mit(P3.bremse, P3.t);
-  if (P3.modus === 'drin' && P3.uhr != null && P3.uhr < BAUZEIT + BAU_PAUSE) g = Math.min(g, P3.bremseBau + 24 + vh * .3 * (P3.uhr / (BAUZEIT + BAU_PAUSE)));
+  if (modus === 'aus' && tI < T.flugEnde + .4) g = Math.min(g, 0);
+  if (P3.modus === 'drin' && P3.uhr != null && P3.uhr < BAUZEIT + BAU_PAUSE) g = Math.min(g, lage.glitzer.top);
+  if (P3.modus === 'aus' && P3.t < T.flugEnde + .4) g = Math.min(g, lage.glitzer.top);
+  if (P2.modus === 'drin' && P2.sicht > 0) g = Math.min(g, lage.verweilen.top);
+  if (P2.modus === 'aus' && P2.t < T.flugEnde + .4) g = Math.min(g, lage.verweilen.top);
   return g;
 }
 const nachUnten = e => {
   if (modus === 'drin') anstoss = true;
-  if (scrollY >= scrollGrenze() - 1 && e.cancelable) e.preventDefault();
+  if (scrollY >= scrollGrenze() - 2 && e.cancelable) e.preventDefault();
 };
 addEventListener('wheel', e => { if (e.deltaY > 0) nachUnten(e); }, { passive: false });
 let touchY = null;
@@ -528,9 +541,9 @@ addEventListener('touchmove', e => {
   if (y < touchY - 2) nachUnten(e);
 }, { passive: false });
 addEventListener('keydown', e => { if (['ArrowDown', 'PageDown', 'End', ' '].includes(e.key) && !e.target.closest?.('input, textarea, select, button')) nachUnten(e); });
-addEventListener('scroll', () => { const g = scrollGrenze(); if (scrollY > g + 1) scrollTo(0, g); }, { passive: true });
+addEventListener('scroll', () => { const g = scrollGrenze(); if (scrollY > g + 40) scrollTo({ top: g, behavior: 'smooth' }); }, { passive: true });
 const P3 = { bremse: null, uhr: null, bremseBau: 0, warWeg: false, warZurueck: false, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, gelandet: false, landZeit: -99, sofort: false, bau: 0 };
-const P2 = { bremse: null, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, seite: 1, gelandet: false, landZeit: -99, sofort: false };
+const P2 = { bremse: null, sicht: 0, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, seite: 1, gelandet: false, landZeit: -99, sofort: false };
 // nach dem Herausspringen: Kontur kurz sichtbar, dann schliesst sich das Bild mit Glitzer
 const heilStand = t => ({ leer: 1 - glatt(T.plopp + 1.3, T.plopp + 3.8, t), risseA: 1 - seg(t, T.plopp + 1.3, T.plopp + 3.8), heil: seg(t, T.plopp + 1.1, T.plopp + 4.0) });
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
@@ -657,8 +670,8 @@ function bild(nowMs) {
     skal = lerp(1, startSkal, eio(seg(tR, .3, T.rueckFlug)));
     rueckDreh = lerp(rueck.dreh, Math.round(rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
   } else {
-    fx = daempfe(fx, gelandet ? fx : z.x, 4.5, dt);
-    fy = gelandet ? zielFuss : daempfe(fy, zielFuss, amBoden ? 3.5 : 5, dt);
+    fx = daempfe(fx, gelandet ? fx : z.x, 2.2, dt);
+    fy = gelandet ? zielFuss : daempfe(fy, zielFuss, amBoden ? 2.6 : 3, dt);
     fz = daempfe(fz, 0, 4, dt);
   }
   const fxAlt = figur.userData.fx ?? fx; vxF = daempfe(vxF, (fx - fxAlt) / Math.max(dt, 1e-3), 6, dt); figur.userData.fx = fx;
@@ -682,13 +695,13 @@ function bild(nowMs) {
   }
 
   const schwebt = !gelandet && draussen && modus === 'aus';
-  const wipp = schwebt && !reduziert ? Math.sin(tau * 1.7) * figH * .035 : 0;
+  const wipp = schwebt && !reduziert ? Math.sin(tau * 1.7) * figH * .018 : 0;
   figur.position.copy(welt(fx, fy + wipp, fz));
   const basis = figH / LOKAL_H * skal;
   figur.scale.set(basis * (1 + sq * .5), basis * (1 - sq), basis * (1 + sq * .5));
   figur.rotation.x = verbeug;
-  schwenk.rotation.z = schwebt ? clamp(-vxF * .0007, -.35, .35) + (reduziert ? 0 : Math.sin(tau * 1.1) * .05) : daempfe(schwenk.rotation.z, 0, 8, dt);
-  schwenk.rotation.x = schwebt ? clamp(scrollV * .00022, -.3, .3) : daempfe(schwenk.rotation.x, 0, 8, dt);
+  schwenk.rotation.z = schwebt ? clamp(-vxF * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .9) * .03) : daempfe(schwenk.rotation.z, 0, 8, dt);
+  schwenk.rotation.x = schwebt ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk.rotation.x, 0, 8, dt);
   dreh.rotation.y = rueckDreh ?? (z.drehungen * Math.PI * 2 + extraDreh + (schwebt && !reduziert ? Math.sin(tau * .8) * .2 : 0));
 
   // Blinzeln
@@ -720,7 +733,7 @@ function bild(nowMs) {
   if (P2.modus === 'drin') {
     P2.klopf += dt;
     if (b2.unten < 0) { P2.modus = 'aus'; P2.t = 99; P2.plopped = true; P2.sofort = true; P2.gelandet = false; }
-    else if (fort('verweilen') > .28) { P2.modus = 'aus'; P2.t = reduziert ? T.flugEnde : 0; P2.plopped = reduziert; P2.gelandet = false; P2.bremse = scrollY; }
+    else if ((P2.sicht = fort('verweilen') > .42 ? P2.sicht + dt : 0) > 1.4 || (reduziert && fort('verweilen') > .42)) { P2.modus = 'aus'; P2.t = reduziert ? T.flugEnde : 0; P2.plopped = reduziert; P2.gelandet = false; P2.bremse = scrollY; }
   } else if (P2.modus === 'aus') {
     P2.t += dt;
     P2.obenZeit = fort('verweilen') < .1 ? P2.obenZeit + dt : 0;
@@ -781,8 +794,8 @@ function bild(nowMs) {
     const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
     const amBoden2 = bodenTop < vh * .8;
     if (begleitet) P2.seite = daempfe(P2.seite, fx > vw * .5 ? -1 : 1, 1.5, dt);
-    const zx = clamp(begleitet ? fx + P2.seite * figH * 1.08 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
-    let zf = begleitet ? fy + figH * .12 : clamp(b2.y + b2.s, figH, vh * .92);
+    const zx = clamp(begleitet ? fx + P2.seite * figH * .95 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
+    let zf = begleitet ? fy + figH * .06 : clamp(b2.y + b2.s, figH, vh * .92);
     if (amBoden2) zf = bodenTop + 5;
     let skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
     const start2 = (B2.hoehe * b2.s) / figH2;
@@ -800,8 +813,8 @@ function bild(nowMs) {
       skal2 = lerp(1, start2, eio(seg(P2.tR, .3, T.rueckFlug)));
       rueckDreh2 = lerp(P2.rueck.dreh, Math.round(P2.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
     } else {
-      P2.x = daempfe(P2.x, zx, P2.gelandet ? 1.6 : 2.6, dt);
-      P2.y = P2.gelandet ? zf : daempfe(P2.y, zf, 3.2, dt);
+      P2.x = daempfe(P2.x, zx, P2.gelandet ? 1.4 : 1.8, dt);
+      P2.y = P2.gelandet ? zf : daempfe(P2.y, zf, 2.2, dt);
       P2.z = daempfe(P2.z, begleitet && !amBoden2 ? -figH * .25 : 0, 3, dt);
     }
     const x2alt = figur2.userData.x ?? P2.x; P2.vx = daempfe(P2.vx, (P2.x - x2alt) / Math.max(dt, 1e-3), 6, dt); figur2.userData.x = P2.x;
@@ -814,8 +827,8 @@ function bild(nowMs) {
     const basis2 = figH2 / LOKAL_H2 * skal2;
     figur2.scale.set(basis2 * (1 + sq2 * .5), basis2 * (1 - sq2), basis2 * (1 + sq2 * .5));
     figur2.rotation.x = verb2;
-    schwenk2.rotation.z = schwebt2 ? clamp(-P2.vx * .0007, -.35, .35) + (reduziert ? 0 : Math.sin(tau * 1.0 + 2) * .05) : daempfe(schwenk2.rotation.z, 0, 8, dt);
-    schwenk2.rotation.x = schwebt2 ? clamp(scrollV * .0002, -.3, .3) : daempfe(schwenk2.rotation.x, 0, 8, dt);
+    schwenk2.rotation.z = schwebt2 ? clamp(-P2.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk2.rotation.z, 0, 8, dt);
+    schwenk2.rotation.x = schwebt2 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk2.rotation.x, 0, 8, dt);
     dreh2.rotation.y = rueckDreh2 ?? (z.drehungen * Math.PI * 2 + extra2 + (schwebt2 && !reduziert ? Math.sin(tau * .7 + 1) * .25 : 0));
     modell2.kroneMat.emissiveIntensity = .9 + .3 * Math.sin(tau * 2.1 + 1) + zp * 1.6 * (.7 + .3 * Math.sin(now * 27));
   }
@@ -826,7 +839,7 @@ function bild(nowMs) {
     P3.klopf += dt;
     const f3 = fort('glitzer');
     if (reduziert) P3.uhr = BAUZEIT + BAU_PAUSE;
-    else if (P3.uhr == null) { if (f3 > .2) { P3.uhr = 0; P3.bremseBau = scrollY; } }
+    else if (P3.uhr == null) { if (f3 > .42) { P3.uhr = 0; P3.bremseBau = scrollY; } }
     else if (f3 < -.45) { P3.uhr = null; P3.warZurueck = false; }
     else P3.uhr = Math.min(BAUZEIT + BAU_PAUSE, P3.uhr + dt);
     P3.bau = clamp((P3.uhr ?? 0) / BAUZEIT);
@@ -893,7 +906,7 @@ function bild(nowMs) {
     figur3.visible = !!renderer && draussen3;
     const begleitet = figur.visible && modus === 'aus' && tI >= T.flugEnde;
     const amBoden3 = bodenTop < vh * .8;
-    const zx = clamp(begleitet ? fx - P2.seite * figH * 1.08 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
+    const zx = clamp(begleitet ? fx - P2.seite * figH * .95 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy - figH * .04 : clamp(b3.y + b3.s, figH, vh * .92);
     if (amBoden3) zf = bodenTop + 5;
     let skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
@@ -912,8 +925,8 @@ function bild(nowMs) {
       skal3 = lerp(1, start3, eio(seg(P3.tR, .3, T.rueckFlug)));
       rueckDreh3 = lerp(P3.rueck.dreh, Math.round(P3.rueck.dreh / (Math.PI * 2)) * Math.PI * 2, e);
     } else {
-      P3.x = daempfe(P3.x, zx, P3.gelandet ? 1.6 : 2.6, dt);
-      P3.y = P3.gelandet ? zf : daempfe(P3.y, zf, 2.9, dt);
+      P3.x = daempfe(P3.x, zx, P3.gelandet ? 1.4 : 1.8, dt);
+      P3.y = P3.gelandet ? zf : daempfe(P3.y, zf, 2.1, dt);
       P3.z = daempfe(P3.z, begleitet && !amBoden3 ? -figH * .25 : 0, 3, dt);
     }
     const x2alt = figur3.userData.x ?? P3.x; P3.vx = daempfe(P3.vx, (P3.x - x2alt) / Math.max(dt, 1e-3), 6, dt); figur3.userData.x = P3.x;
@@ -926,8 +939,8 @@ function bild(nowMs) {
     const basis3 = figH3 / LOKAL_H3 * skal3;
     figur3.scale.set(basis3 * (1 + sq3 * .5), basis3 * (1 - sq3), basis3 * (1 + sq3 * .5));
     figur3.rotation.x = verb3;
-    schwenk3.rotation.z = schwebt3 ? clamp(-P3.vx * .0007, -.35, .35) + (reduziert ? 0 : Math.sin(tau * 1.0 + 2) * .05) : daempfe(schwenk3.rotation.z, 0, 8, dt);
-    schwenk3.rotation.x = schwebt3 ? clamp(scrollV * .0002, -.3, .3) : daempfe(schwenk3.rotation.x, 0, 8, dt);
+    schwenk3.rotation.z = schwebt3 ? clamp(-P3.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk3.rotation.z, 0, 8, dt);
+    schwenk3.rotation.x = schwebt3 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk3.rotation.x, 0, 8, dt);
     dreh3.rotation.y = rueckDreh3 ?? (-z.drehungen * Math.PI * 2 + extra3 + (schwebt3 && !reduziert ? Math.sin(tau * .7 + 1) * .25 : 0));
     modell3.kroneMat.emissiveIntensity = .9 + .3 * Math.sin(tau * 2.1 + 1) + zp * 1.6 * (.7 + .3 * Math.sin(now * 27));
   }
@@ -992,13 +1005,22 @@ function bild(nowMs) {
     const d = reduziert ? 9 : now - landZeit;
     sc.lineCap = 'round';
     for (const b of blumen) {
-      const w = eout(seg(d - b.verz, 0, .7)); if (w <= 0) continue;
-      const x0 = b.x, y0 = bodenTop + 3, h = b.h * w, wind = Math.sin(tau * 1.3 + b.ph) * 2;
+      const w = eout(seg(d - b.verz, 0, .9)); if (w <= 0) continue;
+      const x0 = b.x, y0 = bodenTop + 3, h = b.h * w, wind = Math.sin(tau * 1.1 + b.ph) * 1.5;
       const x1 = x0 + b.neig * h + wind, y1 = y0 - h;
-      sc.strokeStyle = C.linie; sc.lineWidth = 1.6;
-      sc.beginPath(); sc.moveTo(x0, y0); sc.quadraticCurveTo(x0, y0 - h * .5, x1, y1); sc.stroke();
-      const r = b.r * eback(seg(d - b.verz, .35, .9));
-      if (r > .3) { sc.fillStyle = b.farbe; sc.lineWidth = 1.4; sc.beginPath(); sc.arc(x1, y1, r, 0, 7); sc.fill(); sc.stroke(); sc.fillStyle = C.gold; sc.beginPath(); sc.arc(x1, y1, r * .32, 0, 7); sc.fill(); }
+      sc.strokeStyle = 'rgba(40,90,60,.85)'; sc.lineWidth = 1;
+      sc.beginPath(); sc.moveTo(x0, y0); sc.quadraticCurveTo(x0 + b.neig * h * .2, y0 - h * .55, x1, y1); sc.stroke();
+      // ein kleines Blatt am Stiel
+      sc.fillStyle = 'rgba(70,140,90,.8)'; sc.beginPath(); sc.ellipse(x0 + b.neig * h * .25 + 3, y0 - h * .35, 3.2 * w, 1.3 * w, -.6, 0, 7); sc.fill();
+      const r = b.r * eback(seg(d - b.verz, .45, 1.1), 1.2);
+      if (r > .3) {
+        sc.fillStyle = b.farbe;
+        for (let k = 0; k < b.blaetter; k++) {
+          const a = k / b.blaetter * Math.PI * 2 + b.ph;
+          sc.beginPath(); sc.ellipse(x1 + Math.cos(a) * r * .75, y1 + Math.sin(a) * r * .75, r * .62, r * .38, a, 0, 7); sc.fill();
+        }
+        sc.fillStyle = '#d9a43a'; sc.beginPath(); sc.arc(x1, y1, r * .3, 0, 7); sc.fill();
+      }
     }
   }
 

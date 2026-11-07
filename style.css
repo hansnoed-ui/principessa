@@ -67,9 +67,9 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 /* ---------- Auftakt: Titelbild über die ganze Breite ---------- */
 #augenblick {
   position: relative;
-  min-height: 100vh; min-height: 100svh;
+  height: 100vh; height: 100svh;
   display: grid; place-items: center;
-  padding: 10vh 5vw 16vh;
+  padding: 6vh 5vw 8vh;
   background:
     linear-gradient(rgba(180, 210, 244, 0) 80%, var(--hellblau)),
     radial-gradient(ellipse 70% 55% at 50% 44%, #3d3178 0%, #262058 42%, #17153d 78%);
@@ -77,14 +77,13 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 /* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
 .tablet {
   position: relative; z-index: 2;
-  width: min(64vw, 520px, calc(74vh * .744 + 26px));
-  width: min(64vw, 520px, calc(74svh * .744 + 26px));
-  padding: clamp(9px, 1.1vw, 14px);
-  border-radius: clamp(22px, 2.6vw, 34px);
+  width: min(64vw, 520px, calc(76vh * .744 + 12px));
+  width: min(64vw, 520px, calc(76svh * .744 + 12px));
+  padding: clamp(4px, .45vw, 6px);
+  border-radius: clamp(16px, 1.8vw, 24px);
   background: linear-gradient(155deg, #3a3a42, #17171b 50%, #0e0e11);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .1),
-    inset 0 0 0 3px rgba(0, 0, 0, .5),
+    inset 0 0 0 1px rgba(255, 255, 255, .12),
     0 50px 80px -40px rgba(0, 0, 0, .8),
     0 0 140px rgba(255, 196, 228, .22);
 }
@@ -92,7 +91,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   content: ""; position: absolute; top: 50%; right: -2px; width: 3px; height: 9%;
   transform: translateY(-50%); border-radius: 2px; background: #2b2b31;
 }
-.kopfbild { width: 100%; aspect-ratio: 1200 / 1613; position: relative; border-radius: clamp(13px, 1.6vw, 22px); overflow: hidden; background: #000; }
+.kopfbild { width: 100%; aspect-ratio: 1200 / 1613; position: relative; border-radius: clamp(12px, 1.4vw, 19px); overflow: hidden; background: #000; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .signatur {
   position: absolute; z-index: 2;
@@ -154,19 +153,26 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 .liegt canvas { width: 100%; height: 100%; display: block; }
 
 /* ---------- Ebenen ---------- */
+/* Jede Ebene füllt genau einen Bildschirm; die Seite rastet sanft von Ebene zu Ebene */
+html { scroll-snap-type: y mandatory; }
+#augenblick, .ebene { scroll-snap-align: start; scroll-snap-stop: always; }
 .ebene {
-  min-height: 125vh;
-  min-height: 125svh;
-  display: flex;
-  align-items: flex-start;
+  height: 100vh; height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 100%;
+  gap: 4vw;
+  align-items: center;
   padding: 0 8vw;
+  overflow: hidden;
 }
-/* Texte laufen mit: sie bleiben stehen, solange ihre Ebene durchläuft */
-.ebene:not(#ankommen) .inhalt { position: sticky; top: 20vh; top: 20svh; margin-top: 16vh; margin-bottom: 16vh; }
 .ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity 1s ease, transform 1s ease; }
+.ebene > .inhalt.links { grid-column: 1; grid-row: 1; justify-self: start; }
+.ebene > .inhalt.rechts { grid-column: 2; grid-row: 1; justify-self: end; }
+.ebene > .inhalt.links ~ .platz { grid-column: 2; grid-row: 1; }
+.ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 1; }
+.platz { align-self: stretch; margin: 16vh 0; }
 .ebene .inhalt.da { opacity: 1; transform: none; }
-.links { margin-right: auto; }
-.rechts { margin-left: auto; }
 
 #schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 60%, #4f9cc4 86%, #13708a); }
 .inhalt.mitte { margin: 0 auto; text-align: center; }
@@ -186,16 +192,18 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 #gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
 #verweilen { background: linear-gradient(#141a4a, var(--nacht) 30%, var(--nacht) 70%, #3b2f6e 88%, #b9759a); color: var(--creme); }
 #ankommen {
-  background: linear-gradient(#b9759a, #e7a7a0 22%, #f4cf9a 55%, #f2dcae 75%, #d9e8bc);
+  background: linear-gradient(#3b2f6e, #b9759a 14%, #e7a7a0 34%, #f4cf9a 62%, #f2dcae 80%, #d9e8bc);
   color: var(--linie);
+  display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: stretch;
   padding: 0;
-  min-height: 130vh;
-  min-height: 130svh;
+  height: auto;
+  min-height: 100vh; min-height: 100svh;
+  overflow: visible;
 }
-#ankommen .inhalt { padding: 26vh 8vw max(18vh, 330px); }
+#ankommen .inhalt { padding: 16vh 8vw 0; }
 
 /* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
 .zauber { font-size: 1.32em; line-height: 1.55; }
@@ -258,7 +266,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   position: relative;
   height: 34vh;
   height: 34svh;
-  min-height: 200px;
+  min-height: 180px;
   background: linear-gradient(#2f9a62, var(--erde));
 }
 .boden::before {
@@ -271,15 +279,14 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 }
 
 @media (max-width: 700px) {
-  .ebene { padding: 0 6vw; }
-  #augenblick { padding: 10vh 4vw 10vh; }
-  .tablet { width: min(72vw, calc(66svh * .744 + 20px)); }
-  .ebene:not(#ankommen) .inhalt { top: 9vh; top: 9svh; margin-top: 9vh; margin-bottom: 12vh; }
+  .ebene { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 0; padding: 9vh 6vw 4vh; align-items: start; }
+  .ebene > .inhalt.links, .ebene > .inhalt.rechts { grid-column: 1; grid-row: 1; justify-self: stretch; }
+  .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
   .ebene .inhalt { max-width: none; }
-  .links, .rechts { margin: 0; }
-  #ankommen { padding: 0; }
-  #ankommen .inhalt { padding: 26vh 6vw 22vh; }
-  .bild { width: min(88vw, calc(70svh * 0.7856)); }
+  .liegt { width: min(46vw, 24svh); margin: 1.2rem auto 0; }
+  #augenblick { padding: 10vh 4vw 10vh; }
+  .tablet { width: min(72vw, calc(66svh * .744 + 12px)); }
+  #ankommen .inhalt { padding: 12vh 6vw 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
