@@ -46,12 +46,14 @@ export function hintergrund(ctx, { lage, sy, vw, vh, tau, mobil }) {
   // Himmel: weiche Wolken, die langsam ziehen
   const L1 = lage.schweben;
   if (sichtbar(L1, sy, vh)) {
+    ctx.save(); ctx.beginPath(); ctx.rect(0, L1.top - sy, vw, L1.h); ctx.clip();
     for (const w of WOLKEN) {
       const b = Math.min(vw * .22, 260) * w.s * (mobil ? 1.3 : 1);
       const x = ((w.fx * vw + tau * w.v) % (vw + b * 2)) - b * .5;
       const y = L1.top + w.fy * L1.h - sy + (sy - L1.top) * w.tiefe;
       if (y > -b && y < vh + b) wolke(ctx, x, y, b, .55);
     }
+    ctx.restore();
   }
 
   // Sternenhimmel: Mond, ein zartes Sternbild, ab und zu eine Sternschnuppe
