@@ -80,10 +80,11 @@ function machKarte(tex) {
   const geo = new THREE.PlaneGeometry(1, 1, 1, 60); geo.translate(0, .5, 0);
   const basis = Float32Array.from(geo.attributes.position.array);
   const gruppe = new THREE.Group();
-  gruppe.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, alphaTest: .5, toneMapped: false, side: THREE.FrontSide })));
-  gruppe.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: '#d9d2c6', alphaMap: tex, alphaTest: .5, roughness: .85, side: THREE.BackSide })));
+  const vorn = new THREE.MeshBasicMaterial({ map: tex, alphaTest: .5, toneMapped: false, side: THREE.FrontSide, transparent: true });
+  const hinten = new THREE.MeshStandardMaterial({ color: '#d9d2c6', alphaMap: tex, alphaTest: .5, roughness: .85, side: THREE.BackSide, transparent: true });
+  gruppe.add(new THREE.Mesh(geo, vorn), new THREE.Mesh(geo, hinten));
   gruppe.visible = false; scene.add(gruppe);
-  return { gruppe, geo, basis };
+  return { gruppe, geo, basis, deckung: a => { vorn.opacity = hinten.opacity = a; } };
 }
 function rollen(k, p, r = .09) {
   const a = k.geo.attributes.position, L = 1 - p, AMAX = Math.PI * .8;
@@ -625,17 +626,17 @@ function bild(nowMs) {
   // ---- Abziehbild: hinaus rollt es sich ab, zurück legt es sich wieder an
   let lift = 0, roll = 0;
   karte.visible = false;
-  if (renderer && modus === 'aus' && tI < T.plopp) {
-    karte.visible = true; lift = eio(seg(tI, T.loesen, T.plopp));
+  if (renderer && modus === 'aus' && tI < T.plopp + 0.35) {
+    karte.visible = true; lift = eio(seg(tI, T.loesen, T.plopp)); K1.deckung(1 - glatt(T.plopp, T.plopp + 0.35, tI));
     roll = eio(seg(tI, 0, T.loesen)) * .62 * (1 - eout(seg(tI, T.loesen, T.plopp)));
   } else if (renderer && modus === 'zurueck' && tR >= T.rueckFlug && tR < T.rueckKleben) {
-    karte.visible = true; const u = seg(tR, T.rueckFlug, T.rueckKleben);
+    karte.visible = true; K1.deckung(1); const u = seg(tR, T.rueckFlug, T.rueckKleben);
     lift = 1 - eio(u); roll = .22 * Math.sin(Math.PI * u);
   }
   if (karte.visible) {
     rollen(K1, roll);
     karte.position.copy(welt(bx.x + bx.s / 2, bx.y + bx.s - lift * bx.s * .1, lift * bx.s * .45));
-    karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2, 0, Math.sin(lift * Math.PI) * .08);
+    karte.rotation.set(-lift * .25 + Math.sin(lift * Math.PI) * .2 - glatt(T.plopp - .1, T.plopp + 0.35, tI) * .9, 0, Math.sin(lift * Math.PI) * .08);
     karte.scale.setScalar(bx.s);
   }
 
@@ -657,7 +658,7 @@ function bild(nowMs) {
   const amBoden = bodenTop < vh * .8;
   const zielFuss = amBoden ? bodenTop + 5 : Math.min(z.mitteY + figH / 2, bodenTop + 5);
 
-  let skal = 1, sq = 0, verbeug = 0, extraDreh = 0, rueckDreh = null;
+  let tiefe = 1, skal = 1, sq = 0, verbeug = 0, extraDreh = 0, rueckDreh = null;
   const startSkal = (.37 * bx.s * LOKAL_H) / figH;
   const sx = bx.x + bx.s / 2, sy = bx.y + bx.s * .84, sz = bx.s * .45;
   if (modus === 'aus' && tI < T.flugEnde) {
@@ -665,7 +666,7 @@ function bild(nowMs) {
     const u = seg(tI, T.plopp, T.flugEnde), e = eio(u);
     fx = lerp(sx, z.x, e); fy = lerp(sy, zielFuss, e) - Math.sin(Math.PI * u) * vh * .12;
     fz = lerp(sz, 0, e) + Math.sin(Math.PI * u) * figH * .9;
-    skal = lerp(startSkal, 1, eback(seg(tI, T.plopp, T.plopp + .75), 1.4));
+    skal = lerp(startSkal, 1, eio(seg(tI, T.plopp, T.plopp + .9))); tiefe = .06 + .94 * eback(seg(tI, T.plopp, T.plopp + .7), 1.1);
     extraDreh = e * Math.PI * 2;
   } else if (modus === 'zurueck' && rueck) {
     // sanft zurück: in einem leisen Bogen, kleiner werdend, mit dem Gesicht nach vorn
@@ -703,7 +704,7 @@ function bild(nowMs) {
   const wipp = schwebt && !reduziert ? Math.sin(tau * 1.7) * figH * .018 : 0;
   figur.position.copy(welt(fx, fy + wipp, fz));
   const basis = figH / LOKAL_H * skal;
-  figur.scale.set(basis * (1 + sq * .5), basis * (1 - sq), basis * (1 + sq * .5));
+  figur.scale.set(basis * (1 + sq * .5), basis * (1 - sq), basis * (1 + sq * .5) * tiefe);
   figur.rotation.x = verbeug;
   schwenk.rotation.z = schwebt ? clamp(-vxF * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .9) * .03) : daempfe(schwenk.rotation.z, 0, 8, dt);
   schwenk.rotation.x = schwebt ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk.rotation.x, 0, 8, dt);
@@ -773,16 +774,16 @@ function bild(nowMs) {
   }
   {
     let l2 = 0, r2 = 0; K2.gruppe.visible = false;
-    if (renderer && P2.modus === 'aus' && P2.t < T.plopp) {
-      K2.gruppe.visible = true; l2 = eio(seg(P2.t, T.loesen, T.plopp));
+    if (renderer && P2.modus === 'aus' && P2.t < T.plopp + 0.35) {
+      K2.gruppe.visible = true; l2 = eio(seg(P2.t, T.loesen, T.plopp)); K2.deckung(1 - glatt(T.plopp, T.plopp + 0.35, P2.t));
       r2 = eio(seg(P2.t, 0, T.loesen)) * .62 * (1 - eout(seg(P2.t, T.loesen, T.plopp)));
     } else if (renderer && P2.modus === 'zurueck' && P2.tR >= T.rueckFlug && P2.tR < T.rueckKleben) {
-      K2.gruppe.visible = true; const u = seg(P2.tR, T.rueckFlug, T.rueckKleben); l2 = 1 - eio(u); r2 = .22 * Math.sin(Math.PI * u);
+      K2.gruppe.visible = true; K2.deckung(1); const u = seg(P2.tR, T.rueckFlug, T.rueckKleben); l2 = 1 - eio(u); r2 = .22 * Math.sin(Math.PI * u);
     }
     if (K2.gruppe.visible) {
       rollen(K2, r2);
       K2.gruppe.position.copy(welt(b2.x + b2.s / 2, b2.y + b2.s - l2 * b2.s * .1, l2 * b2.s * .45));
-      K2.gruppe.rotation.set(-l2 * .25 + Math.sin(l2 * Math.PI) * .2, 0, Math.sin(l2 * Math.PI) * .08);
+      K2.gruppe.rotation.set(-l2 * .25 + Math.sin(l2 * Math.PI) * .2 - glatt(T.plopp - .1, T.plopp + 0.35, P2.t) * .9, 0, Math.sin(l2 * Math.PI) * .08);
       K2.gruppe.scale.setScalar(b2.s);
     }
   }
@@ -802,7 +803,7 @@ function bild(nowMs) {
     const zx = clamp(begleitet ? fx + P2.seite * figH * .95 : b2.x + b2.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy + figH * .06 : clamp(b2.y + b2.s, figH, vh * .92);
     if (amBoden2) zf = bodenTop + 5;
-    let skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
+    let tiefe2 = 1, skal2 = 1, sq2 = 0, verb2 = 0, extra2 = 0, rueckDreh2 = null;
     const start2 = (B2.hoehe * b2.s) / figH2;
     const sx2 = b2.x + b2.s / 2, sy2 = b2.y + b2.s * (B2.fuss - .1), sz2 = b2.s * .45;
     if (P2.sofort) { P2.x = zx; P2.y = zf; P2.z = 0; P2.sofort = false; }
@@ -810,7 +811,7 @@ function bild(nowMs) {
       const u = seg(P2.t, T.plopp, T.flugEnde), e = eio(u);
       P2.x = lerp(sx2, zx, e); P2.y = lerp(sy2, zf, e) - Math.sin(Math.PI * u) * vh * .1;
       P2.z = lerp(sz2, 0, e) + Math.sin(Math.PI * u) * figH * .8;
-      skal2 = lerp(start2, 1, eback(seg(P2.t, T.plopp, T.plopp + .75), 1.4)); extra2 = -e * Math.PI * 2;
+      skal2 = lerp(start2, 1, eio(seg(P2.t, T.plopp, T.plopp + .9))); tiefe2 = .06 + .94 * eback(seg(P2.t, T.plopp, T.plopp + .7), 1.1); extra2 = -e * Math.PI * 2;
     } else if (P2.modus === 'zurueck' && P2.rueck) {
       const u = seg(P2.tR, 0, T.rueckFlug), e = eio(u);
       P2.x = lerp(P2.rueck.x, sx2, e); P2.y = lerp(P2.rueck.y, sy2, e) - Math.sin(Math.PI * u) * vh * .06;
@@ -830,7 +831,7 @@ function bild(nowMs) {
     const wipp2 = schwebt2 && !reduziert ? Math.sin(tau * 1.5 + 1.3) * figH * .03 : 0;
     figur2.position.copy(welt(P2.x, P2.y + wipp2, P2.z));
     const basis2 = figH2 / LOKAL_H2 * skal2;
-    figur2.scale.set(basis2 * (1 + sq2 * .5), basis2 * (1 - sq2), basis2 * (1 + sq2 * .5));
+    figur2.scale.set(basis2 * (1 + sq2 * .5), basis2 * (1 - sq2), basis2 * (1 + sq2 * .5) * tiefe2);
     figur2.rotation.x = verb2;
     schwenk2.rotation.z = schwebt2 ? clamp(-P2.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk2.rotation.z, 0, 8, dt);
     schwenk2.rotation.x = schwebt2 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk2.rotation.x, 0, 8, dt);
@@ -886,16 +887,16 @@ function bild(nowMs) {
   }
   {
     let l3 = 0, r3 = 0; K3.gruppe.visible = false;
-    if (renderer && P3.modus === 'aus' && P3.t < T.plopp) {
-      K3.gruppe.visible = true; l3 = eio(seg(P3.t, T.loesen, T.plopp));
+    if (renderer && P3.modus === 'aus' && P3.t < T.plopp + 0.35) {
+      K3.gruppe.visible = true; l3 = eio(seg(P3.t, T.loesen, T.plopp)); K3.deckung(1 - glatt(T.plopp, T.plopp + 0.35, P3.t));
       r3 = eio(seg(P3.t, 0, T.loesen)) * .62 * (1 - eout(seg(P3.t, T.loesen, T.plopp)));
     } else if (renderer && P3.modus === 'zurueck' && P3.tR >= T.rueckFlug && P3.tR < T.rueckKleben) {
-      K3.gruppe.visible = true; const u = seg(P3.tR, T.rueckFlug, T.rueckKleben); l3 = 1 - eio(u); r3 = .22 * Math.sin(Math.PI * u);
+      K3.gruppe.visible = true; K3.deckung(1); const u = seg(P3.tR, T.rueckFlug, T.rueckKleben); l3 = 1 - eio(u); r3 = .22 * Math.sin(Math.PI * u);
     }
     if (K3.gruppe.visible) {
       rollen(K3, r3);
       K3.gruppe.position.copy(welt(b3.x + b3.s / 2, b3.y + b3.s - l3 * b3.s * .1, l3 * b3.s * .45));
-      K3.gruppe.rotation.set(-l3 * .25 + Math.sin(l3 * Math.PI) * .2, 0, Math.sin(l3 * Math.PI) * .08);
+      K3.gruppe.rotation.set(-l3 * .25 + Math.sin(l3 * Math.PI) * .2 - glatt(T.plopp - .1, T.plopp + 0.35, P3.t) * .9, 0, Math.sin(l3 * Math.PI) * .08);
       K3.gruppe.scale.setScalar(b3.s);
     }
   }
@@ -914,7 +915,7 @@ function bild(nowMs) {
     const zx = clamp(begleitet ? fx - P2.seite * figH * .95 : b3.x + b3.s * 1.15, figH * .35, vw - figH * .35);
     let zf = begleitet ? fy - figH * .04 : clamp(b3.y + b3.s, figH, vh * .92);
     if (amBoden3) zf = bodenTop + 5;
-    let skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
+    let tiefe3 = 1, skal3 = 1, sq3 = 0, verb3 = 0, extra3 = 0, rueckDreh3 = null;
     const start3 = (B3.hoehe * b3.s) / figH3;
     const sx3 = b3.x + b3.s / 2, sy3 = b3.y + b3.s * (B3.fuss - .1), sz3 = b3.s * .45;
     if (P3.sofort) { P3.x = zx; P3.y = zf; P3.z = 0; P3.sofort = false; }
@@ -922,7 +923,7 @@ function bild(nowMs) {
       const u = seg(P3.t, T.plopp, T.flugEnde), e = eio(u);
       P3.x = lerp(sx3, zx, e); P3.y = lerp(sy3, zf, e) - Math.sin(Math.PI * u) * vh * .1;
       P3.z = lerp(sz3, 0, e) + Math.sin(Math.PI * u) * figH * .8;
-      skal3 = lerp(start3, 1, eback(seg(P3.t, T.plopp, T.plopp + .75), 1.4)); extra3 = -e * Math.PI * 2;
+      skal3 = lerp(start3, 1, eio(seg(P3.t, T.plopp, T.plopp + .9))); tiefe3 = .06 + .94 * eback(seg(P3.t, T.plopp, T.plopp + .7), 1.1); extra3 = -e * Math.PI * 2;
     } else if (P3.modus === 'zurueck' && P3.rueck) {
       const u = seg(P3.tR, 0, T.rueckFlug), e = eio(u);
       P3.x = lerp(P3.rueck.x, sx3, e); P3.y = lerp(P3.rueck.y, sy3, e) - Math.sin(Math.PI * u) * vh * .06;
@@ -942,7 +943,7 @@ function bild(nowMs) {
     const wipp3 = schwebt3 && !reduziert ? Math.sin(tau * 1.5 + 1.3) * figH * .03 : 0;
     figur3.position.copy(welt(P3.x, P3.y + wipp3, P3.z));
     const basis3 = figH3 / LOKAL_H3 * skal3;
-    figur3.scale.set(basis3 * (1 + sq3 * .5), basis3 * (1 - sq3), basis3 * (1 + sq3 * .5));
+    figur3.scale.set(basis3 * (1 + sq3 * .5), basis3 * (1 - sq3), basis3 * (1 + sq3 * .5) * tiefe3);
     figur3.rotation.x = verb3;
     schwenk3.rotation.z = schwebt3 ? clamp(-P3.vx * .0003, -.18, .18) + (reduziert ? 0 : Math.sin(tau * .8 + 2) * .03) : daempfe(schwenk3.rotation.z, 0, 8, dt);
     schwenk3.rotation.x = schwebt3 ? clamp(scrollV * .00008, -.12, .12) : daempfe(schwenk3.rotation.x, 0, 8, dt);

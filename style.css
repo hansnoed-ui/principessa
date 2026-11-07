@@ -485,3 +485,28 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 @media (prefers-reduced-motion: reduce) { .glitzerdruck circle { animation: none; } }
 
 html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none; }
+
+/* ---------- Nach der Apple-Design-Checkliste ---------- */
+/* Rückmeldung beim Drücken, nicht erst beim Loslassen */
+.bestellen:active, .senden:active, .zu:active { transform: scale(.97); transition: transform 100ms ease-out; }
+.pille input:active + span, .wahl:active .bild, .tupfer:active span, .motivwahl:active svg { transform: scale(.96); transition: transform 100ms ease-out; }
+.bild, .wahl .bild { transition: transform 240ms cubic-bezier(.2, .8, .2, 1); }
+/* Typografie: grosse Schrift enger, kleine etwas weiter */
+.signatur strong { letter-spacing: -.02em; line-height: 1.05; }
+.signatur span { letter-spacing: .01em; }
+.karte-innen h2 { letter-spacing: -.025em; line-height: 1.05; }
+.option-titel, .produkt-text, .felder label { letter-spacing: .02em; }
+/* Die Bestellkarte materialisiert: Unschärfe und Grösse zusammen, nicht nur Deckkraft */
+.karte-innen { filter: blur(8px); transition: opacity .6s ease, transform .6s cubic-bezier(.2, .8, .2, 1), filter .6s ease; }
+.bestellkarte.offen .karte-innen { filter: blur(0); }
+/* Fokus sichtbar, ohne Rahmen für die Maus */
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: none; }
+  .karte-innen { filter: none; transition: opacity .25s ease; transform: none; }
+  .bestellen:active, .senden:active, .zu:active { transform: none; }
+}
+@media (prefers-contrast: more) {
+  .bestellen { border-color: currentColor; }
+  .pille span { border: 1.5px solid currentColor; }
+}
