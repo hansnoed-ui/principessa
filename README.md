@@ -9,6 +9,7 @@ Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt i
 - `index.html`, `style.css` – die Seite und ihre vier Ebenen
 - `assets/augenblick.jpg` – das Gemälde, aus dem sie herausspringt
 - `js/rahmen.js` – der verzierte Goldrahmen und die Lage der Principessa im Bild
+- `assets/principessa2*.{jpg,png}` – das zweite Gemälde: mit ihr, ohne sie, mit Leinwand an ihrer Stelle, und sie selbst als Sticker
 - `js/zauber.js` – verzauberter Text: Wörter erscheinen als Glitzer, danach laufen Glitzerwellen hindurch
 - `js/figur.js` – die Principessa, flach gezeichnet und als 3D-Figur, beide aus denselben Massen
 - `js/main.js` – Auftakt (Klopfen, Abrollen, Plopp), Flug beim Scrollen, Glitzer, Sterne, Landung und Wiese
