@@ -185,8 +185,8 @@ function bildZeichnen(z) {
     fc.strokeStyle = 'rgba(110,95,80,.45)'; fc.lineWidth = lw * .6; fc.stroke(); fc.restore();
   }
   if (z.glanz > 0) {
-    const gr = fc.createRadialGradient(cx, by - 1.1 * s, 0, cx, by - 1.1 * s, s * 1.9);
-    gr.addColorStop(0, `rgba(255,236,160,${.6 * z.glanz})`); gr.addColorStop(1, 'rgba(255,236,160,0)');
+    const gr = fc.createRadialGradient(cx, by - 1.1 * s, 0, cx, by - 1.1 * s, s * 1.4);
+    gr.addColorStop(0, `rgba(255,232,170,${.2 * z.glanz})`); gr.addColorStop(1, 'rgba(255,232,170,0)');
     fc.globalCompositeOperation = 'lighter'; fc.fillStyle = gr; fc.fillRect(g.x, g.y, g.w, g.h); fc.globalCompositeOperation = 'source-over';
   }
   // Glas: Risse und ein leiser Schimmer
