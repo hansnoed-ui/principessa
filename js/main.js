@@ -474,7 +474,7 @@ function stern(ctx, x, y, r) {
 function anker() {
   return mobil
     ? [['augenblick', Math.min(vw * .5 - figH * .35, bildEl.getBoundingClientRect().width / 2 + figH * .1), .7], ['schweben', vw * .2, .3], ['glitzer', -vw * .2, .3], ['verweilen', vw * .2, .3], ['ankommen', -vw * .12, .3]]
-    : [['augenblick', (bildEl.getBoundingClientRect().right + vw) / 2 - vw / 2, .5], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', -vw * .14, .44]];
+    : [['augenblick', 0, 0], ['schweben', vw * .22, .44], ['glitzer', -vw * .22, .44], ['verweilen', vw * .22, .42], ['ankommen', -vw * .14, .44]];
 }
 // Sie weicht Text und der liegenden zweiten Principessa aus: in den freien Raum darüber oder darunter
 const freizuhalten = [...document.querySelectorAll('.ebene .inhalt > *')];
@@ -499,6 +499,11 @@ function ausweichen(x, y) {
 const PLATZ = Object.fromEntries(['schweben', 'glitzer', 'verweilen'].map(k => [k, S[k].querySelector('.platz')]));
 function zielFuer(k, idx) {
   const a = anker()[idx];
+  if (k === 'augenblick') {
+    const r = bildEl.getBoundingClientRect();
+    if (vh - r.bottom > figH * 1.15) return { x: vw / 2, y: Math.min((r.bottom + vh) / 2, vh - figH * .72) }; // unter dem Bild
+    return { x: (r.right + vw) / 2, y: vh * .5 };                                            // sonst daneben
+  }
   if (!PLATZ[k]) return { x: vw / 2 + a[1], y: a[2] * vh };
   const r = PLATZ[k].getBoundingClientRect();
   return { x: r.left + r.width / 2, y: r.top + r.height * (mobil ? .5 : .52) };
@@ -509,7 +514,7 @@ function freierBereich() {
   let i = 0; while (i < namen.length - 1 && lage[namen[i + 1]].top <= c) i++;
   const k = namen[i];
   if (PLATZ[k]) { const r = PLATZ[k].getBoundingClientRect(); return [r.left, r.right]; }
-  if (k === 'augenblick' && !mobil) return [bildEl.getBoundingClientRect().right + figH * .1, vw - figH * .2];
+  if (k === 'augenblick') { const r = bildEl.getBoundingClientRect(); return vh - r.bottom > figH * 1.15 ? [figH * .2, vw - figH * .2] : [r.right + figH * .1, vw - figH * .2]; }
   return [figH * .2, vw - figH * .2];
 }
 // Drei Positionen nebeneinander um die Mitte x, innerhalb [L, R]
@@ -537,7 +542,8 @@ function ziel() {
 
 // ------------------------------------------------------------------ Zustand
 // modus: 'drin' = im Bild, klopft ab und zu · 'aus' = draussen · 'zurueck' = kehrt ins Bild zurück
-const T = { loesen: .85, plopp: 1.35, flugEnde: 2.75, rueckFlug: 2.0, rueckKleben: 3.0, rueckEnde: 4.1 };
+const KARTEN = false; // kein Abziehbild mehr: die Principessa springt direkt aus der Fläche
+const T = { loesen: .05, plopp: .1, flugEnde: 1.6, rueckFlug: 2.0, rueckKleben: 3.0, rueckEnde: 4.1 };
 let ersterSprung = false, modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, obenZeit = 0, rueck = null, warWeg = false, bremse1 = 0, anstoss = false;
 
 // Wie weit man durch eine Ebene gescrollt ist: 0 = Bildschirmmitte an ihrem Anfang, 1 = an ihrem Ende
@@ -570,7 +576,7 @@ addEventListener('scroll', () => { const g = scrollGrenze(); if (scrollY > g + 4
 const P3 = { bremse: null, uhr: null, bremseBau: 0, warWeg: false, warZurueck: false, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, gelandet: false, landZeit: -99, sofort: false, bau: 0 };
 const P2 = { bremse: null, sicht: 0, modus: 'drin', t: 0, tR: 0, klopf: 0, plopped: false, obenZeit: 0, rueck: null, x: 0, y: 0, z: 0, vx: 0, seite: 1, gelandet: false, landZeit: -99, sofort: false };
 // nach dem Herausspringen: Kontur kurz sichtbar, dann schliesst sich das Bild mit Glitzer
-const heilStand = t => ({ leer: 1 - glatt(T.plopp + 1.3, T.plopp + 3.8, t), risseA: 1 - seg(t, T.plopp + 1.3, T.plopp + 3.8), heil: seg(t, T.plopp + 1.1, T.plopp + 4.0) });
+const heilStand = t => ({ leer: 0, risseA: 0, heil: 0 });
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
 let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0, zauberZeit = -99, treffenZeit = -99, warNah = false, treffenAnzahl = 0;
 addEventListener('zauber', () => { zauberZeit = performance.now() / 1000; });
@@ -649,10 +655,10 @@ function bild(nowMs) {
   // ---- Abziehbild: hinaus rollt es sich ab, zurück legt es sich wieder an
   let lift = 0, roll = 0;
   karte.visible = false;
-  if (renderer && modus === 'aus' && tI < T.plopp + 0.35) {
+  if (KARTEN && renderer && modus === 'aus' && tI < T.plopp + 0.35) {
     karte.visible = true; lift = eio(seg(tI, T.loesen, T.plopp)); K1.deckung(1 - glatt(T.plopp, T.plopp + 0.35, tI));
     roll = eio(seg(tI, 0, T.loesen)) * .62 * (1 - eout(seg(tI, T.loesen, T.plopp)));
-  } else if (renderer && modus === 'zurueck' && tR >= T.rueckFlug && tR < T.rueckKleben) {
+  } else if (KARTEN && renderer && modus === 'zurueck' && tR >= T.rueckFlug && tR < T.rueckKleben) {
     karte.visible = true; K1.deckung(1); const u = seg(tR, T.rueckFlug, T.rueckKleben);
     lift = 1 - eio(u); roll = .22 * Math.sin(Math.PI * u);
   }
@@ -797,10 +803,10 @@ function bild(nowMs) {
   }
   {
     let l2 = 0, r2 = 0; K2.gruppe.visible = false;
-    if (renderer && P2.modus === 'aus' && P2.t < T.plopp + 0.35) {
+    if (KARTEN && renderer && P2.modus === 'aus' && P2.t < T.plopp + 0.35) {
       K2.gruppe.visible = true; l2 = eio(seg(P2.t, T.loesen, T.plopp)); K2.deckung(1 - glatt(T.plopp, T.plopp + 0.35, P2.t));
       r2 = eio(seg(P2.t, 0, T.loesen)) * .62 * (1 - eout(seg(P2.t, T.loesen, T.plopp)));
-    } else if (renderer && P2.modus === 'zurueck' && P2.tR >= T.rueckFlug && P2.tR < T.rueckKleben) {
+    } else if (KARTEN && renderer && P2.modus === 'zurueck' && P2.tR >= T.rueckFlug && P2.tR < T.rueckKleben) {
       K2.gruppe.visible = true; K2.deckung(1); const u = seg(P2.tR, T.rueckFlug, T.rueckKleben); l2 = 1 - eio(u); r2 = .22 * Math.sin(Math.PI * u);
     }
     if (K2.gruppe.visible) {
@@ -909,10 +915,10 @@ function bild(nowMs) {
   }
   {
     let l3 = 0, r3 = 0; K3.gruppe.visible = false;
-    if (renderer && P3.modus === 'aus' && P3.t < T.plopp + 0.35) {
+    if (KARTEN && renderer && P3.modus === 'aus' && P3.t < T.plopp + 0.35) {
       K3.gruppe.visible = true; l3 = eio(seg(P3.t, T.loesen, T.plopp)); K3.deckung(1 - glatt(T.plopp, T.plopp + 0.35, P3.t));
       r3 = eio(seg(P3.t, 0, T.loesen)) * .62 * (1 - eout(seg(P3.t, T.loesen, T.plopp)));
-    } else if (renderer && P3.modus === 'zurueck' && P3.tR >= T.rueckFlug && P3.tR < T.rueckKleben) {
+    } else if (KARTEN && renderer && P3.modus === 'zurueck' && P3.tR >= T.rueckFlug && P3.tR < T.rueckKleben) {
       K3.gruppe.visible = true; K3.deckung(1); const u = seg(P3.tR, T.rueckFlug, T.rueckKleben); l3 = 1 - eio(u); r3 = .22 * Math.sin(Math.PI * u);
     }
     if (K3.gruppe.visible) {
