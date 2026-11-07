@@ -70,9 +70,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   height: 100vh; height: 100svh;
   display: grid; place-items: center;
   padding: 6vh 5vw 8vh;
-  background:
-    linear-gradient(rgba(180, 210, 244, 0) 80%, var(--hellblau)),
-    radial-gradient(ellipse 70% 55% at 50% 44%, #3d3178 0%, #262058 42%, #17153d 78%);
+  background: #241d55;
 }
 /* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
 .tablet {
@@ -81,7 +79,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   width: min(64vw, 520px, calc(76svh * .744 + 12px));
   padding: clamp(4px, .45vw, 6px);
   border-radius: clamp(16px, 1.8vw, 24px);
-  background: linear-gradient(155deg, #3a3a42, #17171b 50%, #0e0e11);
+  background: #18181c;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, .12),
     0 50px 80px -40px rgba(0, 0, 0, .8),
@@ -101,9 +99,12 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   color: var(--creme);
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(.95rem, .62rem + 1.15vw, 1.65rem);
+  font-size: clamp(.9rem, .6rem + 1vw, 1.45rem);
   letter-spacing: .015em;
+  line-height: 1.2;
 }
+.signatur strong { display: block; font-weight: 600; font-size: 1.55em; letter-spacing: .01em; }
+.signatur span { display: block; opacity: .85; }
 .kopfbild canvas { width: 100%; height: 100%; display: block; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -174,7 +175,7 @@ html { scroll-snap-type: y mandatory; }
 .platz { align-self: stretch; margin: 16vh 0; }
 .ebene .inhalt.da { opacity: 1; transform: none; }
 
-#schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 60%, #4f9cc4 86%, #13708a); }
+#schweben { background: var(--hellblau); }
 .inhalt.mitte { margin: 0 auto; text-align: center; }
 .bestellen {
   display: inline-block;
@@ -187,12 +188,12 @@ html { scroll-snap-type: y mandatory; }
   transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
 }
 .bestellen:hover, .bestellen:focus-visible { border-color: var(--gold); background: rgba(255, 248, 225, .5); box-shadow: 0 0 0 3px rgba(212, 164, 41, .18); outline: none; }
-#glitzer { background: linear-gradient(#13708a, #0f5e78 40%, #0b4560 75%, #141a4a); color: var(--creme); }
+#glitzer { background: #0f5e78; color: var(--creme); }
 #gluecksbringer { background: linear-gradient(#0a3550, #2e2f72 20%, #5b4790 50%, #8e5f9c 78%, #b9759a); color: var(--creme); }
 #gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
-#verweilen { background: linear-gradient(#141a4a, var(--nacht) 30%, var(--nacht) 70%, #3b2f6e 88%, #b9759a); color: var(--creme); }
+#verweilen { background: var(--nacht); color: var(--creme); }
 #ankommen {
-  background: linear-gradient(#3b2f6e, #b9759a 14%, #e7a7a0 34%, #f4cf9a 62%, #f2dcae 80%, #d9e8bc);
+  background: #f3dcb2;
   color: var(--linie);
   display: flex;
   flex-direction: column;
@@ -267,7 +268,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   height: 34vh;
   height: 34svh;
   min-height: 180px;
-  background: linear-gradient(#2f9a62, var(--erde));
+  background: #2f9a62;
 }
 .boden::before {
   content: "";
@@ -330,7 +331,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   transition: box-shadow .3s ease, background .3s ease, transform .3s ease;
 }
 .produkt.gewaehlt {
-  background: linear-gradient(#fdf6e3, #fbf0d6);
+  background: #fdf6e3;
   box-shadow: inset 0 0 0 2px var(--gold), 0 14px 28px -16px rgba(180, 130, 30, .9);
   transform: translateY(-2px);
 }
@@ -436,7 +437,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 }
 
 /* ---------- Bestellkarte, moderner ---------- */
-.bestellkarte { background: linear-gradient(var(--erde), #10392b); }
+.bestellkarte { background: #2f9a62; }
 .karte-innen {
   background: #fff;
   border-radius: 22px;
@@ -480,3 +481,5 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 .glitzerdruck circle:nth-child(3n+1) { animation-delay: 1.6s; }
 @keyframes glitzerdruck { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .glitzerdruck circle { animation: none; } }
+
+html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none; }
