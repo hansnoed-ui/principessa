@@ -62,12 +62,11 @@ def mond(cx, cy, r, dx, dy):
     p(f'<circle cx="{cx*S}" cy="{cy*S}" r="{r*S}" fill="#f4ecf3" mask="url(#{m})"/>')
 mond(48, 50, 34, 15, -9); glanz['mond'] += [[.065, .05], [.045, .08]]
 mond(483, 322, 15, 8, -5)
-# Sonne: unregelmässiger Rand, dichter Glitzer
-pts = []
-for i in range(140):
-    a = i/140*math.tau; rr = 214 + random.uniform(-9, 9) + 6*math.sin(a*7)
-    pts.append(f"{(285+math.cos(a)*rr)*S:.1f},{(262+math.sin(a)*rr)*S:.1f}")
-p(f'<polygon points="{" ".join(pts)}" fill="{GOLD}"/>')
+# Sonne: rund, mit weichem Glitzersaum
+p(f'<circle cx="{285*S}" cy="{262*S}" r="{214*S}" fill="{GOLD}"/>')
+for _ in range(700):
+    a = random.random()*math.tau; rr = 214 + random.uniform(0, 9)
+    p(f'<circle cx="{(285+math.cos(a)*rr)*S:.1f}" cy="{(262+math.sin(a)*rr)*S:.1f}" r="{random.uniform(1.5,4):.1f}" fill="{random.choice([GOLD, GOLD_H, GOLD_D])}"/>')
 for _ in range(4200):
     a, rr = random.random()*math.tau, math.sqrt(random.random())*212
     x, y = 285 + math.cos(a)*rr, 262 + math.sin(a)*rr
