@@ -523,3 +523,16 @@ html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none;
   .bestellen { border-color: currentColor; }
   .pille span { border: 1.5px solid currentColor; }
 }
+
+/* Titel: goldener Glitzer, leise wandernd */
+.signatur strong {
+  color: #e9c462;
+  background-image: var(--glitzer), linear-gradient(100deg, #a8781f 0%, #f3d27a 30%, #fff1bf 50%, #d9a43a 70%, #a8781f 100%);
+  background-size: 160px 160px, 240% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  animation: titelglitzer 14s linear infinite;
+}
+@keyframes titelglitzer { to { background-position: 160px 80px, -240% 0; } }
+@media (prefers-reduced-motion: reduce) { .signatur strong { animation: none; } }
