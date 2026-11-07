@@ -537,7 +537,8 @@ function ziel() {
     const vor = zielFuer(namen[i - 1], i - 1);
     x = lerp(vor.x, jetzt.x, eio(f)); y = lerp(vor.y, jetzt.y, f);
   }
-  return { x, mitteY: y, drehungen: 0, i: Math.max(0, i - 1), f };
+  // beim Hinunterschweben eine ganze Drehung pro Ebene, im Stillstand wieder nach vorn gewandt
+  return { x, mitteY: y, drehungen: Math.max(0, i - 1) + eio(f), i: Math.max(0, i - 1), f };
 }
 
 // ------------------------------------------------------------------ Zustand
