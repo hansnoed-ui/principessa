@@ -204,15 +204,14 @@ export function baueFigur() {
   return { gruppe: g, augen, kleidMat, kroneMat };
 }
 
-// Wie zeichne(), aber mit weissem Sticker-Rand: so liegt sie als Collage auf dem Bild
+// Wie zeichne(), mit einem weichen Schatten dahinter, ohne Kontur: so löst sie sich vom Bild
 export function zeichneSticker(ctx, cx, by, s, lw = 3) {
   ctx.save();
+  const weg = 100000;
+  ctx.translate(-weg, 0);
   silhouette(ctx, cx, by, s);
-  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  ctx.shadowColor = 'rgba(40,20,30,.35)'; ctx.shadowBlur = lw * 3; ctx.shadowOffsetY = lw * .8;
-  ctx.strokeStyle = '#fffdf8'; ctx.lineWidth = lw * 7; ctx.stroke();
-  ctx.shadowColor = 'transparent';
-  ctx.fillStyle = '#fffdf8'; ctx.fill(); ctx.stroke();
+  ctx.shadowColor = 'rgba(40,16,30,.45)'; ctx.shadowBlur = lw * 5; ctx.shadowOffsetX = weg; ctx.shadowOffsetY = lw * 1.2;
+  ctx.fillStyle = '#000'; ctx.fill();
   ctx.restore();
   zeichne(ctx, cx, by, s, lw);
 }

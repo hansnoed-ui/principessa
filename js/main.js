@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { C, F, BEIN_EXTRA, rng, zeichneSticker, silhouette, imBild, baueFigur } from './figur.js';
 import { lage as bildLage, zeichneRahmen, funkelpunkte } from './rahmen.js';
+import './zauber.js';
 
 // ------------------------------------------------------------------ Hilfen
 const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -30,7 +31,7 @@ const bildEl = $('.bild'), titel = $('.titel'), boden = $('#boden');
     x.fillStyle = w < .4 ? `rgba(255,255,255,${.55 + r() * .45})` : w < .75 ? `rgba(255,232,140,${.6 + r() * .4})` : `rgba(140,88,18,${.5 + r() * .4})`;
     x.beginPath(); x.arc(r() * 240, r() * 240, rr, 0, 7); x.fill();
   }
-  titel.style.setProperty('--glitzer', `url(${c.toDataURL()})`);
+  document.documentElement.style.setProperty('--glitzer', `url(${c.toDataURL()})`);
 }
 const S = { augenblick: $('#augenblick'), schweben: $('#schweben'), glitzer: $('#glitzer'), verweilen: $('#verweilen'), ankommen: $('#ankommen') };
 
@@ -179,8 +180,7 @@ function bildZeichnen(z) {
     for (const u of z.ringe) { fc.strokeStyle = `rgba(255,250,235,${(1 - u) * .75})`; fc.lineWidth = lw * 1.2; fc.beginPath(); fc.arc(cx, by - 1.2 * s, box.s * (.12 + u * .4), 0, 7); fc.stroke(); }
   } else {
     // wo sie stand, bleibt rohe Leinwand mit der Vorzeichnung
-    fc.save(); silhouette(fc, cx, by, s); fc.lineJoin = 'round';
-    fc.strokeStyle = fc.fillStyle = leinen(); fc.lineWidth = lw * 7; fc.stroke(); fc.fill();
+    fc.save(); silhouette(fc, cx, by, s); fc.fillStyle = leinen(); fc.fill();
     fc.strokeStyle = 'rgba(110,95,80,.45)'; fc.lineWidth = lw * .6; fc.stroke(); fc.restore();
   }
   if (z.glanz > 0) {
@@ -299,7 +299,8 @@ function ziel() {
 const T = { loesen: .35, plopp: .6, flugEnde: 1.5, rueckFlug: 1.1, rueckKleben: 1.75, rueckEnde: 2.6 };
 let modus = 'drin', tI = 0, tR = 0, klopfUhr = 0, plopped = false, warUnten = false, rueck = null;
 let fx = 0, fy = 0, fz = 0, vxF = 0, scrollV = 0, letzterScroll = scrollY;
-let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0;
+let gelandet = false, landZeit = -99, funkenGesprueht = true, gesammelt = 0, tau = 0, zauberZeit = -99;
+addEventListener('zauber', () => { zauberZeit = performance.now() / 1000; });
 const himmelFarben = [new THREE.Color('#fff4e6'), new THREE.Color('#e2efff'), new THREE.Color('#c4f6ee'), new THREE.Color('#8f9cff'), new THREE.Color('#dcffe0')];
 const himmelStaerke = [1.1, 1.15, 1.0, .55, 1.05];
 
@@ -468,8 +469,16 @@ function bild(nowMs) {
   modell.augen.forEach(a => a.scale.y = 1 - .9 * blink);
 
   // Glitzer an Kleid und Krone
-  modell.kleidMat.emissiveIntensity = .5 + Math.min(gesammelt, 160) / 160 * 1.5;
-  modell.kroneMat.emissiveIntensity = .8 + .3 * Math.sin(tau * 2.3);
+  // Verzauberung: Kleid und Krone glitzern auf, um sie steigt Glitzer
+  const zw = now - zauberZeit, zp = zw >= 0 && zw < 2.6 ? Math.sin(Math.PI * zw / 2.6) : 0;
+  modell.kleidMat.emissiveIntensity = .5 + Math.min(gesammelt, 160) / 160 * 1.5 + zp * 2.2 * (.75 + .25 * Math.sin(now * 23));
+  modell.kroneMat.emissiveIntensity = .8 + .3 * Math.sin(tau * 2.3) + zp * 1.8 * (.7 + .3 * Math.sin(now * 31));
+  if (zp > .05 && figur.visible && !reduziert) {
+    for (let i = 0; i < 2; i++) {
+      const a = zufall() * Math.PI * 2, h = zufall();
+      teilchen.push({ art: 'zauber', x: fx + Math.cos(a) * figH * (.12 + .22 * (1 - h)), y: fy - figH * (.08 + h * .9) + scrollY, vx: (zufall() - .5) * 30, vy: -25 - zufall() * 45, r: .8 + zufall() * 2.2, f: zufall(), ph: zufall() * 7, leben: .9 + zufall() * .8 });
+    }
+  }
 
   // Licht folgt den Ebenen
   {
@@ -522,7 +531,7 @@ function bild(nowMs) {
   sc.globalCompositeOperation = 'lighter';
   const rest = [];
   for (const p of teilchen) {
-    if (p.art === 'funke') { p.vy += 700 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.leben -= dt; }
+    if (p.art === 'funke' || p.art === 'zauber') { p.vy += (p.art === 'funke' ? 700 : -20) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.leben -= dt; }
     else {
       if (p.art === 'streu') { p.vy += 40 * dtz; p.vx *= Math.exp(-1.2 * dtz); p.vy *= Math.exp(-.6 * dtz); p.leben -= dtz; }
       else { p.vx *= Math.exp(-1.5 * dtz); p.vy *= Math.exp(-1.5 * dtz); }

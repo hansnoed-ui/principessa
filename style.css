@@ -15,6 +15,7 @@
   --rot: #c8173f;
   --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
   --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --glitzer: linear-gradient(transparent, transparent);
 }
 
 * { box-sizing: border-box; }
@@ -81,7 +82,6 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 
 /* Titel: Märchenschrift mit Glitzerfüllung */
 .titel {
-  --glitzer: linear-gradient(transparent, transparent);
   font-family: "Cinzel Decorative", "Fraunces", Georgia, serif;
   font-weight: 700;
   font-style: normal;
@@ -143,6 +143,58 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   min-height: 130svh;
 }
 #ankommen .inhalt { padding: 30vh 8vw 18vh; }
+
+/* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
+.zauber { font-size: 1.12em; }
+.zauber .wort {
+  display: inline-block;
+  --tinte: currentColor;
+  background-image: var(--glitzer), linear-gradient(100deg, #7a4f0e, #d9a43a 30%, #fff3c0 50%, #c99230 70%, #7a4f0e);
+  background-size: 160px 160px, 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.zauber:not(.erwacht) .wort { opacity: 0; }
+.zauber.erwacht .wort {
+  animation: erscheinen 1.1s cubic-bezier(.2, .7, .2, 1) calc(var(--i) * 85ms) both,
+             aufglitzern-a 2.2s ease calc(var(--i) * 85ms) both;
+}
+.zauber.erwacht.welle-a .wort { animation: aufglitzern-a 1.9s ease calc(var(--i) * 60ms) both; }
+.zauber.erwacht.welle-b .wort { animation: aufglitzern-b 1.9s ease calc(var(--i) * 60ms) both; }
+@keyframes erscheinen {
+  from { opacity: 0; transform: translateY(8px) scale(.96); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes aufglitzern-a {
+  0% { -webkit-text-fill-color: transparent; background-position: 0 0, 100% 0; text-shadow: 0 0 0 transparent; }
+  35% { -webkit-text-fill-color: transparent; text-shadow: 0 0 14px rgba(255, 214, 110, .55); }
+  70% { -webkit-text-fill-color: transparent; }
+  100% { -webkit-text-fill-color: var(--tinte); background-position: 80px 40px, 0 0; text-shadow: 0 0 0 transparent; }
+}
+@keyframes aufglitzern-b {
+  0% { -webkit-text-fill-color: transparent; background-position: 0 0, 100% 0; text-shadow: 0 0 0 transparent; }
+  35% { -webkit-text-fill-color: transparent; text-shadow: 0 0 14px rgba(255, 214, 110, .55); }
+  70% { -webkit-text-fill-color: transparent; }
+  100% { -webkit-text-fill-color: var(--tinte); background-position: -80px 40px, 0 0; text-shadow: 0 0 0 transparent; }
+}
+.funkelstern {
+  position: absolute;
+  width: 26px; height: 26px;
+  margin: -13px 0 0 -13px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, #fff 0 10%, #ffd66e 20%, rgba(232, 168, 40, .55) 34%, transparent 58%),
+    linear-gradient(transparent 47%, #fff3c4 47% 53%, transparent 53%),
+    linear-gradient(90deg, transparent 47%, #fff3c4 47% 53%, transparent 53%);
+  filter: drop-shadow(0 0 4px rgba(255, 196, 60, .95)) drop-shadow(0 0 10px rgba(255, 220, 120, .6));
+  opacity: 0;
+  animation: stern-funkeln 1.3s ease-out var(--d) forwards;
+}
+@keyframes stern-funkeln {
+  0% { opacity: 0; transform: scale(0) rotate(0); }
+  35% { opacity: 1; transform: scale(var(--g)) rotate(45deg); }
+  100% { opacity: 0; transform: scale(0) rotate(90deg); }
+}
 
 blockquote { margin: 1.8rem 0 0; padding-left: 1.1rem; border-left: 1.5px solid rgba(247, 242, 236, .5); }
 blockquote p { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin: 0 0 .3rem; font-variation-settings: "SOFT" 100; }
