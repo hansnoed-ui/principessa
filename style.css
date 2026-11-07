@@ -64,21 +64,23 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   opacity: 0.75;
 }
 
-/* ---------- Auftakt ---------- */
-#augenblick {
-  min-height: 100vh;
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
-  padding: 5vh 5vw 8vh;
-  background: linear-gradient(#16153b 0%, #1e1a4c 40%, #282160 68%, #4c4c97 86%, var(--hellblau) 100%);
+/* ---------- Auftakt: Titelbild über die ganze Breite ---------- */
+#augenblick { background: var(--hellblau); }
+.kopfbild { width: 100%; aspect-ratio: 16 / 9; position: relative; z-index: 2; }
+.signatur {
+  position: absolute;
+  top: clamp(10px, 2.2vw, 34px);
+  right: clamp(12px, 2.6vw, 42px);
+  margin: 0;
+  color: #111;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(.72rem, .55rem + .6vw, 1.1rem);
+  letter-spacing: .02em;
+  text-shadow: 0 0 2px #f3d6e6, 0 0 6px #f3d6e6, 0 0 12px rgba(243, 214, 230, .9), 0 0 22px rgba(243, 214, 230, .7);
 }
-#augenblick .inhalt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(1rem, 3vh, 2.2rem);
-}
+.kopfbild canvas { width: 100%; height: 100%; display: block; }
+.unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Titel: Märchenschrift mit Glitzerfüllung */
 .titel {
@@ -138,7 +140,19 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 .links { margin-right: auto; }
 .rechts { margin-left: auto; }
 
-#schweben { background: linear-gradient(var(--hellblau), var(--hellblau-tief) 75%, var(--tuerkis)); }
+#schweben { background: linear-gradient(var(--hellblau), #a2c6f0); }
+#gestalten { background: linear-gradient(#a2c6f0, #93bdee); }
+#gluecksbringer { background: linear-gradient(#93bdee, var(--hellblau-tief) 70%, var(--tuerkis)); }
+.inhalt.mitte { margin: 0 auto; text-align: center; }
+.bestellen {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .22em;
+  text-decoration-color: rgba(247, 242, 236, .6);
+  transition: text-decoration-color .3s ease;
+}
+.bestellen:hover, .bestellen:focus-visible { text-decoration-color: var(--gold); }
 #glitzer { background: linear-gradient(var(--tuerkis), var(--tuerkis-tief) 70%, var(--koenigsblau)); color: var(--creme); }
 #verweilen { background: linear-gradient(var(--koenigsblau), var(--nacht) 55%, var(--nacht) 70%, var(--gruen)); color: var(--creme); }
 #ankommen {
@@ -151,7 +165,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   min-height: 130vh;
   min-height: 130svh;
 }
-#ankommen .inhalt { padding: 30vh 8vw 18vh; }
+#ankommen .inhalt { padding: 26vh 8vw max(18vh, 330px); }
 
 /* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
 .zauber { font-size: 1.32em; line-height: 1.55; }
@@ -228,15 +242,156 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 
 @media (max-width: 700px) {
   .ebene { padding: 0 6vw; align-items: flex-end; padding-bottom: 28vh; }
+  #schweben { align-items: flex-start; padding-top: 34vh; padding-bottom: 0; min-height: 125svh; }
   .ebene .inhalt { max-width: none; }
   .links, .rechts { margin: 0; }
   #ankommen { padding: 0; }
   #ankommen .inhalt { padding: 26vh 6vw 22vh; }
-  #augenblick { padding: 4vh 4vw 6vh; }
   .bild { width: min(88vw, calc(70svh * 0.7856)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ebene .inhalt { transition: none; }
   .titel { animation: none; }
+}
+
+/* ---------- Bestellkarte ---------- */
+.bestellkarte { background: var(--erde); padding: 0 4vw 12vh; color: var(--linie); }
+.karte-innen {
+  position: relative;
+  max-width: 1040px;
+  margin: 0 auto;
+  background: var(--papier);
+  border-radius: 8px;
+  padding: clamp(1.3rem, 4vw, 3rem);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(212, 164, 41, .55), inset 0 0 0 7px var(--papier), inset 0 0 0 8px rgba(212, 164, 41, .35);
+  opacity: 0;
+  transform: translateY(28px) scale(.98);
+  transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+}
+.bestellkarte.offen .karte-innen { opacity: 1; transform: none; }
+.karte-innen h2 { color: var(--linie); margin-bottom: .2em; }
+.einleitung { margin: 0 0 1.8rem; opacity: .8; }
+.zu {
+  position: absolute; top: .6rem; right: .7rem;
+  width: 44px; height: 44px;
+  border: 0; background: none; cursor: pointer;
+  font-size: 1.8rem; line-height: 1; color: var(--linie); opacity: .6;
+}
+.zu:hover, .zu:focus-visible { opacity: 1; }
+
+/* Produkte */
+.produkte { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(.8rem, 2vw, 1.4rem); margin-bottom: 1.6rem; }
+.produkt {
+  position: relative;
+  display: flex; flex-direction: column;
+  border-radius: 8px;
+  background: #f4eee5;
+  box-shadow: inset 0 0 0 1.5px rgba(42, 34, 48, .06);
+  transition: box-shadow .3s ease, background .3s ease, transform .3s ease;
+}
+.produkt.gewaehlt {
+  background: linear-gradient(#fdf6e3, #fbf0d6);
+  box-shadow: inset 0 0 0 2px var(--gold), 0 14px 28px -16px rgba(180, 130, 30, .9);
+  transform: translateY(-2px);
+}
+.wahl { display: flex; flex-direction: column; align-items: center; padding: 1rem .9rem .4rem; cursor: pointer; text-align: center; }
+.wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.haken {
+  position: absolute; top: .8rem; left: .8rem;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid rgba(42, 34, 48, .35); background: #fff;
+  transition: background .25s ease, border-color .25s ease;
+}
+.haken::after {
+  content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px;
+  border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) scale(0);
+  transition: transform .25s cubic-bezier(.3, 1.6, .5, 1);
+}
+.produkt.gewaehlt .haken { background: var(--gold); border-color: var(--gold); }
+.produkt.gewaehlt .haken::after { transform: rotate(45deg) scale(1); }
+.wahl input:focus-visible ~ .haken { outline: 2px solid var(--gold); outline-offset: 3px; }
+.bild { width: 100%; max-width: 210px; height: auto; display: block; }
+.bild .stapel, .bild .tasche-koerper, .bild .shirt-stoff { transition: transform .45s cubic-bezier(.2, .8, .2, 1), fill .35s ease; }
+.produkt-name { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin-top: .2rem; }
+.produkt-text { font-size: .85rem; opacity: .65; }
+
+.optionen { display: flex; flex-direction: column; gap: .8rem; padding: .8rem .9rem 1.1rem; }
+.option { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.option-titel { width: 100%; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; opacity: .6; }
+.option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+/* Knöpfe für Set, Grösse, Anzahl */
+.pille span {
+  display: inline-block; min-width: 44px; min-height: 36px;
+  padding: .45rem .75rem; border-radius: 999px;
+  border: 1.5px solid rgba(42, 34, 48, .18); background: #fff;
+  font-size: .88rem; line-height: 1.15; text-align: center; cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.pille:hover span { border-color: var(--gold); }
+.pille input:checked + span { background: var(--linie); border-color: var(--linie); color: var(--papier); box-shadow: 0 0 0 3px rgba(212, 164, 41, .35); }
+.pille input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Farbtupfer */
+.tupfer { display: flex; flex-direction: column; align-items: center; gap: .2rem; cursor: pointer; }
+.tupfer span {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--f); box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .15);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.tupfer em { font-style: normal; font-size: .72rem; opacity: .7; }
+.tupfer input:checked + span { box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .15), 0 0 0 3px var(--papier), 0 0 0 5px var(--gold); transform: scale(1.06); }
+.tupfer input:focus-visible + span { outline: 2px solid var(--linie); outline-offset: 5px; }
+
+/* Motive */
+.motivwahl { display: flex; flex-direction: column; align-items: center; gap: .15rem; cursor: pointer; }
+.motivwahl svg {
+  width: 56px; height: 56px; border-radius: 10px; background: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(42, 34, 48, .14);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.motivwahl em { font-style: normal; font-size: .72rem; opacity: .7; }
+.motivwahl input:checked + svg { box-shadow: inset 0 0 0 2px var(--gold), 0 6px 14px -8px rgba(180, 130, 30, .9); transform: translateY(-1px); }
+.motivwahl input:focus-visible + svg { outline: 2px solid var(--linie); outline-offset: 3px; }
+
+/* Formular */
+.felder { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1.2rem; margin-bottom: 1.6rem; }
+.felder label { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
+.felder .breit { grid-column: 1 / -1; }
+.felder input, .felder textarea {
+  font: inherit; font-size: 1rem;
+  padding: .7rem .8rem;
+  border: 1px solid #d8cfc2; border-radius: 6px;
+  background: #fff; color: var(--linie);
+}
+.felder input:focus, .felder textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
+.senden {
+  font: inherit; font-weight: 600; letter-spacing: .02em;
+  padding: .95rem 2rem;
+  border: 0; border-radius: 999px; cursor: pointer;
+  color: #2e1d04;
+  background: linear-gradient(100deg, #c99230, #f3d27a 45%, #d9a43a);
+  box-shadow: 0 8px 20px -10px rgba(160, 110, 20, .9);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.senden:hover, .senden:focus-visible { transform: translateY(-1px); box-shadow: 0 12px 24px -10px rgba(160, 110, 20, .9); }
+.hinweis-fehler { color: #a3122f; margin: -.6rem 0 1.2rem; }
+.danke { margin: 1rem 0 0; opacity: .85; }
+
+@media (max-width: 860px) {
+  .produkte { grid-template-columns: 1fr; }
+  .produkt { display: grid; grid-template-columns: minmax(120px, 38%) 1fr; }
+  .wahl { grid-row: 1; padding: .9rem .5rem .6rem; }
+  .bild { max-width: 160px; }
+  .optionen { grid-row: 1; grid-column: 2; padding: 1rem .9rem 1rem .2rem; margin-top: 0; }
+}
+@media (max-width: 520px) {
+  .produkt { display: flex; }
+  .bild { max-width: 150px; }
+  .optionen { padding: .4rem 1rem 1.1rem; }
+  .felder { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .karte-innen, .produkt, .bild * { transition: none !important; }
 }

@@ -304,3 +304,90 @@ export function baueFigur2() {
   const krone = new THREE.Mesh(kg, kroneMat); krone.position.set(.24, .3, 0); krone.rotation.z = -.14; krone.scale.set(1.3, 1.55, 1.3); kopf.add(krone);
   return { gruppe: g, kroneMat, kleidMat };
 }
+
+// ------------------------------------------------------------------ Die dritte Principessa: eine Meerjungfrau
+// Blonde Lockenkrause, geschlossene Wimpernaugen, Glitzerwangen, hohe schmale Krone mit drei grünen Kugeln,
+// zarter Oberkörper mit dünnen Armen, Fischschwanz in Türkis und Grün mit Pailletten.
+export const F3 = { hoehe: 2.62 };
+export function baueFigur3() {
+  const g = new THREE.Group(), r = rng(57);
+  const haut = new THREE.MeshStandardMaterial({ color: '#f1e6d2', roughness: .6 });
+  const schwarz = new THREE.MeshBasicMaterial({ color: '#141014' });
+
+  // Schwanz: gedrechselt, vorn und hinten etwas flacher
+  const profil = [[.0, .16], [.06, .16], [.075, .22], [.1, .34], [.135, .5], [.17, .68], [.195, .84], [.2, .98], [.0, .98]].map(([x, y]) => new THREE.Vector2(x, y));
+  const [sMap, sLeucht] = glitzerTextur(1024, 512, c => {
+    const farben = ['#2c9d86', '#4fc3a8', '#1f6f7a', '#e8b9c7', '#3dae8f', '#86c96b', '#2a7f8a', '#e8b9c7', '#4fc3a8', '#2c9d86'];
+    const h = 512 / farben.length;
+    farben.forEach((f, i) => { c.fillStyle = f; c.fillRect(0, i * h - 1, 1024, h + 2); });
+  }, [[0, 512]], 61);
+  const schwanzMat = new THREE.MeshStandardMaterial({ map: sMap, emissive: '#fff', emissiveMap: sLeucht, emissiveIntensity: .6, roughness: .45 });
+  const schwanz = new THREE.Mesh(new THREE.LatheGeometry(profil, 64), schwanzMat);
+  schwanz.scale.z = .72; g.add(schwanz);
+  // Flosse: zwei flache Lappen
+  const flosseMat = new THREE.MeshStandardMaterial({ color: '#56c9ae', emissive: '#fff', emissiveMap: sLeucht, emissiveIntensity: .5, roughness: .4 });
+  for (const s of [-1, 1]) {
+    const f = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), flosseMat);
+    f.scale.set(.15, .1, .035); f.position.set(s * .1, .09, 0); f.rotation.z = s * -.55; g.add(f);
+  }
+
+  // Oberkörper und Arme
+  const rumpf = new THREE.Mesh(new THREE.CylinderGeometry(.075, .13, .22, 24), haut);
+  rumpf.position.y = 1.07; rumpf.scale.z = .75; g.add(rumpf);
+  const hals = new THREE.Mesh(new THREE.CylinderGeometry(.06, .07, .08, 16), haut); hals.position.y = 1.2; g.add(hals);
+  for (const s of [-1, 1]) {
+    const kurve = new THREE.CatmullRomCurve3([new THREE.Vector3(s * .08, 1.12, 0), new THREE.Vector3(s * .25, 1.06, .02), new THREE.Vector3(s * .42, .97, .03)]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(kurve, 24, .026, 8), haut));
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), haut); hand.position.set(s * .43, .965, .03); g.add(hand);
+  }
+
+  // Kopf
+  const KR = { x: .74, y: .3, z: .36 }, kopfY = 1.5;
+  const kopf = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 40), new THREE.MeshStandardMaterial({ color: '#f3e9d6', roughness: .55 }));
+  kopf.scale.set(KR.x, KR.y, KR.z); kopf.position.y = kopfY; g.add(kopf);
+  const vorn = (x, y, d = 0) => { const u = x / KR.x, v = (y - kopfY) / KR.y; return new THREE.Vector3(x, y, KR.z * Math.sqrt(Math.max(0, 1 - u * u - v * v)) + d); };
+  // Locken rund um die obere Hälfte, in drei Lagen
+  const lockenMat = new THREE.MeshStandardMaterial({ color: '#ecd56a', roughness: .5 });
+  const locke = new THREE.SphereGeometry(1, 14, 10);
+  for (const [lage, zf] of [[0, 0], [1, .55], [-1, .55]]) {
+    for (let i = 0; i <= 26; i++) {
+      const w = -0.32 + i / 26 * (Math.PI + .64), rr = .062 + r() * .022;
+      const x = Math.cos(w) * (KR.x + .01) * (1 - zf * .18), y = kopfY + Math.sin(w) * (KR.y + .02) * (1 - zf * .1);
+      if (lage !== 0 && Math.sin(w) < .15) continue;
+      const l = new THREE.Mesh(locke, lockenMat); l.scale.setScalar(rr);
+      l.position.set(x, y, lage * zf * KR.z); g.add(l);
+    }
+  }
+  // geschlossene Augen mit Wimpern
+  for (const ax of [-.27, .27]) {
+    const ay = 1.535, b = .3, pts = [];
+    for (let i = 0; i <= 16; i++) { const u = i / 16 * 2 - 1; pts.push(vorn(ax + u * b / 2, ay - (1 - u * u) * .05, .004)); }
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, .02, 6), schwarz));
+    for (let k = 0; k < 5; k++) {
+      const u = -.75 + k * .375, p0 = vorn(ax + u * b / 2, ay - (1 - u * u) * .05, .004), p1 = vorn(ax + u * b / 2 + u * .03, ay - (1 - u * u) * .05 - .075, .004);
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(p0, p1), 2, .013, 5), schwarz));
+    }
+  }
+  // Glitzerwangen und Lächeln
+  const wangeMat = new THREE.MeshStandardMaterial({ color: '#f1b3bf', emissive: '#ffd7e0', emissiveIntensity: .25, roughness: .3, metalness: .2 });
+  for (const wx of [-.56, .56]) {
+    const p = vorn(wx, 1.44, -.02), w = new THREE.Mesh(new THREE.SphereGeometry(.085, 18, 12), wangeMat);
+    w.position.copy(p); w.scale.z = .3; w.lookAt(p.clone().add(new THREE.Vector3(p.x / KR.x ** 2, (p.y - kopfY) / KR.y ** 2, p.z / KR.z ** 2).normalize())); g.add(w);
+  }
+  const mund = []; for (let i = 0; i <= 20; i++) { const u = i / 20; mund.push(vorn(-.24 + u * .5, 1.37 - Math.sin(Math.PI * u) * .06, .004)); }
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(mund), 30, .014, 6), new THREE.MeshBasicMaterial({ color: '#e0708a' })));
+
+  // hohe schmale Krone mit drei grünen Kugeln
+  const [kMap, kLeucht] = glitzerTextur(256, 512, c => { c.fillStyle = C.gold; c.fillRect(0, 0, 256, 512); }, [[0, 512]], 67, true);
+  const kroneMat = new THREE.MeshStandardMaterial({ map: kMap, emissive: '#fff', emissiveMap: kLeucht, emissiveIntensity: .8, metalness: .6, roughness: .35 });
+  const krone = new THREE.Group(); krone.position.set(.34, 1.74, 0); g.add(krone);
+  const stiel = new THREE.Mesh(new THREE.CylinderGeometry(.085, .06, .5, 20), kroneMat); stiel.position.y = .25; stiel.scale.z = .6; krone.add(stiel);
+  const kugelMat = new THREE.MeshStandardMaterial({ color: '#1f6a4a', emissive: '#7fe0b0', emissiveIntensity: .25, roughness: .35, metalness: .3 });
+  for (const [dx, h, rot] of [[-.075, .14, .45], [0, .17, 0], [.075, .14, -.45]]) {
+    const zacke = new THREE.Mesh(new THREE.CylinderGeometry(.018, .03, h, 10), kroneMat);
+    zacke.position.set(dx + Math.sin(-rot) * h * .5, .5 + Math.cos(rot) * h * .5, 0); zacke.rotation.z = rot; krone.add(zacke);
+    const k = new THREE.Mesh(new THREE.SphereGeometry(.058, 16, 12), kugelMat);
+    k.position.set(dx + Math.sin(-rot) * h, .5 + Math.cos(rot) * h + .04, 0); krone.add(k);
+  }
+  return { gruppe: g, kroneMat };
+}

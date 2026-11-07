@@ -4,13 +4,22 @@ const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const WELLE_ALLE = 12000;
 
 for (const absatz of document.querySelectorAll('.zauber')) {
-  const woerter = absatz.textContent.trim().split(/\s+/);
-  absatz.textContent = '';
-  woerter.forEach((w, i) => {
-    const s = document.createElement('span');
-    s.className = 'wort'; s.textContent = w; s.style.setProperty('--i', i);
-    absatz.append(s, ' ');
-  });
+  // Wörter in Spans legen, Links und andere Elemente bleiben erhalten
+  let i = 0;
+  const zerlege = knoten => {
+    for (const k of [...knoten.childNodes]) {
+      if (k.nodeType === 3) {
+        const teile = k.textContent.split(/(\s+)/), frag = document.createDocumentFragment();
+        for (const t of teile) {
+          if (!t) continue;
+          if (/^\s+$/.test(t)) { frag.append(' '); continue; }
+          const s = document.createElement('span'); s.className = 'wort'; s.textContent = t; s.style.setProperty('--i', i++); frag.append(s);
+        }
+        k.replaceWith(frag);
+      } else if (k.nodeType === 1) zerlege(k);
+    }
+  };
+  zerlege(absatz);
   const spans = [...absatz.querySelectorAll('.wort')];
   if (reduziert) { absatz.classList.add('erwacht'); continue; }
 
