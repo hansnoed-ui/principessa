@@ -638,7 +638,7 @@ function bild(nowMs) {
         for (const kt of [.45, .9]) {
           const d = p - kt;
           if (d > 0 && d < .25) zb.klopf = Math.max(zb.klopf, Math.sin(d / .25 * Math.PI));
-          if (d > 0 && d < .5) zb.ringe.push(d / .5);
+          
         }
       }
     } else if (modus === 'aus') {
