@@ -207,7 +207,9 @@ html { scroll-snap-type: y mandatory; }
 #ankommen .inhalt { padding: 16vh 8vw 0; }
 
 /* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
-.zauber { font-size: 1.32em; line-height: 1.55; }
+.zauber { font-size: 1.32em; line-height: 1.5; }
+.zauber .satz { display: block; }
+.zauber .satz + .satz { margin-top: .55em; }
 .zauber .wort {
   display: inline-block;
   --tinte: currentColor;
