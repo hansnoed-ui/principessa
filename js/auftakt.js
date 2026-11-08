@@ -34,7 +34,7 @@ export const AUFTAKT = {
   sprung: 11.2,           // die 3D-Figuren übernehmen (main.js)
 };
 export const HOEHE_P = .34;          // Höhe der Principessa im Bild (Bildhöhe = 1)
-export const SKALA_H = .13;          // Bildeinheiten je Hunde-Einheit
+export const SKALA_H = .105;         // Bildeinheiten je Hunde-Einheit
 
 // ------------------------------------------------------------------ Farben
 const FARBE = {
@@ -283,16 +283,16 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   };
 
   // ---------- Das Körbchen (Welt-x 1.08 bis 1.4)
-  const KORB = { x: 1.24, r: .13 };
+  const KORB = { x: 1.24, r: .19 };
   const korbHinten = () => {
-    ctx.fillStyle = FARBE.korbDunkel; ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.8), KORB.r * S, .06 * S, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = FARBE.korbKissen; ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.795), (KORB.r - .025) * S, .035 * S, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = FARBE.korbDunkel; ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.8), KORB.r * S, .07 * S, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = FARBE.korbKissen; ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.795), (KORB.r - .03) * S, .045 * S, 0, 0, 7); ctx.fill();
   };
   const korbVorn = () => {
     const R = KORB.r;
     ctx.fillStyle = FARBE.korb; ctx.beginPath(); ctx.moveTo(X(KORB.x - R), Y(.8)); ctx.quadraticCurveTo(X(KORB.x - R + .01), Y(BODEN), X(KORB.x - R + .05), Y(BODEN)); ctx.lineTo(X(KORB.x + R - .05), Y(BODEN)); ctx.quadraticCurveTo(X(KORB.x + R - .01), Y(BODEN), X(KORB.x + R), Y(.8)); ctx.ellipse(X(KORB.x), Y(.8), R * S, .03 * S, 0, 0, Math.PI, true); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = FARBE.korbDunkel; ctx.lineWidth = lw;
-    for (let i = 1; i < 9; i++) { const kx = KORB.x - R + 2 * R * i / 9; ctx.beginPath(); ctx.moveTo(X(kx), Y(.81)); ctx.lineTo(X(kx + (kx < KORB.x ? -.004 : .004)), Y(BODEN - .005)); ctx.stroke(); }
+    for (let i = 1; i < 12; i++) { const kx = KORB.x - R + 2 * R * i / 12; ctx.beginPath(); ctx.moveTo(X(kx), Y(.81)); ctx.lineTo(X(kx + (kx < KORB.x ? -.004 : .004)), Y(BODEN - .005)); ctx.stroke(); }
     ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.8), R * S, .03 * S, 0, 0, Math.PI); ctx.stroke();
   };
 
@@ -309,17 +309,16 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     const wackel = sch > 0 && sch < 1 ? Math.sin(t * 34) * .22 * Math.sin(Math.PI * sch) : 0;
     if (steh <= 0) {
       // im Bett: liegend Kopf auf dem Kissen (um 90° gedreht), beim Aufsetzen dreht er hoch und wandert zum Rumpf
-      const kopfLiegt = [.265, .635], kopfSitzt = [.34, .75 - (F.kopfY - .9) * HOEHE_P / F.hoehe];
-      const kx = lerp(kopfLiegt[0], kopfSitzt[0], sitz), ky = lerp(kopfLiegt[1], kopfSitzt[1], sitz) + atem * .4;
+      const kopfLiegt = [.265, .635], hebung = (1 - sitz) * .1, kopfSitzt = [.41, .75 + hebung - F.kopfY * HOEHE_P / F.hoehe];
+      const kx = lerp(kopfLiegt[0], kopfSitzt[0], sitz), ky = lerp(kopfLiegt[1], kopfSitzt[1], sitz) + atem * .4 * (1 - sitz);
       const rot = lerp(-.3, 0, sitz) + wackel;
-      // der Rumpf steigt hinter der Decke hoch: Füsse (gedacht) bei .75 + Versatz
-      const hebung = (1 - sitz) * .1;
-      if (sitz > 0) zeichne(ctx, X(.34), Y(.75 + hebung), sP, lwP, { ohneKopf: true, ohneKrone: true });
+      // der Rumpf steigt hinter der Decke hoch: Füsse (gedacht) bei .75 + Hebung
+      if (sitz > 0) zeichne(ctx, X(.41), Y(.75 + hebung), sP, lwP, { ohneKopf: true, ohneKrone: true });
       zeichneKopf(ctx, X(kx), Y(ky), sP, lwP, { augenZu, kopf: rot });
     } else {
       // Hüpfer aus dem Bett auf den Boden, dann gehen
       const hop = eio(steh), bogen = Math.sin(Math.PI * steh) * .07;
-      const x = steh < 1 ? lerp(.36, P_START, hop) : px;
+      const x = steh < 1 ? lerp(.41, P_START, hop) : px;
       const fuss = steh < 1 ? lerp(.75, BODEN, hop) - bogen : BODEN;
       const laeuft = t > AUFTAKT.geh && t < AUFTAKT.halt + .3;
       const schritt = laeuft ? Math.sin((px - P_START) * 24) : 0;
@@ -333,7 +332,7 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   const krone = () => {
     if (t >= AUFTAKT.krone[1] || t >= AUFTAKT.sprung) return;
     const u = eio(seg(t, AUFTAKT.krone[0], AUFTAKT.krone[1]));
-    const zielX = lerp(.36, P_START, eio(seg(t, AUFTAKT.steh[0], AUFTAKT.steh[1])));
+    const zielX = lerp(.41, P_START, eio(seg(t, AUFTAKT.steh[0], AUFTAKT.steh[1])));
     // zeichneKrone zeichnet relativ zu den Füssen: Krone ragt von F.kroneBasis bis +.44 über die Füsse
     const kroneBasisPx = F.kroneBasis * sP;
     const vonX = X(BETT.kopfX + .005), vonY = Y(BETT.kopfOben + .03) + kroneBasisPx + .18 * sP;   // auf der Pfostenkugel
@@ -357,13 +356,13 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     if (steh <= 0) {
       // liegt im Körbchen: tiefer, Beine hinter dem Korbrand, Kopf gesenkt; atmet
       const atemH = Math.sin(tau * 1.9 + 1) * .5 * (1 - wach);
-      ctx.save(); ctx.translate(X(KORB.x - .02), Y(.9)); ctx.rotate(schuettel * .06); ctx.scale(1 + schuettel * .03, 1 - schuettel * .03 + atemH * .01); ctx.translate(-X(KORB.x - .02), -Y(.9));
-      zeichneHund(ctx, X(KORB.x - .02), Y(.9), sH, lwH, { kopf: lerp(.32, 0, wach) + schuettel * .08, augeZu, schwanz: wach * Math.sin(tau * 5) * .6, ohr: schuettel, beine: [.9, 1.1, -.9, -1.1] });
+      ctx.save(); ctx.translate(X(KORB.x - .02), Y(.88)); ctx.rotate(schuettel * .06); ctx.scale(1 + schuettel * .03, 1 - schuettel * .03 + atemH * .01); ctx.translate(-X(KORB.x - .02), -Y(.88));
+      zeichneHund(ctx, X(KORB.x - .02), Y(.88), sH, lwH, { kopf: lerp(.32, 0, wach) + schuettel * .08, augeZu, schwanz: wach * Math.sin(tau * 5) * .6, ohr: schuettel, beine: [.9, 1.1, -.9, -1.1] });
       ctx.restore();
     } else {
       const hop = eio(steh), bogen = Math.sin(Math.PI * steh) * .09;
       const x = steh < 1 ? lerp(KORB.x - .02, HUND_WEG[0][1], hop) : hx;
-      const fuss = steh < 1 ? lerp(.9, BODEN, hop) - bogen : BODEN;
+      const fuss = steh < 1 ? lerp(.88, BODEN, hop) - bogen : BODEN;
       // Gangart aus dem zurückgelegten Weg; Schnuppern an der Blume bei 2.36
       const weg = hx - HUND_WEG[0][1], dx = wegH(t + .05) - wegH(t - .05), tempo = clamp(Math.abs(dx) / .05);
       const ph = weg * 30, amp = .5 * tempo;
