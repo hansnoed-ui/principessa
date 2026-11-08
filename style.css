@@ -611,3 +611,16 @@ html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none;
 }
 
 .auftakt-titel .satz + .satz { margin-top: .1em; }
+
+/* Der Titel bleibt verborgen, bis er erwacht (sonst steht er beim Laden kurz da, bevor zauber.js die Wörter vorbereitet) */
+.auftakt-titel:not(.erwacht) { visibility: hidden; }
+/* Beim Aufglitzern vor dem Ausblenden strahlt der Titel kräftiger: goldener Lichthof um jedes Wort */
+.auftakt-titel.erwacht.welle-a .wort, .auftakt-titel.erwacht.welle-b .wort {
+  animation: aufglitzern-a 1.4s ease calc(var(--i) * 60ms) both, titelstrahl 1.8s ease calc(var(--i) * 60ms) both;
+}
+@keyframes titelstrahl {
+  0% { filter: drop-shadow(0 0 0 rgba(255, 220, 120, 0)); }
+  35% { filter: drop-shadow(0 0 10px rgba(255, 224, 130, .95)) drop-shadow(0 0 22px rgba(255, 196, 80, .6)); }
+  100% { filter: drop-shadow(0 0 0 rgba(255, 220, 120, 0)); }
+}
+.auftakt-titel ~ .funkelstern, #augenblick .funkelstern { z-index: 3; }
