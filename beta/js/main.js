@@ -395,7 +395,7 @@ function zielFuer(k, idx) {
   const a = anker()[idx];
   if (k === 'augenblick') {
     const r = bildEl.getBoundingClientRect();
-    if (vh - r.bottom > figH * 1.15) return { x: vw / 2, y: Math.min((r.bottom + vh) / 2, vh - figH * .72) }; // unter dem Bild
+    if (vh - r.bottom > figH * 1.15) return { x: vw / 2, y: Math.min(mobil ? r.bottom + figH * .85 : (r.bottom + vh) / 2, vh - figH * .72) }; // unter dem Bild
     return { x: (r.right + vw) / 2, y: vh * .5 };                                            // sonst daneben
   }
   if (!PLATZ[k]) return { x: vw / 2 + a[1], y: a[2] * vh };
@@ -857,11 +857,12 @@ function bild(nowMs) {
     const amBoden4 = bodenTop < vh * .8;
     // Schwebend hält er sich unter ihr. Wo unten kein Platz ist (unter dem Film), stellt er sich auf die freie Seite,
     // sonst weiter links oder über die Reihe. Auf der Wiese steht er vorn im Gras, unterhalb der anderen, und verdeckt niemanden.
-    const unten = fy + figH * .62 + figH4 * .15 < vh;
+    const abstand4 = figH4 * .95 + figH * .12;          // so weit liegen seine Füsse unter ihren, damit sich die beiden nie berühren
+    const unten = fy + abstand4 + figH4 * .1 < vh;
     const belegt = x => (figur3.visible && Math.abs(x - P3.x) < figH * .85) || (figur2.visible && Math.abs(x - P2.x) < figH * .85);
     let zx, zf, zz = -figH * .1;
-    if (amBoden4) { zx = clamp(fx - figH * .3, figH4 * .85, vw - figH4 * .85); zf = bodenTop + figH * .6; zz = figH * .2; }
-    else if (unten) { zx = fx - figH * .1; zf = fy + figH * .62; }
+    if (amBoden4) { zx = clamp(fx + figH * .3, figH4 * .85, vw - figH4 * .85); zf = bodenTop + abstand4; zz = figH * .2; }   // leicht rechts versetzt
+    else if (unten) { zx = clamp(fx + figH * .3, figH4 * .85, vw - figH4 * .85); zf = fy + abstand4; }
     else {
       const links = fx - figH * .95, rechts = fx + figH * .95, weitLinks = fx - figH * 1.85;
       zf = fy;
@@ -962,8 +963,8 @@ function bild(nowMs) {
     if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(P3.x, bodenTop + 4, figH * .22, figH * .035, 0, 0, 7); sc.fill(); }
   }
   if (bodenTop < vh + 40 && figur4.visible) {
-    const a = (1 - clamp((bodenTop + figH * .6 - P4.y) / (figH * 1.6))) * .3;
-    if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(P4.x, bodenTop + figH * .6 + 3, figH * .42, figH * .04, 0, 0, 7); sc.fill(); }
+    const fussY = bodenTop + figH * .62 * .95 + figH * .12, a = (1 - clamp((fussY - P4.y) / (figH * 1.6))) * .3;
+    if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(P4.x, fussY + 3, figH * .42, figH * .04, 0, 0, 7); sc.fill(); }
   }
   if (bodenTop < vh + 40 && figur2.visible) {
     const a = (1 - clamp((bodenTop - P2.y) / (figH * 1.6))) * .3;
