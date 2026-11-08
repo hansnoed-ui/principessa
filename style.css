@@ -215,7 +215,10 @@ html { scroll-snap-type: y mandatory; }
   min-height: 100vh; min-height: var(--vh, 100dvh);
   overflow: visible;
 }
-#ankommen .inhalt { padding: 16vh 8vw 0; }
+#ankommen { gap: 0; justify-content: flex-start; }   /* kein Rasterabstand: sonst scheint zwischen Wiese und Bestellkarte das Mauve durch */
+#ankommen .boden { margin-top: auto; }
+/* Der Satz steht hoch und breit, damit er in zwei Zeilen passt und die Kronen frei bleiben */
+#ankommen .inhalt { padding: 9vh 6vw 0; max-width: min(100%, 62rem); min-height: calc(var(--vh, 100dvh) - max(34svh, 180px)); }   /* die Wiese bleibt am selben Ort, auch mit offener Karte */
 
 /* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
 .zauber { font-size: 1.32em; line-height: 1.5; }
@@ -306,7 +309,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
   #augenblick { padding: 11vh 4vw 8vh; }
   .tablet { width: min(64vw, calc(50dvh * .744 + 12px)); }
-  #ankommen .inhalt { padding: 12vh 6vw 0; }
+  #ankommen .inhalt { padding: 8vh 6vw 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

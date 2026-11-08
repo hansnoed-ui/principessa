@@ -1,0 +1,544 @@
+:root {
+  --creme: #f7f2ec;
+  --papier: #fcfaf6;
+  --linie: #2a2230;
+  --hellblau: #b4d2f4;
+  --hellblau-tief: #8db9ec;
+  --tuerkis: #1f5f6a;
+  --tuerkis-tief: #174a54;
+  --koenigsblau: #1d2668;
+  --nacht: #0e1340;
+  --gruen: #1e7c66;
+  --wiese: #2a8f5c;
+  --erde: #174a36;
+  --gold: #d4a429;
+  --rot: #c8173f;
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --glitzer: linear-gradient(transparent, transparent);
+  /* Kurven: Eintreten stark auslaufend, Bewegung auf dem Bildschirm beidseitig */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Ebenen: eine Palette aus dem Gemälde */
+  --e-abend: #2b2152;
+  --e-himmel: #bdd1ec;
+  --e-wasser: #176a7e;
+  --e-nacht: #151840;
+  --e-daemmer: #b78bb3;
+  --e-wiese: #3e9868;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--creme); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.18rem);
+  line-height: 1.6;
+  color: var(--linie);
+  overflow-x: hidden;
+}
+
+#staub, #buehne {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
+}
+#staub { z-index: 1; }
+#buehne { z-index: 3; }
+
+section { position: relative; }
+.inhalt { position: relative; z-index: 2; }
+
+h1, h2 {
+  font-family: var(--serif);
+  font-weight: 420;
+  font-style: italic;
+  font-variation-settings: "SOFT" 100, "opsz" 144;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin: 0 0 0.35em;
+}
+h1 { font-size: clamp(2.6rem, 2rem + 3vw, 4.4rem); }
+h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
+
+.marke {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  opacity: 0.75;
+}
+
+/* ---------- Auftakt: Titelbild über die ganze Breite ---------- */
+#augenblick {
+  position: relative;
+  height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
+  display: grid; place-items: start center;
+  padding: 17vh 5vw 8vh;
+  background: var(--e-abend);
+}
+/* der Film: Querformat 16:9, schmaler dunkler Rand, leises Leuchten */
+.film {
+  position: relative; z-index: 2;
+  /* etwa die Fläche des früheren Stadtbilds im Tablet */
+  width: min(64vw, 660px, calc(40vh * 16 / 9));
+  width: min(64vw, 660px, calc(40dvh * 16 / 9));
+  padding: clamp(2px, .22vw, 3px);
+  border-radius: clamp(12px, 1.4vw, 19px);
+  background: #18181c;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .12),
+    0 50px 80px -40px rgba(0, 0, 0, .8),
+    0 0 140px rgba(255, 196, 228, .22);
+}
+.leinwand { width: 100%; aspect-ratio: 16 / 9; position: relative; border-radius: clamp(10px, 1.2vw, 17px); overflow: hidden; background: #151840; }
+.leinwand canvas { width: 100%; height: 100%; display: block; }
+.unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.signatur {
+  position: absolute; z-index: 2;
+  top: clamp(14px, 3vh, 40px);
+  left: clamp(16px, 3vw, 48px);
+  margin: 0;
+  color: var(--creme);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(.9rem, .6rem + 1vw, 1.45rem);
+  letter-spacing: .015em;
+  line-height: 1.2;
+}
+.signatur strong { display: block; font-weight: 600; font-size: 1.55em; letter-spacing: .01em; }
+.signatur span { display: block; opacity: .85; font-weight: 400; }
+.unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Titel: Märchenschrift mit Glitzerfüllung */
+.titel {
+  font-family: "Cinzel Decorative", "Fraunces", Georgia, serif;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: normal;
+  font-size: clamp(2.3rem, 0.9rem + 6.4vw, 6.4rem);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-align: center;
+  margin: 0;
+  color: #c9952e;
+  background-image:
+    var(--glitzer),
+    var(--glitzer),
+    linear-gradient(100deg, #8a5a14 0%, #f3d27a 18%, #b8862a 34%, #fff0b4 50%, #c08d2c 66%, #f6dc8a 82%, #8a5a14 100%);
+  background-size: 240px 240px, 170px 170px, 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.035em rgba(46, 26, 4, .85);
+  paint-order: stroke fill;
+  filter: drop-shadow(0 8px 18px rgba(212, 164, 41, .35));
+  animation: funkeln 9s linear infinite;
+}
+.titel::first-letter { font-size: 1.32em; }
+@keyframes funkeln {
+  to { background-position: 240px 120px, -170px 85px, -220% 0; }
+}
+
+.bild {
+  margin: 0;
+  width: min(78vw, 430px, calc(66vh * 0.7856));
+  width: min(78vw, 430px, calc(66dvh * 0.7856));
+  aspect-ratio: 0.7856;
+  filter: drop-shadow(0 22px 30px rgba(6, 4, 24, .55)) drop-shadow(0 3px 5px rgba(6, 4, 24, .45));
+}
+.bild canvas { width: 100%; height: 100%; display: block; }
+.liegt {
+  width: min(62vw, 300px);
+  aspect-ratio: 1;
+  margin-top: 1.6rem;
+}
+.liegt canvas { width: 100%; height: 100%; display: block; }
+
+/* ---------- Ebenen ---------- */
+/* Jede Ebene füllt genau einen Bildschirm; die Seite rastet sanft von Ebene zu Ebene */
+html { scroll-snap-type: y mandatory; }
+#augenblick, .ebene { scroll-snap-align: start; scroll-snap-stop: always; }
+.ebene {
+  height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 100%;
+  gap: 4vw;
+  align-items: center;
+  padding: 0 8vw;
+  overflow: hidden;
+}
+.ebene .inhalt { max-width: 31rem; opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+.ebene > .inhalt.links { grid-column: 1; grid-row: 1; justify-self: start; }
+.ebene > .inhalt.rechts { grid-column: 2; grid-row: 1; justify-self: end; }
+.ebene > .inhalt.links ~ .platz { grid-column: 2; grid-row: 1; }
+.ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 1; }
+.platz { align-self: stretch; margin: 16vh 0; }
+.ebene .inhalt.da { opacity: 1; transform: none; }
+
+#schweben { background: var(--e-himmel); }
+.inhalt.mitte { margin: 0 auto; text-align: center; }
+.bestellen {
+  display: inline-block;
+  margin: .15em .1em;
+  padding: .12em .7em .18em;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid rgba(42, 34, 48, .6);
+  border-radius: 999px;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.bestellen:hover, .bestellen:focus-visible { border-color: var(--gold); background: rgba(255, 248, 225, .45); box-shadow: 0 0 0 3px rgba(212, 164, 41, .18); outline: none; }
+#glitzer { background: var(--e-wasser); color: var(--creme); }
+#gluecksbringer { background: linear-gradient(#0a3550, #2e2f72 20%, #5b4790 50%, #8e5f9c 78%, #b9759a); color: var(--creme); }
+#gluecksbringer .zauber { text-shadow: 0 1px 12px rgba(30, 20, 60, .45); }
+#verweilen { background: var(--e-nacht); color: var(--creme); }
+#ankommen {
+  background: var(--e-daemmer);
+  color: var(--linie);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 0;
+  height: auto;
+  min-height: 100vh; min-height: var(--vh, 100dvh);
+  overflow: visible;
+}
+#ankommen { gap: 0; justify-content: flex-start; }   /* kein Rasterabstand: sonst scheint zwischen Wiese und Bestellkarte das Mauve durch */
+#ankommen .boden { margin-top: auto; }
+/* Der Satz steht hoch und breit, damit er in zwei Zeilen passt und die Kronen frei bleiben */
+#ankommen .inhalt { padding: 9vh 6vw 0; max-width: min(100%, 62rem); min-height: calc(var(--vh, 100dvh) - max(34svh, 180px)); }   /* die Wiese bleibt am selben Ort, auch mit offener Karte */
+
+/* Verzauberter Text: Wörter erscheinen als Glitzer und werden zu Schrift */
+.zauber { font-size: 1.32em; line-height: 1.5; }
+.zauber .satz { display: block; }
+.zauber .satz + .satz { margin-top: .55em; }
+.zauber .wort {
+  display: inline-block;
+  --tinte: currentColor;
+  background-image: var(--glitzer), linear-gradient(100deg, #7a4f0e, #d9a43a 30%, #fff3c0 50%, #c99230 70%, #7a4f0e);
+  background-size: 160px 160px, 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.zauber:not(.erwacht) .wort { opacity: 0; }
+.zauber.erwacht .wort {
+  animation: erscheinen 1.1s cubic-bezier(.2, .7, .2, 1) calc(var(--i) * 85ms) both,
+             aufglitzern-a 1.6s ease calc(var(--i) * 85ms) both;
+}
+.zauber.erwacht.welle-a .wort { animation: aufglitzern-a 1.4s ease calc(var(--i) * 60ms) both; }
+.zauber.erwacht.welle-b .wort { animation: aufglitzern-b 1.4s ease calc(var(--i) * 60ms) both; }
+@keyframes erscheinen {
+  from { opacity: 0; transform: translateY(8px) scale(.96); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes aufglitzern-a {
+  0% { -webkit-text-fill-color: transparent; background-position: 0 0, 100% 0; text-shadow: 0 0 0 transparent; }
+  20% { -webkit-text-fill-color: rgba(42, 34, 48, .25); text-shadow: 0 0 6px rgba(255, 214, 110, .25); }
+  55% { -webkit-text-fill-color: rgba(42, 34, 48, .8); }
+  100% { -webkit-text-fill-color: var(--tinte); background-position: 80px 40px, 0 0; text-shadow: 0 0 0 transparent; }
+}
+@keyframes aufglitzern-b {
+  0% { -webkit-text-fill-color: transparent; background-position: 0 0, 100% 0; text-shadow: 0 0 0 transparent; }
+  20% { -webkit-text-fill-color: rgba(42, 34, 48, .25); text-shadow: 0 0 6px rgba(255, 214, 110, .25); }
+  55% { -webkit-text-fill-color: rgba(42, 34, 48, .8); }
+  100% { -webkit-text-fill-color: var(--tinte); background-position: -80px 40px, 0 0; text-shadow: 0 0 0 transparent; }
+}
+.funkelstern {
+  position: absolute;
+  width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, #fff 0 10%, #ffd66e 20%, rgba(232, 168, 40, .55) 34%, transparent 58%),
+    linear-gradient(transparent 47%, #fff3c4 47% 53%, transparent 53%),
+    linear-gradient(90deg, transparent 47%, #fff3c4 47% 53%, transparent 53%);
+  filter: drop-shadow(0 0 3px rgba(255, 196, 60, .7));
+  opacity: 0;
+  animation: stern-funkeln 1.3s ease-out var(--d) forwards;
+}
+@keyframes stern-funkeln {
+  0% { opacity: 0; transform: scale(.5) rotate(0); }
+  35% { opacity: .75; transform: scale(var(--g)) rotate(45deg); }
+  100% { opacity: 0; transform: scale(.6) rotate(90deg); }
+}
+
+blockquote { margin: 1.8rem 0 0; padding-left: 1.1rem; border-left: 1.5px solid rgba(247, 242, 236, .5); }
+blockquote p { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin: 0 0 .3rem; font-variation-settings: "SOFT" 100; }
+blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+
+/* Boden mit Grashalmen am oberen Rand */
+.boden {
+  position: relative;
+  height: 34vh;
+  height: 34svh;
+  min-height: 180px;
+  background: var(--e-wiese);
+}
+.boden::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: -22px;
+  height: 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24' viewBox='0 0 60 24'%3E%3Cpath d='M0 24 L4 8 L7 24 L11 2 L14 24 L19 10 L22 24 L27 4 L30 24 L34 12 L37 24 L42 0 L45 24 L49 9 L52 24 L56 5 L60 24 Z' fill='%233e9868'/%3E%3C/svg%3E") repeat-x bottom / 60px 24px;
+}
+
+/* Am grossen Bildschirm darf der Text grösser sein; die Spalte wächst mit */
+@media (min-width: 1200px) {
+  .zauber { font-size: clamp(1.32em, .7em + 1.1vw, 2.3em); }
+  .ebene .inhalt { max-width: clamp(31rem, 24rem + 14vw, 46rem); }
+}
+
+@media (max-width: 700px) {
+  .ebene { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 0; padding: 9vh 6vw 4vh; align-items: start; }
+  .ebene > .inhalt.links, .ebene > .inhalt.rechts { grid-column: 1; grid-row: 1; justify-self: stretch; }
+  .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
+  .ebene .inhalt { max-width: none; }
+  .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
+  #augenblick { padding: 14vh 4vw 8vh; }
+  .film { width: 92vw; }
+  #ankommen .inhalt { padding: 8vh 6vw 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ebene .inhalt { transition: none; }
+  .titel { animation: none; }
+}
+
+/* ---------- Bestellkarte ---------- */
+.bestellkarte { background: var(--erde); padding: 10vh 4vw 12vh; color: var(--linie); }
+.karte-innen {
+  position: relative;
+  max-width: 1040px;
+  margin: 0 auto;
+  background: var(--papier);
+  border-radius: 8px;
+  padding: clamp(1.3rem, 4vw, 3rem);
+  border: 1px solid rgba(212, 164, 41, .6);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .55);
+  opacity: 0;
+  transform: translateY(28px) scale(.98);
+  transition: opacity .45s var(--ease-out), transform .45s var(--ease-out);
+}
+.bestellkarte.offen .karte-innen { opacity: 1; transform: none; }
+.karte-innen h2 { color: var(--linie); margin-bottom: .2em; }
+.einleitung { margin: 0 0 1.8rem; opacity: .8; }
+.zu {
+  position: absolute; top: .6rem; right: .7rem;
+  width: 44px; height: 44px;
+  border: 0; background: none; cursor: pointer;
+  font-size: 1.8rem; line-height: 1; color: var(--linie); opacity: .6;
+}
+.zu:hover, .zu:focus-visible { opacity: 1; }
+
+/* Produkte */
+.produkte { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(.8rem, 2vw, 1.4rem); margin-bottom: 1.6rem; }
+.produkt {
+  position: relative;
+  display: flex; flex-direction: column;
+  border-radius: 8px;
+  background: #f4eee5;
+  box-shadow: inset 0 0 0 1.5px rgba(42, 34, 48, .06);
+  transition: box-shadow .2s ease, background .2s ease, transform .2s var(--ease-out);
+}
+.produkt.gewaehlt {
+  background: #fdf6e3;
+  box-shadow: inset 0 0 0 2px var(--gold), 0 14px 28px -16px rgba(180, 130, 30, .9);
+  transform: translateY(-2px);
+}
+.wahl { display: flex; flex-direction: column; align-items: center; padding: 1rem .9rem .4rem; cursor: pointer; text-align: center; }
+.wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.haken {
+  position: absolute; top: .8rem; left: .8rem;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid rgba(42, 34, 48, .35); background: #fff;
+  transition: background .25s ease, border-color .25s ease;
+}
+.haken::after {
+  content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px;
+  border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) scale(.5); opacity: 0;
+  transition: transform .2s var(--ease-out), opacity .15s ease;
+}
+.produkt.gewaehlt .haken { background: var(--gold); border-color: var(--gold); }
+.produkt.gewaehlt .haken::after { transform: rotate(45deg) scale(1); opacity: 1; }
+.wahl input:focus-visible ~ .haken { outline: 2px solid var(--gold); outline-offset: 3px; }
+.bild { width: 100%; max-width: 210px; height: auto; display: block; }
+.bild .stapel, .bild .tasche-koerper, .bild .shirt-stoff { transition: transform .3s var(--ease-out), fill .25s ease; }
+.produkt-name { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin-top: .2rem; }
+.produkt-text { font-size: .85rem; opacity: .65; }
+
+.optionen { display: flex; flex-direction: column; gap: .8rem; padding: .8rem .9rem 1.1rem; }
+.option { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.option-titel { width: 100%; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; opacity: .6; }
+.option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+/* Knöpfe für Set, Grösse, Anzahl */
+.pille span {
+  display: inline-block; min-width: 44px; min-height: 36px;
+  padding: .45rem .75rem; border-radius: 999px;
+  border: 1.5px solid rgba(42, 34, 48, .18); background: #fff;
+  font-size: .88rem; line-height: 1.15; text-align: center; cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.pille:hover span { border-color: var(--gold); }
+.pille input:checked + span { background: var(--linie); border-color: var(--linie); color: var(--papier); box-shadow: 0 0 0 3px rgba(212, 164, 41, .35); }
+.pille input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Farbtupfer */
+.tupfer { display: flex; flex-direction: column; align-items: center; gap: .2rem; cursor: pointer; }
+.tupfer span {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--f); box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .15);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.tupfer em { font-style: normal; font-size: .72rem; opacity: .7; }
+.tupfer input:checked + span { box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .15), 0 0 0 3px var(--papier), 0 0 0 5px var(--gold); transform: scale(1.06); }
+.tupfer input:focus-visible + span { outline: 2px solid var(--linie); outline-offset: 5px; }
+
+/* Motive */
+.motivwahl { display: flex; flex-direction: column; align-items: center; gap: .15rem; cursor: pointer; }
+.motivwahl svg {
+  width: 56px; height: 56px; border-radius: 10px; background: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(42, 34, 48, .14);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.motivwahl em { font-style: normal; font-size: .72rem; opacity: .7; }
+.motivwahl input:checked + svg { box-shadow: inset 0 0 0 2px var(--gold), 0 6px 14px -8px rgba(180, 130, 30, .9); transform: translateY(-1px); }
+.motivwahl input:focus-visible + svg { outline: 2px solid var(--linie); outline-offset: 3px; }
+
+/* Formular */
+.felder { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1.2rem; margin-bottom: 1.6rem; }
+.felder label { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
+.felder .breit { grid-column: 1 / -1; }
+.felder input, .felder textarea {
+  font: inherit; font-size: 1rem;
+  padding: .7rem .8rem;
+  border: 1px solid #d8cfc2; border-radius: 6px;
+  background: #fff; color: var(--linie);
+}
+.felder input:focus, .felder textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
+.senden {
+  font: inherit; font-weight: 600; letter-spacing: .02em;
+  padding: .95rem 2rem;
+  border: 0; border-radius: 999px; cursor: pointer;
+  color: #2e1d04;
+  background: linear-gradient(100deg, #c99230, #f3d27a 45%, #d9a43a);
+  box-shadow: 0 8px 20px -10px rgba(160, 110, 20, .9);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.senden:hover, .senden:focus-visible { transform: translateY(-1px); box-shadow: 0 12px 24px -10px rgba(160, 110, 20, .9); }
+.hinweis-fehler { color: #a3122f; margin: -.6rem 0 1.2rem; }
+.danke { margin: 1rem 0 0; opacity: .85; }
+
+@media (max-width: 860px) {
+  .produkte { grid-template-columns: 1fr; }
+  .produkt { display: grid; grid-template-columns: minmax(120px, 38%) 1fr; }
+  .wahl { grid-row: 1; padding: .9rem .5rem .6rem; }
+  .bild { max-width: 160px; }
+  .optionen { grid-row: 1; grid-column: 2; padding: 1rem .9rem 1rem .2rem; margin-top: 0; }
+}
+@media (max-width: 520px) {
+  .produkt { display: flex; }
+  .bild { max-width: 150px; }
+  .optionen { padding: .4rem 1rem 1.1rem; }
+  .felder { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .karte-innen, .produkt, .bild * { transition: none !important; }
+}
+
+/* ---------- Bestellkarte, moderner ---------- */
+.bestellkarte { background: var(--e-wiese); }
+.karte-innen {
+  background: #fff;
+  border-radius: 22px;
+  border: 1px solid rgba(212, 164, 41, .55);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .06);
+}
+.karte-innen h2 {
+  font-family: var(--sans); font-style: normal; font-weight: 600;
+  font-variation-settings: normal; letter-spacing: -.02em;
+  font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem);
+}
+.einleitung { color: #6d6672; opacity: 1; }
+.produkt { background: #f6f4f1; border-radius: 18px; box-shadow: none; }
+.produkt.gewaehlt { background: #fff; box-shadow: 0 0 0 2px #1e1a4c, 0 18px 36px -22px rgba(30, 26, 76, .6); transform: none; }
+.produkt.gewaehlt .haken { background: #1e1a4c; border-color: #1e1a4c; }
+.haken { border-color: rgba(30, 26, 76, .25); }
+.produkt-name { font-family: var(--sans); font-style: normal; font-weight: 600; font-size: 1.08rem; letter-spacing: -.01em; }
+.produkt-text { color: #6d6672; opacity: 1; font-size: .82rem; }
+.option-titel { letter-spacing: .08em; color: #8a8390; opacity: 1; font-size: .7rem; }
+.pille span { border-radius: 10px; border: 0; background: #ece9e4; font-weight: 500; }
+.pille:hover span { background: #e2ded7; }
+.pille input:checked + span { background: #1e1a4c; color: #fff; box-shadow: none; }
+.tupfer input:checked + span { box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .15), 0 0 0 3px #fff, 0 0 0 5px #1e1a4c; }
+.motivwahl svg { border-radius: 12px; background: #f6f4f1; box-shadow: none; }
+.motivwahl input:checked + svg { box-shadow: 0 0 0 2px #1e1a4c; background: #fff; }
+.felder label { color: #4f4856; font-weight: 500; font-size: .84rem; }
+.felder input, .felder textarea { border: 0; background: #f4f2ee; border-radius: 12px; padding: .85rem .95rem; transition: background .2s ease, box-shadow .2s ease; }
+.felder input:focus, .felder textarea:focus { outline: 0; background: #fff; box-shadow: 0 0 0 2px #1e1a4c; }
+.senden {
+  display: inline-flex; align-items: center; gap: .6rem;
+  border-radius: 14px; padding: 1rem 1.6rem;
+  color: #fff; background: #1e1a4c;
+  box-shadow: 0 14px 28px -16px rgba(30, 26, 76, .9);
+}
+.senden::after { content: "→"; font-size: 1.15em; transition: transform .2s ease; }
+.senden:hover::after, .senden:focus-visible::after { transform: translateX(3px); }
+.senden:hover, .senden:focus-visible { background: #2a2466; }
+@media (max-width: 520px) { .senden { width: 100%; justify-content: center; } }
+
+.glitzerdruck circle { animation: glitzerdruck 2.4s ease-in-out infinite; }
+.glitzerdruck circle:nth-child(3n) { animation-delay: .8s; }
+.glitzerdruck circle:nth-child(3n+1) { animation-delay: 1.6s; }
+@keyframes glitzerdruck { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .glitzerdruck circle { animation: none; } }
+
+html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none; }
+
+/* ---------- Nach der Apple-Design-Checkliste ---------- */
+/* Rückmeldung beim Drücken, nicht erst beim Loslassen */
+.bestellen:active, .senden:active, .zu:active { transform: scale(.97); transition: transform 100ms ease-out; }
+.pille input:active + span, .wahl:active .bild, .tupfer:active span, .motivwahl:active svg { transform: scale(.96); transition: transform 100ms ease-out; }
+.bild, .wahl .bild { transition: transform 200ms var(--ease-out); }
+/* Typografie: grosse Schrift enger, kleine etwas weiter */
+.signatur strong { letter-spacing: -.02em; line-height: 1.05; }
+.signatur span { letter-spacing: .01em; }
+.karte-innen h2 { letter-spacing: -.025em; line-height: 1.05; }
+.option-titel, .produkt-text, .felder label { letter-spacing: .02em; }
+/* Die Bestellkarte materialisiert: Unschärfe und Grösse zusammen, nicht nur Deckkraft */
+.karte-innen { filter: blur(8px); transition: opacity .4s var(--ease-out), transform .45s var(--ease-drawer), filter .4s var(--ease-out); }
+.bestellkarte.offen .karte-innen { filter: blur(0); }
+/* Fokus sichtbar, ohne Rahmen für die Maus */
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: none; }
+  .karte-innen { filter: none; transition: opacity .25s ease; transform: none; }
+  .bestellen:active, .senden:active, .zu:active { transform: none; }
+}
+@media (prefers-contrast: more) {
+  .bestellen { border-color: currentColor; }
+  .pille span { border: 1.5px solid currentColor; }
+}
+
+/* Titel: goldener Glitzer, leise wandernd */
+.signatur strong {
+  color: #e9c462;
+  background-image: var(--glitzer), linear-gradient(100deg, #a8781f 0%, #f3d27a 30%, #fff1bf 50%, #d9a43a 70%, #a8781f 100%);
+  background-size: 160px 160px, 240% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  animation: titelglitzer 14s linear infinite;
+}
+@keyframes titelglitzer { to { background-position: 160px 80px, -240% 0; } }
+@media (prefers-reduced-motion: reduce) { .signatur strong { animation: none; } }

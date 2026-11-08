@@ -4,6 +4,11 @@ Eine Principessa entspringt einem Augenblick und trägt seinen Zauber durch vier
 
 Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt in 3D heraus und fliegt beim Scrollen über die Seite nach unten – durch Schweben, Glitzer, Verweilen und Ankommen.
 
+## Zwei Fassungen
+
+- **Alpha** (Wurzel, `/`): die bisherige Seite mit dem Tablet und dem Stadtbild.
+- **Beta** (`beta/`, https://hansnoed-ui.github.io/principessa/beta/): neuer Anfang mit einem kleinen Film (Turmzimmer, Aufwachen, Spaziergang), aus dem die Principessa und der Hund mit Krone springen. Eigene Kopien von `index.html`, `style.css` und `js/`; `assets/` und `vendor/` teilt sie mit Alpha.
+
 ## Aufbau
 
 - `index.html`, `style.css` – die Seite: Titelbild, Ebenen, Wiese und Bestellkarte
