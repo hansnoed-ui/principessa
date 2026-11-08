@@ -304,8 +304,10 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
   .ebene .inhalt { max-width: none; }
   .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
-  #augenblick { padding: 14vh 4vw 8vh; }
-  .film { width: 92vw; }
+  #augenblick { padding: 14vh 0 8vh; }
+  /* auf dem Handy: der Film randlos über die ganze Breite */
+  .film { width: 100vw; padding: 0; border-radius: 0; box-shadow: 0 0 120px rgba(255, 196, 228, .18); }
+  .leinwand { border-radius: 0; }
   #ankommen .inhalt { padding: 8vh 6vw 0; }
 }
 
