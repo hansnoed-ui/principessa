@@ -34,7 +34,7 @@ export const AUFTAKT = {
   sprung: 11.2,           // die 3D-Figuren übernehmen (main.js)
 };
 export const HOEHE_P = .34;          // Höhe der Principessa im Bild (Bildhöhe = 1)
-export const SKALA_H = .105;         // Bildeinheiten je Hunde-Einheit
+export const SKALA_H = .09;          // Bildeinheiten je Hunde-Einheit
 
 // ------------------------------------------------------------------ Farben
 const FARBE = {
@@ -61,7 +61,7 @@ function wegP(t) {
   return x;
 }
 // Weg des Hundes: läuft voraus, wartet vor der Tür, schnuppert an einer Blume, trabt ans Ziel
-const HUND_WEG = [[AUFTAKT.geh - .1, 1.6], [7.3, 2.05], [8.1, 2.05], [8.7, 2.36], [9.6, 2.36], [10.4, 2.82]];
+const HUND_WEG = [[AUFTAKT.geh - .1, 1.5], [7.3, 1.92], [8.1, 1.92], [8.7, 2.24], [9.6, 2.24], [10.4, 2.66]];
 function wegH(t) {
   if (t <= HUND_WEG[0][0]) return HUND_WEG[0][1];
   for (let i = 0; i < HUND_WEG.length - 1; i++) {
@@ -264,17 +264,21 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   };
 
   // ---------- Das Körbchen (Welt-x 1.08 bis 1.4)
-  const KORB = { x: 1.24, r: .19 };
+  const KORB = { x: 1.24, r: .17, vorn: .08 };   // vorn: so weit liegt es vor ihrem Weg
   const korbHinten = () => {
+    ctx.save(); ctx.translate(0, KORB.vorn * S);
     ctx.fillStyle = FARBE.korbDunkel; ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.8), KORB.r * S, .07 * S, 0, 0, 7); ctx.fill();
     ctx.fillStyle = FARBE.korbKissen; ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.795), (KORB.r - .03) * S, .045 * S, 0, 0, 7); ctx.fill();
+    ctx.restore();
   };
   const korbVorn = () => {
     const R = KORB.r;
+    ctx.save(); ctx.translate(0, KORB.vorn * S);
     ctx.fillStyle = FARBE.korb; ctx.beginPath(); ctx.moveTo(X(KORB.x - R), Y(.8)); ctx.quadraticCurveTo(X(KORB.x - R + .01), Y(BODEN), X(KORB.x - R + .05), Y(BODEN)); ctx.lineTo(X(KORB.x + R - .05), Y(BODEN)); ctx.quadraticCurveTo(X(KORB.x + R - .01), Y(BODEN), X(KORB.x + R), Y(.8)); ctx.ellipse(X(KORB.x), Y(.8), R * S, .03 * S, 0, 0, Math.PI, true); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = FARBE.korbDunkel; ctx.lineWidth = lw;
     for (let i = 1; i < 7; i++) { const kx = KORB.x - R + 2 * R * i / 7; ctx.beginPath(); ctx.moveTo(X(kx), Y(.81)); ctx.lineTo(X(kx + (kx < KORB.x ? -.004 : .004)), Y(BODEN - .005)); ctx.stroke(); }
     ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.8), R * S, .03 * S, 0, 0, Math.PI); ctx.stroke();
+    ctx.restore();
   };
 
   // ---------- Die Principessa
@@ -337,13 +341,14 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     if (steh <= 0) {
       // liegt im Körbchen: tiefer, Beine hinter dem Korbrand, Kopf gesenkt; atmet
       const atemH = Math.sin(tau * 1.9 + 1) * .5 * (1 - wach);
-      ctx.save(); ctx.translate(X(KORB.x - .02), Y(.88)); ctx.rotate(schuettel * .06); ctx.scale(1 + schuettel * .03, 1 - schuettel * .03 + atemH * .01); ctx.translate(-X(KORB.x - .02), -Y(.88));
-      zeichneHund(ctx, X(KORB.x - .02), Y(.88), sH, lwH, { kopf: lerp(.32, 0, wach) + schuettel * .08, augeZu, schwanz: wach * Math.sin(tau * 5) * .6, ohr: schuettel, beine: [.9, 1.1, -.9, -1.1] });
+      const korbBoden = .85 + KORB.vorn;
+      ctx.save(); ctx.translate(X(KORB.x - .02), Y(korbBoden)); ctx.rotate(schuettel * .06); ctx.scale(1 + schuettel * .03, 1 - schuettel * .03 + atemH * .01); ctx.translate(-X(KORB.x - .02), -Y(korbBoden));
+      zeichneHund(ctx, X(KORB.x - .02), Y(korbBoden), sH, lwH, { kopf: lerp(.32, 0, wach) + schuettel * .08, augeZu, schwanz: wach * Math.sin(tau * 5) * .6, ohr: schuettel, beine: [.9, 1.1, -.9, -1.1] });
       ctx.restore();
     } else {
       const hop = eio(steh), bogen = Math.sin(Math.PI * steh) * .09;
       const x = steh < 1 ? lerp(KORB.x - .02, HUND_WEG[0][1], hop) : hx;
-      const fuss = steh < 1 ? lerp(.88, BODEN, hop) - bogen : BODEN;
+      const fuss = steh < 1 ? lerp(.85 + KORB.vorn, BODEN, hop) - bogen : BODEN;
       // Gangart aus dem zurückgelegten Weg; Schnuppern an der Blume bei 2.36
       const weg = hx - HUND_WEG[0][1], dx = wegH(t + .05) - wegH(t - .05), tempo = clamp(Math.abs(dx) / .05);
       const ph = weg * 30, amp = .5 * tempo;
@@ -360,7 +365,7 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     const [a, b] = AUFTAKT.schuettel;
     if (t > a && t < b + 1.6) {
       funken(ctx, x => X(x), y => Y(y), S, .34, .62, a, b - a, 31, 90, .5, .12, t);
-      funken(ctx, x => X(x), y => Y(y), S, KORB.x - .02, .76, a + .1, b - a, 37, 70, .4, .1, t, ['#ffffff', '#a6f5ea', '#ffd27a', '#f0b63a']);
+      funken(ctx, x => X(x), y => Y(y), S, KORB.x - .02, .78 + KORB.vorn, a + .1, b - a, 37, 70, .4, .1, t, ['#ffffff', '#a6f5ea', '#ffd27a', '#f0b63a']);
     }
     if (t > AUFTAKT.geh && t < AUFTAKT.sprung) {
       // leise Spur hinter ihr: wenige Körner am Weg, jedes blitzt kurz
@@ -391,11 +396,12 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   draussen();
   zimmer();
   bettHinten();
-  korbHinten();
-  hund(false);
+  const hundImKorb = t < AUFTAKT.steh[0] + .2;
+  if (hundImKorb) { korbHinten(); hund(false); }
   principessa();          // liegend/sitzend hinter der Decke; nach dem Aufstehen davor (die Decke liegt dann tiefer)
   if (t < AUFTAKT.steh[0]) bettVorn();
-  korbVorn();
+  if (!hundImKorb) korbHinten();
+  korbVorn();             // das Körbchen steht vor ihrem Weg: sie geht dahinter vorbei
   if (t >= AUFTAKT.steh[0]) bettVorn();
   hund(true);
   krone();
