@@ -6,8 +6,8 @@ Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt i
 
 ## Zwei Fassungen
 
-- **Alpha** (Wurzel, `/`): die bisherige Seite mit dem Tablet und dem Stadtbild.
-- **Beta** (`beta/`, https://hansnoed-ui.github.io/principessa/beta/): neuer Anfang mit einem kleinen Film (Turmzimmer, Aufwachen, Spaziergang), aus dem die Principessa und der Hund mit Krone springen. Eigene Kopien von `index.html`, `style.css` und `js/`; `assets/` und `vendor/` teilt sie mit Alpha.
+- **Alpha** (Wurzel, `/`, https://principesse.ch/): die bisherige Seite mit dem Tablet und dem Stadtbild.
+- **Beta** (`beta/`, https://principesse.ch/beta/): neuer Anfang mit einem kleinen Film (Turmzimmer, Aufwachen, Spaziergang), aus dem die Principessa und der Hund mit Krone springen. Eigene Kopien von `index.html`, `style.css` und `js/`; `assets/` und `vendor/` teilt sie mit Alpha.
 
 ## Aufbau
 
