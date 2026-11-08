@@ -216,7 +216,7 @@ function heilGlitzer(ctx, punkte, heil, groesse) {
   ctx.globalCompositeOperation = 'source-over';
 }
 // --- Der Auftakt: ein kleiner Film im Querformat (auftakt.js), aus dem die Principessa und der Hund springen
-let tA = 0, titelGezaubert = false;   // die Uhr des Films in Sekunden
+let tA = 0, titelGezaubert = false, titelGewellt = false;   // die Uhr des Films in Sekunden
 function filmBox() { const r = flach.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, unten: r.bottom }; }
 function bildZeichnen() { const W = flach.width, H = flach.height; if (!W || !H) return; zeichneAuftakt(fc, W, H, tA, tau); }
 
@@ -533,6 +533,8 @@ function bild(nowMs) {
   titelEl?.classList.toggle('weg', modus !== 'drin' || tA > AUFTAKT.sprung - 1.3);
   // er erscheint, wenn im Film das Schütteln mit Glitzer beginnt
   if (!titelGezaubert && tA >= AUFTAKT.schuettel[0]) { titelGezaubert = true; dispatchEvent(new Event('auftakt-titel')); }
+  // und glitzert noch einmal auf, bevor er vergeht (wer vorspult, überspringt das)
+  if (titelGezaubert && !titelGewellt && tA >= AUFTAKT.sprung - 2.4 && tA < AUFTAKT.sprung - 1.4) { titelGewellt = true; dispatchEvent(new Event('auftakt-titel-welle')); }
 
   // ---- Der Film im Auftakt; die Lage der beiden im Film (Bildschirmpixel), eingefroren beim Sprung
   const bx = filmBox();
