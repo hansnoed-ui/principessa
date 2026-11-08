@@ -44,6 +44,8 @@ for (const absatz of document.querySelectorAll('.zauber')) {
     sterne();
     dispatchEvent(new CustomEvent('zauber'));
   };
+  // Absätze mit data-start zaubern erst, wenn dieses Ereignis kommt (der Titel unter dem Film wartet auf den Film)
+  if (absatz.dataset.start) { addEventListener(absatz.dataset.start, zaubern, { once: true }); continue; }
   new IntersectionObserver(([e]) => {
     sichtbar = e.isIntersecting;
     if (sichtbar && !uhr) { zaubern(); uhr = setInterval(() => sichtbar && !document.hidden && zaubern(), WELLE_ALLE); }

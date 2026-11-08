@@ -178,14 +178,14 @@ function groesse() {
   const altVw = vw;
   // tatsächlich sichtbare Höhe, auch wenn der Browser die Leiste ein- oder ausblendet
   document.documentElement.style.setProperty('--vh', innerHeight + 'px');
-  vw = innerWidth; vh = innerHeight; mobil = vw < 700;
+  vw = innerWidth; vh = innerHeight; mobil = vw < 700 && vh >= vw;   // Handy quer zählt nicht als mobil: dort gilt die zweispaltige Anordnung
   dpr = Math.min(devicePixelRatio || 1, 2);
   if (renderer) { renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); }
   camera.aspect = vw / vh;
   const d = vh / 2 / Math.tan(THREE.MathUtils.degToRad(15));
   camera.position.set(0, 0, d); camera.near = d * .05; camera.far = d * 4; camera.updateProjectionMatrix();
   staub.width = Math.round(vw * dpr); staub.height = Math.round(vh * dpr);
-  figH = clamp(Math.min(vh * (mobil ? .17 : .24), vw * .4), 100, 240);
+  figH = clamp(Math.min(vh * (mobil ? .17 : .24), vw * .4), Math.min(100, vh * .2), 240);   // bei wenig Höhe (Handy quer) dürfen die Figuren kleiner werden
   const r = flach.getBoundingClientRect();
   const kd = Math.min(dpr, 1920 / Math.max(1, r.width));
   flach.width = Math.round(r.width * kd); flach.height = Math.round(r.height * kd);
@@ -216,7 +216,7 @@ function heilGlitzer(ctx, punkte, heil, groesse) {
   ctx.globalCompositeOperation = 'source-over';
 }
 // --- Der Auftakt: ein kleiner Film im Querformat (auftakt.js), aus dem die Principessa und der Hund springen
-let tA = 0;   // die Uhr des Films in Sekunden
+let tA = 0, titelGezaubert = false;   // die Uhr des Films in Sekunden
 function filmBox() { const r = flach.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, unten: r.bottom }; }
 function bildZeichnen() { const W = flach.width, H = flach.height; if (!W || !H) return; zeichneAuftakt(fc, W, H, tA, tau); }
 
@@ -531,6 +531,8 @@ function bild(nowMs) {
 
   // ---- Der Titel unter dem Film vergeht kurz vor dem Sprung
   titelEl?.classList.toggle('weg', modus !== 'drin' || tA > AUFTAKT.sprung - 1.3);
+  // er erscheint, wenn im Film das Schütteln mit Glitzer beginnt
+  if (!titelGezaubert && tA >= AUFTAKT.schuettel[0]) { titelGezaubert = true; dispatchEvent(new Event('auftakt-titel')); }
 
   // ---- Der Film im Auftakt; die Lage der beiden im Film (Bildschirmpixel), eingefroren beim Sprung
   const bx = filmBox();
