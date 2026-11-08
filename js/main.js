@@ -765,7 +765,7 @@ function bild(nowMs) {
   }
 
   // ---- Zweite Principessa: wartet unter dem Text, springt beim Vorbeiscrollen heraus und begleitet die erste
-  const b2 = box2ImFenster(), figH2 = figH * .95;
+  const b2 = box2ImFenster(), figH2 = figH * 1.0;
   if (P2.modus === 'drin') {
     P2.klopf += dt;
     if (b2.unten < 0) { P2.modus = 'aus'; P2.t = 99; P2.plopped = true; P2.sofort = true; P2.gelandet = false; }
@@ -869,7 +869,7 @@ function bild(nowMs) {
   }
 
   // ---- Dritte Principessa: setzt sich beim Scrollen zusammen, springt heraus und fliegt auf der anderen Seite mit
-  const b3 = box3ImFenster(), figH3 = figH * .95;
+  const b3 = box3ImFenster(), figH3 = figH * 1.07;
   if (P3.modus === 'drin') {
     P3.klopf += dt;
     const f3 = fort('glitzer');
