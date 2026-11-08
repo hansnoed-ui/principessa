@@ -5,7 +5,7 @@ import { zeichne, imBild } from './figur.js';
 // Hierhin gehen die Bestellungen (leer: das Mailprogramm öffnet sich ohne Empfänger)
 const AN = '';
 // Ab diesem Tag lassen sich Bestellungen abschicken; vorher kann man alles auswählen und ausfüllen
-const AB = new Date(2026, 11, 1);   // 1. Dezember 2026 (Monate zählen ab 0)
+const AB = new Date(2026, 11, 4);   // 4. Dezember 2026 (Monate zählen ab 0)
 
 const karte = document.getElementById('bestellkarte');
 const link = document.querySelector('.bestellen');
@@ -61,6 +61,30 @@ function funkeln(p) {
     p.append(s);
   }
 }
+// Bis zum Start der Bestellungen zaubert sich bei jedem Klick ins Formular die Meldung auf:
+// Wort für Wort aus Glitzer, an der Stelle des Klicks, und vergeht wieder.
+const MELDUNG = 'Bestellungen ab dem 4. Dezember 2026 möglich';
+const innen = karte.querySelector('.karte-innen');
+let meldung = null, meldungUhr = 0;
+function aufzaubern(x, y) {
+  if (new Date() >= AB) return;
+  const r = innen.getBoundingClientRect();
+  if (x == null) { const b = form.querySelector('.senden').getBoundingClientRect(); x = b.left + b.width / 2; y = b.top; }
+  if (!meldung) {
+    meldung = document.createElement('p'); meldung.className = 'zauber-meldung'; meldung.setAttribute('role', 'status');
+    innen.append(meldung);
+  }
+  meldung.innerHTML = MELDUNG.split(' ').map((w, i) => `<span style="--i:${i}">${w}</span>`).join(' ')
+    + Array.from({ length: 12 }, (_, i) => `<i style="--x:${(Math.random() * 100).toFixed(1)}%;--y:${(Math.random() * 100).toFixed(1)}%;--d:${Math.round(Math.random() * 500)}ms;--g:${(.6 + Math.random() * .8).toFixed(2)}"></i>`).join('');
+  // über dem Klick, innerhalb der Karte
+  const breite = meldung.offsetWidth;   // so breit wie der Satz, höchstens die Karte
+  meldung.style.left = Math.max(12, Math.min(r.width - breite - 12, x - r.left - breite / 2)) + 'px';
+  meldung.style.top = Math.max(8, y - r.top - 70) + 'px';
+  meldung.classList.remove('an'); void meldung.offsetWidth; meldung.classList.add('an');
+  clearTimeout(meldungUhr); meldungUhr = setTimeout(() => meldung.classList.remove('an'), 3200);
+}
+form.addEventListener('pointerdown', e => { if (!e.target.closest('.senden')) aufzaubern(e.clientX, e.clientY); });
+
 function zeigen() {
   for (const p of produkte) p.classList.toggle('gewaehlt', p.querySelector('.wahl input').checked);
   // Kartenstapel nach Setgrösse
@@ -89,7 +113,7 @@ form.addEventListener('submit', e => {
   const gewaehlt = produkte.filter(p => p.querySelector('.wahl input').checked);
   if (!gewaehlt.length) { hinweis.textContent = 'Bitte wähle mindestens etwas aus: Karten, Tasche oder Shirt.'; hinweis.hidden = false; karte.querySelector('.produkte').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   if (!form.reportValidity()) return;
-  if (new Date() < AB) { hinweis.textContent = 'Bestellungen möglich ab 1.12.2026'; hinweis.hidden = false; return; }
+  if (new Date() < AB) { aufzaubern(); return; }
   hinweis.hidden = true;
   const d = new FormData(form);
   const zeilen = gewaehlt.map(p => ({
