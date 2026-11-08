@@ -61,7 +61,7 @@ function funkeln(p) {
     p.append(s);
   }
 }
-// Bis zum Start der Bestellungen zaubert sich bei jedem Klick ins Formular die Meldung auf:
+// Bis zum Start der Bestellungen zaubert sich beim Klick auf «Bestellung senden» die Meldung auf:
 // Wort für Wort aus Glitzer, an der Stelle des Klicks, und vergeht wieder.
 const MELDUNG = 'Bestellungen ab dem 4. Dezember 2026 möglich';
 const innen = karte.querySelector('.karte-innen');
@@ -83,7 +83,8 @@ function aufzaubern(x, y) {
   meldung.classList.remove('an'); void meldung.offsetWidth; meldung.classList.add('an');
   clearTimeout(meldungUhr); meldungUhr = setTimeout(() => meldung.classList.remove("an"), 6500);
 }
-form.addEventListener('pointerdown', e => { if (!e.target.closest('.senden')) aufzaubern(e.clientX, e.clientY); });
+// Den Hinweis auf das Datum zeigt die Karte oben; die Glitzermeldung kommt nur beim Klick auf «Bestellung senden»
+if (new Date() >= AB) karte.querySelector('.ab-datum')?.remove();
 
 function zeigen() {
   for (const p of produkte) p.classList.toggle('gewaehlt', p.querySelector('.wahl input').checked);
@@ -115,11 +116,12 @@ zeigen();
 
 form.addEventListener('submit', e => {
   e.preventDefault();
+  // Vor dem Start: nur die Glitzermeldung am Knopf, ohne Fehlermeldungen
+  if (new Date() < AB) { aufzaubern(); return; }
   const hinweis = form.querySelector('.hinweis-fehler');
   const gewaehlt = produkte.filter(p => p.querySelector('.wahl input').checked);
   if (!gewaehlt.length) { hinweis.textContent = 'Bitte wähle mindestens etwas aus: Karten, Tasche oder Shirt.'; hinweis.hidden = false; karte.querySelector('.produkte').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   if (!form.reportValidity()) return;
-  if (new Date() < AB) { aufzaubern(); return; }
   hinweis.hidden = true;
   const d = new FormData(form);
   const zeilen = gewaehlt.map(p => ({
