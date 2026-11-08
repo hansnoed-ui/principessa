@@ -4,6 +4,8 @@ import { zeichne, imBild } from './figur.js';
 
 // Hierhin gehen die Bestellungen (leer: das Mailprogramm öffnet sich ohne Empfänger)
 const AN = '';
+// Ab diesem Tag lassen sich Bestellungen abschicken; vorher kann man alles auswählen und ausfüllen
+const AB = new Date(2026, 11, 1);   // 1. Dezember 2026 (Monate zählen ab 0)
 
 const karte = document.getElementById('bestellkarte');
 const link = document.querySelector('.bestellen');
@@ -87,6 +89,7 @@ form.addEventListener('submit', e => {
   const gewaehlt = produkte.filter(p => p.querySelector('.wahl input').checked);
   if (!gewaehlt.length) { hinweis.textContent = 'Bitte wähle mindestens etwas aus: Karten, Tasche oder Shirt.'; hinweis.hidden = false; karte.querySelector('.produkte').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   if (!form.reportValidity()) return;
+  if (new Date() < AB) { hinweis.textContent = 'Bestellungen möglich ab 1.12.2026'; hinweis.hidden = false; return; }
   hinweis.hidden = true;
   const d = new FormData(form);
   const zeilen = gewaehlt.map(p => ({

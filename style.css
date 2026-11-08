@@ -441,6 +441,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 .senden:hover, .senden:focus-visible { transform: translateY(-1px); box-shadow: 0 12px 24px -10px rgba(160, 110, 20, .9); }
 .hinweis-fehler { color: #a3122f; margin: -.6rem 0 1.2rem; }
 .danke { margin: 1rem 0 0; opacity: .85; }
+.ab-hinweis { margin: .8rem 0 0; font-size: .9rem; opacity: .7; }
 
 @media (max-width: 860px) {
   .produkte { grid-template-columns: 1fr; }
