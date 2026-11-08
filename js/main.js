@@ -179,8 +179,11 @@ function messen() {
 }
 function groesse() {
   const altVw = vw;
-  // tatsächlich sichtbare Höhe, auch wenn der Browser die Leiste ein- oder ausblendet
-  document.documentElement.style.setProperty('--vh', innerHeight + 'px');
+  // tatsächlich sichtbare Höhe, auch wenn der Browser die Leiste ein- oder ausblendet.
+  // Ist die Bestellkarte offen, bleiben die Ebenen gleich hoch, solange sich nur die Höhe ändert (Leiste, Tastatur):
+  // sonst verschiebt sich alles über der Karte, und das Formular springt beim Auswählen oder Tippen.
+  const karteOffen = document.documentElement.classList.contains('karte-offen');
+  if (!karteOffen || Math.abs(altVw - innerWidth) > 1) document.documentElement.style.setProperty('--vh', innerHeight + 'px');
   vw = innerWidth; vh = innerHeight; mobil = vw < 700 && vh >= vw;   // Handy quer zählt nicht als mobil: dort gilt die zweispaltige Anordnung
   dpr = Math.min(devicePixelRatio || 1, 2);
   if (renderer) { renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); }

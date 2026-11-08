@@ -23,6 +23,7 @@ const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function oeffnen() {
   if (!karte.hidden) { karte.scrollIntoView({ behavior: reduziert ? 'auto' : 'smooth', block: 'start' }); return; }
   karte.hidden = false;
+  document.documentElement.classList.add('karte-offen');
   link.setAttribute('aria-expanded', 'true');
   requestAnimationFrame(() => {
     karte.classList.add('offen');
@@ -33,6 +34,7 @@ function oeffnen() {
 function schliessen() {
   karte.classList.remove('offen');
   karte.hidden = true;
+  document.documentElement.classList.remove('karte-offen');
   link.setAttribute('aria-expanded', 'false');
   dispatchEvent(new Event('resize'));
 }
