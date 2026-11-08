@@ -343,7 +343,7 @@ let zeiger = null;
 addEventListener('pointermove', e => {
   const x = e.clientX, y = e.clientY + scrollY;
   if (zeiger && Math.hypot(x - zeiger.x, y - zeiger.y) < 7) return;
-  zeiger = { x, y }; streuen(x, y, e.pointerType === 'touch' ? 3 : 2);
+  zeiger = { x, y }; streuen(x, y, e.pointerType === 'touch' ? 3 : 3);
 }, { passive: true });
 addEventListener('touchmove', e => {
   const t = e.touches[0]; if (!t) return;
@@ -1023,10 +1023,17 @@ function bild(nowMs) {
     const a = clamp(p.leben, 0, 1) * (.45 + .55 * (.5 + .5 * Math.sin(tau * 4 + p.ph)));
     const dunkel = aufHellem(p.y);
     sc.globalCompositeOperation = dunkel ? 'source-over' : 'lighter';
-    sc.globalAlpha = dunkel ? a * .85 : a;
+    sc.globalAlpha = dunkel ? Math.min(1, a * 1.15) : a;
     sc.fillStyle = dunkel ? GLITZER_DUNKEL[Math.floor(p.f * GLITZER_DUNKEL.length)]
       : p.art === 'funke' ? (p.f > .8 ? '#fff6c8' : '#ffd25a') : GLITZERFARBEN[Math.floor(p.f * GLITZERFARBEN.length)];
-    if (p.r > 2.2) stern(sc, p.x, y, p.r * .55); else { sc.beginPath(); sc.arc(p.x, y, p.r, 0, 7); sc.fill(); }
+    if (p.art === 'streu') {
+      // Mausglitzer strahlt: Lichthof und mehr Sterne; auf hellem Grund ein dunkler Stern mit hellem Kern
+      if (!dunkel) { sc.globalAlpha = a * .32; sc.beginPath(); sc.arc(p.x, y, p.r * 3.2, 0, 7); sc.fill(); sc.globalAlpha = a; }
+      if (p.r > (dunkel ? 1.1 : 1.5)) {
+        stern(sc, p.x, y, p.r * (dunkel ? 1.05 : .75) * (.8 + .2 * Math.sin(tau * 6 + p.ph)));
+        if (dunkel) { sc.fillStyle = '#ffe9a0'; sc.globalAlpha = a; sc.beginPath(); sc.arc(p.x, y, p.r * .3, 0, 7); sc.fill(); }
+      } else { sc.beginPath(); sc.arc(p.x, y, p.r * 1.15, 0, 7); sc.fill(); }
+    } else if (p.r > 2.2) stern(sc, p.x, y, p.r * .55); else { sc.beginPath(); sc.arc(p.x, y, p.r, 0, 7); sc.fill(); }
   }
   teilchen = rest;
   sc.globalAlpha = 1; sc.globalCompositeOperation = 'source-over';
