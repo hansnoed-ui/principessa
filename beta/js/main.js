@@ -1014,7 +1014,7 @@ function bild(nowMs) {
   for (const p of teilchen) {
     if (p.art === 'funke' || p.art === 'zauber') { p.vy += (p.art === 'funke' ? 700 : -20) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.leben -= dt; }
     else {
-      // Mausglitzer: in der Nacht steht die Zeit fast still; die Spur verweilt dort nur leicht länger, nicht ewig
+      // Mausglitzer: vergeht überall gleich schnell, auch in der Nacht, wo die Zeit sonst fast stillsteht
       if (p.art === 'streu') { p.vy += 40 * dtz; p.vx *= Math.exp(-1.2 * dtz); p.vy *= Math.exp(-.6 * dtz); p.leben -= dt * 1.15; }   // vergeht überall im normalen Tempo; in der Nacht schwebt er dabei still
       else { p.vx *= Math.exp(-1.5 * dtz); p.vy *= Math.exp(-1.5 * dtz); }
       if (zieht) {
