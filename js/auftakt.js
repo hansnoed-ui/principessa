@@ -38,13 +38,13 @@ export const SKALA_H = .105;         // Bildeinheiten je Hunde-Einheit
 
 // ------------------------------------------------------------------ Farben
 const FARBE = {
-  wand: '#453a7c', wandDunkel: '#3a3069', boden: '#5a4038', fuge: '#4a332c', stein: '#6b6485', steinFuge: '#57506f',
-  nacht: '#151840', morgen: '#e6b4d2', mond: '#f5f0e2',
-  holz: '#8a5a3c', holzDunkel: '#6d4530', matratze: '#f4ead8', kissen: '#fbf6ee',
-  korb: '#c69a5a', korbDunkel: '#a67c42', korbKissen: '#e9c9d4',
-  tuer: '#7a4b34', tuerDunkel: '#5c3826',
-  wiese: '#3e9868', wieseDunkel: '#2f7f55', huegel: '#5aa877', huegelFern: '#8fbf9b', weg: '#d9c39a',
-  stamm: '#6d4a33', krone1: '#2a8f5c', krone2: '#48a86b', sonne: '#d4a429', stadt: '#8e6fa8',
+  wand: '#4a2e5a', boden: '#33203a', mauer: '#5f3f6b',
+  nacht: '#2a1f4e', morgen: '#f0bfc2', mond: '#fbf3e4', gold: '#d4a429',
+  bett: '#b0586a', bettDunkel: '#8e4454', matratze: '#fbf3e4', kissen: '#fffaf2',
+  korb: '#d1a54c', korbDunkel: '#ad8530', korbKissen: '#f6d6d2',
+  tuer: '#c98b86', tuerDunkel: '#a36660',
+  wiese: '#3e9868', wieseDunkel: '#2a8f5c', huegel: '#a9cf8c', huegelFern: '#dba593',
+  stamm: '#5a3a3f', baum: '#4f9a5f', sonne: '#d4a429', stadt: '#c99aa4',
 };
 
 // ------------------------------------------------------------------ Bewegung der Figuren
@@ -128,7 +128,7 @@ function sonne(ctx, x, y, r, tau) {
   }
   ctx.restore();
 }
-const BLUMEN = [[1.95, '#f3c6d3'], [2.36, '#e8c56a'], [2.55, '#b9c8f2'], [2.9, '#f0a9b5'], [3.05, '#fbf3e4'], [3.3, '#f3c6d3'], [3.55, '#e8c56a']];
+const BLUMEN = [[2.2, '#f7f2ec'], [2.36, '#d4a429'], [2.62, '#f3c6d3'], [2.95, '#f7f2ec'], [3.3, '#d4a429']];
 
 // ------------------------------------------------------------------ Zeichnen
 export function zeichneAuftakt(ctx, W, H, t, tau = t) {
@@ -169,7 +169,7 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     }
     // Stadt mit Kuppeltürmen am Horizont, fern
     ctx.fillStyle = FARBE.stadt;
-    for (const [bx, bw, bh, kuppel] of [[2.5, .05, .1, 1], [2.56, .04, .14, 1], [2.61, .06, .09, 0], [2.68, .035, .16, 1], [2.73, .05, .11, 1], [2.8, .04, .13, 0]]) {
+    for (const [bx, bw, bh, kuppel] of [[2.52, .05, .1, 1], [2.58, .04, .15, 1], [2.66, .06, .09, 1], [2.74, .035, .13, 1]]) {
       ctx.fillRect(X(bx), Y(.68 - bh), bw * S, bh * S);
       if (kuppel) { ctx.beginPath(); ctx.arc(X(bx + bw / 2), Y(.68 - bh), bw / 2 * S, Math.PI, 0); ctx.fill(); }
     }
@@ -179,31 +179,23 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
       for (let i = 0; i <= 60; i++) { const wx = cam - .1 + (BREITE + .2) * i / 60; ctx.lineTo(X(wx), Y(y0 + Math.sin(wx * k + ph) * amp + Math.sin(wx * k * 2.3 + ph) * amp * .4)); }
       ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
     };
-    huegel(FARBE.huegelFern, .64, .035, 2.1, .4);
-    huegel(FARBE.huegel, .74, .03, 3.3, 2);
-    // Wiese
+    huegel(FARBE.huegelFern, .66, .03, 2.1, .4);
+    huegel(FARBE.huegel, .76, .025, 3.3, 2);
+    // Wiese: eine Fläche
     ctx.fillStyle = FARBE.wiese; ctx.fillRect(0, Y(BODEN), W, H - Y(BODEN));
-    // Weg: ein helles Band, das sich leicht schlängelt
-    ctx.strokeStyle = FARBE.weg; ctx.lineWidth = .05 * S; ctx.beginPath();
-    for (let i = 0; i <= 40; i++) { const wx = 1.7 + 2.2 * i / 40; const y = BODEN + .07 + Math.sin(wx * 2.5) * .012; i ? ctx.lineTo(X(wx), Y(y)) : ctx.moveTo(X(wx), Y(y)); }
-    ctx.stroke();
-    // Bäume: runde Kronen
-    for (const [bx, h, r, f] of [[1.98, .22, .09, FARBE.krone1], [2.06, .16, .07, FARBE.krone2], [3.0, .26, .11, FARBE.krone1], [3.12, .18, .08, FARBE.krone2], [3.65, .2, .09, FARBE.krone1]]) {
-      ctx.strokeStyle = FARBE.stamm; ctx.lineWidth = .018 * S; ctx.beginPath(); ctx.moveTo(X(bx), Y(BODEN)); ctx.lineTo(X(bx), Y(BODEN - h)); ctx.stroke();
-      ctx.fillStyle = f; ctx.beginPath(); ctx.arc(X(bx), Y(BODEN - h), r * S, 0, 7); ctx.fill();
-      ctx.beginPath(); ctx.arc(X(bx - r * .6), Y(BODEN - h + r * .35), r * .7 * S, 0, 7); ctx.fill();
-      ctx.beginPath(); ctx.arc(X(bx + r * .6), Y(BODEN - h + r * .3), r * .65 * S, 0, 7); ctx.fill();
+    // zwei Bäume: eine runde Krone auf feinem Stamm
+    for (const [bx, h, r] of [[1.98, .24, .1], [3.08, .3, .12]]) {
+      ctx.strokeStyle = FARBE.stamm; ctx.lineWidth = .012 * S; ctx.beginPath(); ctx.moveTo(X(bx), Y(BODEN)); ctx.lineTo(X(bx), Y(BODEN - h)); ctx.stroke();
+      ctx.fillStyle = FARBE.baum; ctx.beginPath(); ctx.arc(X(bx), Y(BODEN - h), r * S, 0, 7); ctx.fill();
     }
-    // Blumen, wiegen sich leise
+    // Blumen: ein Stiel, ein farbiger Punkt, wiegen sich leise
     for (const [bx, farbe] of BLUMEN) {
       const wind = Math.sin(tau * 1.1 + bx * 3) * .006, h = .05;
       ctx.strokeStyle = FARBE.wieseDunkel; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(X(bx), Y(BODEN)); ctx.quadraticCurveTo(X(bx), Y(BODEN - h * .5), X(bx + wind), Y(BODEN - h)); ctx.stroke();
-      ctx.fillStyle = farbe;
-      for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; ctx.beginPath(); ctx.ellipse(X(bx + wind) + Math.cos(a) * .011 * S, Y(BODEN - h) + Math.sin(a) * .011 * S, .009 * S, .006 * S, a, 0, 7); ctx.fill(); }
-      ctx.fillStyle = FARBE.sonne; ctx.beginPath(); ctx.arc(X(bx + wind), Y(BODEN - h), .005 * S, 0, 7); ctx.fill();
+      ctx.fillStyle = farbe; ctx.beginPath(); ctx.arc(X(bx + wind), Y(BODEN - h), .012 * S, 0, 7); ctx.fill();
     }
     // Vögel: zwei kleine Bögen, ziehen langsam
-    ctx.strokeStyle = 'rgba(60,40,70,.7)'; ctx.lineWidth = lw * .8;
+    ctx.strokeStyle = 'rgba(43,33,82,.75)'; ctx.lineWidth = lw * .8;
     for (const [bx0, by0, v, ph] of [[2.0, .22, .05, 0], [2.3, .28, .045, 2], [2.6, .19, .055, 4]]) {
       const bx = bx0 + (t - 6) * v, by = by0 + Math.sin(tau * .7 + ph) * .01, fl = Math.sin(tau * 6 + ph) * .006;
       ctx.beginPath(); ctx.moveTo(X(bx - .015), Y(by + fl)); ctx.quadraticCurveTo(X(bx - .007), Y(by - .004), X(bx), Y(by)); ctx.quadraticCurveTo(X(bx + .007), Y(by - .004), X(bx + .015), Y(by + fl)); ctx.stroke();
@@ -222,32 +214,23 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     ctx.moveTo(X(TUER_L), Y(BODEN)); ctx.lineTo(X(TUER_L), Y(TUER_O + .09)); ctx.arc(X(TUER_L + .09), Y(TUER_O + .09), .09 * S, Math.PI, 0); ctx.lineTo(X(TUER_L + .18), Y(BODEN)); ctx.closePath();
     ctx.fillStyle = FARBE.wand; ctx.fill('evenodd');
     ctx.restore();
-    // ein paar Steine in der Wand, leise
-    ctx.fillStyle = FARBE.wandDunkel;
-    for (const [sx, sy, sw] of [[.08, .12, .1], [.3, .2, .08], [.55, .08, .09], [1.15, .14, .11], [1.3, .3, .07], [.2, .4, .07], [1.1, .5, .09], [.5, .5, .06]]) ctx.fillRect(X(sx), Y(sy), sw * S, .035 * S);
-    // Fensterrahmen
-    ctx.strokeStyle = FARBE.stein; ctx.lineWidth = .02 * S;
+    // Fensterrahmen: eine feine goldene Linie
+    ctx.strokeStyle = FARBE.gold; ctx.lineWidth = lw * 1.2;
     ctx.beginPath(); ctx.moveTo(X(.72), Y(.58)); ctx.lineTo(X(.72), Y(.29)); ctx.arc(X(.87), Y(.29), .15 * S, Math.PI, 0); ctx.lineTo(X(1.02), Y(.58)); ctx.closePath(); ctx.stroke();
-    ctx.fillStyle = FARBE.stein; ctx.fillRect(X(.7), Y(.575), .34 * S, .025 * S);
-    // Boden: Dielen
+    // Boden: eine ruhige Fläche
     ctx.fillStyle = FARBE.boden; ctx.fillRect(X(-1), Y(BODEN), (ZIMMER_R + 1) * S, H - Y(BODEN));
-    ctx.strokeStyle = FARBE.fuge; ctx.lineWidth = lw;
-    for (let i = 0; i < 12; i++) { const fx = i * .15; ctx.beginPath(); ctx.moveTo(X(fx), Y(BODEN)); ctx.lineTo(X(fx - .04), H); ctx.stroke(); }
-    ctx.beginPath(); ctx.moveTo(X(-1), Y(.93)); ctx.lineTo(X(ZIMMER_R), Y(.93)); ctx.stroke();
-    // Turmmauer: ein Steinband rechts, vom Boden bis oben; die Tür führt hindurch
-    ctx.fillStyle = FARBE.stein; ctx.fillRect(X(ZIMMER_R), 0, WAND * S, Y(BODEN));
+    // Turmmauer: ein Band rechts, vom Boden bis oben; die Tür führt hindurch
+    ctx.fillStyle = FARBE.mauer; ctx.fillRect(X(ZIMMER_R), 0, WAND * S, Y(BODEN));
     ctx.fillRect(X(TUER_L + .18), 0, (ZIMMER_R - TUER_L - .18) * S, Y(BODEN));
-    ctx.fillStyle = FARBE.steinFuge;
-    for (let i = 0; i < 14; i++) ctx.fillRect(X(ZIMMER_R + (i % 2) * .03), Y(i * .065), (WAND - .04) * S, .012 * S);
-    // Schwelle unter der Tür
-    ctx.fillStyle = FARBE.stein; ctx.fillRect(X(TUER_L - .01), Y(BODEN - .012), (WAND + .2) * S, .012 * S);
+    // Türbogen: goldene Linie
+    ctx.strokeStyle = FARBE.gold; ctx.lineWidth = lw * 1.2;
+    ctx.beginPath(); ctx.moveTo(X(TUER_L), Y(BODEN)); ctx.lineTo(X(TUER_L), Y(TUER_O + .09)); ctx.arc(X(TUER_L + .09), Y(TUER_O + .09), .09 * S, Math.PI, 0); ctx.lineTo(X(TUER_L + .18), Y(BODEN)); ctx.stroke();
     // Tür: schwingt nach aussen auf (nach rechts), Angel bei TUER_L + .18 (rechter Pfosten)
     const auf = eio(seg(t, AUFTAKT.tuer[0], AUFTAKT.tuer[1]));
     ctx.save(); ctx.translate(X(TUER_L + .18), 0); ctx.scale(lerp(1, .12, auf), 1); ctx.translate(-X(TUER_L + .18), 0);
     ctx.fillStyle = mischen(FARBE.tuer, FARBE.tuerDunkel, auf * .6);
     ctx.beginPath(); ctx.moveTo(X(TUER_L), Y(BODEN)); ctx.lineTo(X(TUER_L), Y(TUER_O + .09)); ctx.arc(X(TUER_L + .09), Y(TUER_O + .09), .09 * S, Math.PI, 0); ctx.lineTo(X(TUER_L + .18), Y(BODEN)); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = FARBE.tuerDunkel; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(X(TUER_L + .06), Y(TUER_O + .04)); ctx.lineTo(X(TUER_L + .06), Y(BODEN - .02)); ctx.moveTo(X(TUER_L + .12), Y(TUER_O + .04)); ctx.lineTo(X(TUER_L + .12), Y(BODEN - .02)); ctx.stroke();
-    ctx.fillStyle = FARBE.sonne; ctx.beginPath(); ctx.arc(X(TUER_L + .035), Y(.68), .012 * S, 0, 7); ctx.fill();
+    ctx.fillStyle = FARBE.gold; ctx.beginPath(); ctx.arc(X(TUER_L + .035), Y(.68), .011 * S, 0, 7); ctx.fill();
     ctx.restore();
   };
 
@@ -255,18 +238,16 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   const BETT = { l: .12, r: .62, matratze: .72, kopfX: .13, kopfOben: .44 };
   const atem = Math.sin(tau * 1.4) * .006 * (1 - glatt(t, AUFTAKT.sitz[0], AUFTAKT.sitz[1]));
   const bettHinten = () => {
-    ctx.fillStyle = FARBE.holz;
+    ctx.fillStyle = FARBE.bett;
     // Kopfteil: rund, mit Pfosten und Kugel
     ctx.beginPath(); ctx.moveTo(X(BETT.l), Y(BODEN)); ctx.lineTo(X(BETT.l), Y(BETT.kopfOben + .08)); ctx.arc(X(BETT.l + .08), Y(BETT.kopfOben + .08), .08 * S, Math.PI, 0); ctx.lineTo(X(BETT.l + .16), Y(BODEN)); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = FARBE.holzDunkel; ctx.fillRect(X(BETT.l), Y(BETT.kopfOben + .1), .018 * S, (BODEN - BETT.kopfOben - .1) * S);
-    ctx.beginPath(); ctx.arc(X(BETT.kopfX), Y(BETT.kopfOben + .05), .02 * S, 0, 7); ctx.fill();
+    ctx.fillStyle = FARBE.gold; ctx.beginPath(); ctx.arc(X(BETT.kopfX), Y(BETT.kopfOben + .05), .018 * S, 0, 7); ctx.fill();
     // Fussteil
-    ctx.fillStyle = FARBE.holz; ctx.fillRect(X(BETT.r - .03), Y(.62), .03 * S, (BODEN - .62) * S);
-    ctx.beginPath(); ctx.arc(X(BETT.r - .015), Y(.62), .022 * S, 0, 7); ctx.fill();
+    ctx.fillStyle = FARBE.bett; ctx.fillRect(X(BETT.r - .03), Y(.62), .03 * S, (BODEN - .62) * S);
+    ctx.fillStyle = FARBE.gold; ctx.beginPath(); ctx.arc(X(BETT.r - .015), Y(.62), .018 * S, 0, 7); ctx.fill();
     // Matratze und Kissen
     ctx.fillStyle = FARBE.matratze; ctx.fillRect(X(BETT.l + .16), Y(BETT.matratze - .04), (BETT.r - BETT.l - .19) * S, .07 * S);
     ctx.fillStyle = FARBE.kissen; ctx.beginPath(); ctx.ellipse(X(.26), Y(BETT.matratze - .045), .09 * S, .035 * S, 0, 0, 7); ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth = lw; ctx.stroke();
   };
   // Die Decke: gestreift wie das Kleid; sie rutscht herunter, wenn die Principessa sich aufsetzt
   const deckeOben = lerp(.665, .745, eio(seg(t, AUFTAKT.sitz[0], AUFTAKT.sitz[1]))) - atem;
@@ -278,8 +259,8 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     ctx.restore();
     ctx.strokeStyle = C.linie; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(X(l), Y(deckeOben + .02)); ctx.quadraticCurveTo(X((l + r) / 2), Y(deckeOben - .015), X(r), Y(deckeOben + .01)); ctx.stroke();
     // Bettrahmen vorn
-    ctx.fillStyle = FARBE.holz; ctx.fillRect(X(BETT.l + .14), Y(.76), (BETT.r - BETT.l - .14) * S, .05 * S);
-    ctx.fillStyle = FARBE.holzDunkel; ctx.fillRect(X(BETT.l + .14), Y(.81), .025 * S, .05 * S); ctx.fillRect(X(BETT.r - .04), Y(.81), .025 * S, .05 * S);
+    ctx.fillStyle = FARBE.bett; ctx.fillRect(X(BETT.l + .14), Y(.76), (BETT.r - BETT.l - .14) * S, .05 * S);
+    ctx.fillStyle = FARBE.bettDunkel; ctx.fillRect(X(BETT.l + .14), Y(.81), .025 * S, .05 * S); ctx.fillRect(X(BETT.r - .04), Y(.81), .025 * S, .05 * S);
   };
 
   // ---------- Das Körbchen (Welt-x 1.08 bis 1.4)
@@ -292,7 +273,7 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
     const R = KORB.r;
     ctx.fillStyle = FARBE.korb; ctx.beginPath(); ctx.moveTo(X(KORB.x - R), Y(.8)); ctx.quadraticCurveTo(X(KORB.x - R + .01), Y(BODEN), X(KORB.x - R + .05), Y(BODEN)); ctx.lineTo(X(KORB.x + R - .05), Y(BODEN)); ctx.quadraticCurveTo(X(KORB.x + R - .01), Y(BODEN), X(KORB.x + R), Y(.8)); ctx.ellipse(X(KORB.x), Y(.8), R * S, .03 * S, 0, 0, Math.PI, true); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = FARBE.korbDunkel; ctx.lineWidth = lw;
-    for (let i = 1; i < 12; i++) { const kx = KORB.x - R + 2 * R * i / 12; ctx.beginPath(); ctx.moveTo(X(kx), Y(.81)); ctx.lineTo(X(kx + (kx < KORB.x ? -.004 : .004)), Y(BODEN - .005)); ctx.stroke(); }
+    for (let i = 1; i < 7; i++) { const kx = KORB.x - R + 2 * R * i / 7; ctx.beginPath(); ctx.moveTo(X(kx), Y(.81)); ctx.lineTo(X(kx + (kx < KORB.x ? -.004 : .004)), Y(BODEN - .005)); ctx.stroke(); }
     ctx.beginPath(); ctx.ellipse(X(KORB.x), Y(.8), R * S, .03 * S, 0, 0, Math.PI); ctx.stroke();
   };
 
