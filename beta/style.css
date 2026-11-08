@@ -583,3 +583,13 @@ html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none;
   .zauber-meldung span { opacity: 1; filter: none; transform: none; }
   .zauber-meldung.an span, .zauber-meldung.an i { animation: none; }
 }
+
+/* Titel unter dem Film: erscheint mit Glitzer (zauber.js) und vergeht kurz vor dem Sprung */
+#augenblick { align-content: start; }
+.auftakt-titel {
+  position: relative; z-index: 2; margin: 5vh 0 0; text-align: center; color: var(--creme);
+  font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(1.4rem, 1rem + 1.6vw, 2.5rem); line-height: 1.2;
+  transition: opacity 1s ease, transform 1s ease;
+}
+.auftakt-titel.weg { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+@media (max-width: 700px) { .auftakt-titel { margin-top: 4vh; padding: 0 6vw; } }
