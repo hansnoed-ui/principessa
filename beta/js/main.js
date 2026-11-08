@@ -886,10 +886,18 @@ function bild(nowMs) {
     const x4alt = figur4.userData.x ?? P4.x; P4.vx = daempfe(P4.vx, (P4.x - x4alt) / Math.max(dt, 1e-3), 6, dt); figur4.userData.x = P4.x;
     if (modus === 'aus' && t4 >= T.flugEnde && amBoden4 && !P4.gelandet && Math.abs(P4.y - zf) < 6) { P4.gelandet = true; P4.landZeit = now; }
     if (!amBoden4 && P4.gelandet) P4.gelandet = false;
-    if (P4.gelandet && !reduziert) { const d = now - P4.landZeit; sq4 = .2 * Math.exp(-d * 7) * Math.cos(d * 24); verb4 = .25 * Math.sin(Math.PI * eio(seg(d, .6, 1.4))); }
+    // Auf der Wiese: erst ein kleines Nachfedern, dann ein Freudensprung mit einer ganzen Drehung um die eigene Achse
+    let hupf4 = 0;
+    if (P4.gelandet && !reduziert) {
+      const d = now - P4.landZeit, u = seg(d, 1.3, 2.3);
+      sq4 = .2 * Math.exp(-d * 7) * Math.cos(d * 24) + (u >= 1 ? .18 * Math.exp(-(d - 2.3) * 7) * Math.cos((d - 2.3) * 24) : 0);
+      if (d > 1.15 && d < 1.3) sq4 = .12 * Math.sin(Math.PI * seg(d, 1.15, 1.3));   // in die Knie
+      hupf4 = Math.sin(Math.PI * u) * figH * .45;
+      extra4 = eio(u) * Math.PI * 2;
+    }
     const schwebt4 = !P4.gelandet && draussen4;
     const wipp4 = schwebt4 && !reduziert ? Math.sin(tau * 1.7 + .7) * figH * .025 : 0;
-    figur4.position.copy(welt(P4.x, P4.y + wipp4, P4.z));
+    figur4.position.copy(welt(P4.x, P4.y + wipp4 - hupf4, P4.z));
     const basis4 = figH4 / LOKAL_H4 * skal4;
     figur4.scale.set(basis4 * (1 + sq4 * .5), basis4 * (1 - sq4), basis4 * (1 + sq4 * .5) * tiefe4);
     figur4.rotation.x = verb4;
@@ -1021,4 +1029,4 @@ function bild(nowMs) {
 requestAnimationFrame(bild);
 
 // für Tests: window.__principessa.springe(t) setzt die Auftakt-Uhr
-window.__principessa = { springe: t => { tA = t; }, zustand: () => ({ modus, tI, tA, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet, fx, fy, figH, p2x: P2.x, p2y: P2.y, sichtbar2: figur2.visible, p3: P3.modus, p3t: P3.t, p3bau: P3.bau, p3uhr: P3.uhr, p3x: P3.x, p3y: P3.y, sichtbar3: figur3.visible, treffenZeit, jetzt: performance.now() / 1000 }) };
+window.__principessa = { springe: t => { tA = t; }, zustand: () => ({ p4: { ...P4 }, modus, tI, tA, tR, gesammelt, gelandet, p2: P2.modus, p2t: P2.t, p2tR: P2.tR, p2gelandet: P2.gelandet, fx, fy, figH, p2x: P2.x, p2y: P2.y, sichtbar2: figur2.visible, p3: P3.modus, p3t: P3.t, p3bau: P3.bau, p3uhr: P3.uhr, p3x: P3.x, p3y: P3.y, sichtbar3: figur3.visible, treffenZeit, jetzt: performance.now() / 1000 }) };

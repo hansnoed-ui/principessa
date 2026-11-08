@@ -80,7 +80,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   position: relative;
   height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid; place-items: start center;
-  padding: 13vh 5vw 8vh;
+  padding: 17vh 5vw 8vh;
   background: var(--e-abend);
 }
 /* der Film: Querformat 16:9, schmaler dunkler Rand, leises Leuchten */
@@ -89,8 +89,8 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   /* etwa die Fläche des früheren Stadtbilds im Tablet */
   width: min(64vw, 660px, calc(40vh * 16 / 9));
   width: min(64vw, 660px, calc(40dvh * 16 / 9));
-  padding: clamp(4px, .45vw, 6px);
-  border-radius: clamp(14px, 1.6vw, 22px);
+  padding: clamp(2px, .22vw, 3px);
+  border-radius: clamp(12px, 1.4vw, 19px);
   background: #18181c;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, .12),
@@ -113,7 +113,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   line-height: 1.2;
 }
 .signatur strong { display: block; font-weight: 600; font-size: 1.55em; letter-spacing: .01em; }
-.signatur span { display: block; opacity: .85; }
+.signatur span { display: block; opacity: .85; font-weight: 400; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Titel: Märchenschrift mit Glitzerfüllung */
@@ -304,7 +304,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
   .ebene .inhalt { max-width: none; }
   .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
-  #augenblick { padding: 11vh 4vw 8vh; }
+  #augenblick { padding: 14vh 4vw 8vh; }
   .film { width: 92vw; }
   #ankommen .inhalt { padding: 8vh 6vw 0; }
 }
