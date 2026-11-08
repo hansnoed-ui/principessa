@@ -33,6 +33,11 @@ export const AUFTAKT = {
   halt: 10.4,             // beide bleiben stehen
   sprung: 11.2,           // die 3D-Figuren übernehmen (main.js)
 };
+// Wie lange nach dem Sprung die beiden noch im Film zu sehen sind: bis ihre 3D-Figuren erscheinen (main.js:
+// die Principessa bei tI >= T.plopp = .1 s, der Hund .3 s später). So gibt es keinen Moment, in dem einer fehlt.
+// Mit reduzierter Bewegung erscheinen die 3D-Figuren sofort, dann verschwinden die gezeichneten gleich beim Sprung.
+const SOFORT = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const RAUS_P = AUFTAKT.sprung + (SOFORT ? 0 : .1), RAUS_H = AUFTAKT.sprung + (SOFORT ? 0 : .4);
 export const HOEHE_P = .34;          // Höhe der Principessa im Bild (Bildhöhe = 1)
 export const SKALA_H = .09;          // Bildeinheiten je Hunde-Einheit
 
@@ -285,7 +290,7 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   const sP = HOEHE_P * S / F.hoehe;        // Pixel je Figureneinheit
   const lwP = Math.max(1.2, sP * .025);
   const principessa = () => {
-    if (t >= AUFTAKT.sprung) return;
+    if (t >= RAUS_P) return;
     const sitz = eio(seg(t, AUFTAKT.sitz[0], AUFTAKT.sitz[1]));
     const steh = seg(t, AUFTAKT.steh[0], AUFTAKT.steh[1]);
     const augenZu = t < AUFTAKT.wach[0] + .2 || (t > AUFTAKT.wach[0] + .35 && t < AUFTAKT.wach[0] + .45); // kurzes Blinzeln beim Aufwachen
@@ -331,7 +336,7 @@ export function zeichneAuftakt(ctx, W, H, t, tau = t) {
   // ---------- Der Hund
   const sH = SKALA_H * S, lwH = Math.max(1.2, sH * .02);
   const hund = (vorn) => {
-    if (t >= AUFTAKT.sprung) return;
+    if (t >= RAUS_H) return;
     const steh = seg(t, AUFTAKT.steh[0] + .2, AUFTAKT.steh[1]);
     if ((steh <= 0) === vorn) return;    // im Körbchen hinter dem Rand, danach davor
     const wach = eio(seg(t, AUFTAKT.wach[0], AUFTAKT.wach[1]));
