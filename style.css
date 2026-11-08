@@ -374,7 +374,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 .produkt.gewaehlt .haken::after { transform: rotate(45deg) scale(1); opacity: 1; }
 .wahl input:focus-visible ~ .haken { outline: 2px solid var(--gold); outline-offset: 3px; }
 .bild { width: 100%; max-width: 210px; height: auto; display: block; }
-.bild .stapel, .bild .tasche-koerper, .bild .shirt-stoff { transition: transform .3s var(--ease-out), fill .25s ease; }
+.bild .stapel, .bild .tasche-koerper, .bild .shirt-stoff, .bild .tasche-stoff, .bild .tasche-henkel { transition: transform .3s var(--ease-out), fill .25s ease, stroke .25s ease; }
 .produkt-name { font-family: var(--serif); font-style: italic; font-size: 1.35em; margin-top: .2rem; }
 .produkt-text { font-size: .85rem; opacity: .65; }
 

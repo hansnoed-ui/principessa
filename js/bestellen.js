@@ -96,6 +96,12 @@ function zeigen() {
   const farben = { Weiss: '#fbf8f3', Rosa: '#f2c4d2', Hellblau: '#b4d2f4', Nachtblau: '#1e1a4c' };
   karte.querySelector('.shirt-stoff').setAttribute('fill', farben[wert('shirt-farbe')] || '#fbf8f3');
   karte.querySelectorAll('.motiv').forEach(g => g.style.display = g.dataset.motiv === wert('shirt-motiv') ? '' : 'none');
+  // Tasche: Farbe (Stoff, Henkel etwas dunkler) und Motiv
+  const tasche = { Lila: ['#7b4f9e', '#5a3780'], Nachtblau: ['#1e1a4c', '#14112f'], Rosa: ['#f2c4d2', '#d79fb1'], Natur: ['#ece3d0', '#c8b894'] }[wert('tasche-farbe')] || ['#7b4f9e', '#5a3780'];
+  karte.querySelector('.tasche-stoff').setAttribute('fill', tasche[0]);
+  karte.querySelector('.tasche-stoff').setAttribute('stroke', tasche[1]);
+  karte.querySelector('.tasche-henkel').setAttribute('stroke', tasche[1]);
+  karte.querySelectorAll('.tasche-motiv').forEach(g => g.style.display = g.dataset.motiv === (wert('tasche-motiv') || 'Hund') ? '' : 'none');
 }
 form.addEventListener('change', e => {
   const p = e.target.closest('.produkt'); if (!p) return;
@@ -118,7 +124,7 @@ form.addEventListener('submit', e => {
   const d = new FormData(form);
   const zeilen = gewaehlt.map(p => ({
     karte: `– Karten (Postkarten mit Glitzerdruck), ${d.get('karte-set')}`,
-    tasche: `– Tasche, ${d.get('tasche-groesse')}, ${d.get('tasche-anzahl')}`,
+    tasche: `– Tasche, ${d.get('tasche-farbe')}, ${d.get('tasche-groesse')}, ${d.get('tasche-anzahl')}, Motiv ${d.get('tasche-motiv')}`,
     shirt: `– Shirt, ${d.get('shirt-farbe')}, Grösse ${d.get('shirt-groesse')}, Motiv ${d.get('shirt-motiv')}`,
   })[p.dataset.id]);
   const text = [
