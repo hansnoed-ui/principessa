@@ -27,15 +27,18 @@ for (const absatz of document.querySelectorAll('.zauber')) {
   const sterne = () => {
     const box = absatz.getBoundingClientRect(), eltern = absatz.parentElement.getBoundingClientRect();
     spans.forEach((sp, i) => {
-      if (Math.random() > (absatz.dataset.start ? 1 : .3)) return;   // beim Titel funkelt jedes Wort
+      const titel = !!absatz.dataset.start;
+      if (Math.random() > (titel ? 1 : .3)) return;   // beim Titel funkelt jedes Wort, und zwar mehrfach
+      for (let k = 0; k < (titel ? 4 : 1); k++) {
       const r = sp.getBoundingClientRect(), st = document.createElement('i');
       st.className = 'funkelstern';
       st.style.left = (r.left - eltern.left + Math.random() * r.width) + 'px';
       st.style.top = (r.top - eltern.top + (Math.random() - .3) * r.height) + 'px';
       st.style.setProperty('--d', (i * 70 + Math.random() * 200) + 'ms');
-      st.style.setProperty('--g', (.5 + Math.random() * .5).toFixed(2));
+      st.style.setProperty('--g', (titel ? .9 + Math.random() * .9 : .5 + Math.random() * .5).toFixed(2));
       st.addEventListener('animationend', () => st.remove());
       absatz.parentElement.append(st);
+      }
     });
   };
   const zaubern = () => {
