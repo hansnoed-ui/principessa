@@ -853,7 +853,7 @@ function bild(nowMs) {
   {
     const t4 = tI - .3, draussen4 = modus === 'aus' && t4 >= T.plopp;
     figur4.visible = !!renderer && draussen4;
-    const figH4 = figH * .62;   // er ist kleiner als sie
+    const figH4 = figH * .527;  // er ist kleiner als sie
     const amBoden4 = bodenTop < vh * .8;
     // Schwebend hält er sich unter ihr. Wo unten kein Platz ist (unter dem Film), stellt er sich auf die freie Seite,
     // sonst weiter links oder über die Reihe. Auf der Wiese steht er vorn im Gras, unterhalb der anderen, und verdeckt niemanden.
@@ -963,7 +963,7 @@ function bild(nowMs) {
     if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(P3.x, bodenTop + 4, figH * .22, figH * .035, 0, 0, 7); sc.fill(); }
   }
   if (bodenTop < vh + 40 && figur4.visible) {
-    const fussY = bodenTop + figH * .62 * .95 + figH * .12, a = (1 - clamp((fussY - P4.y) / (figH * 1.6))) * .3;
+    const fussY = bodenTop + figH * .527 * .95 + figH * .12, a = (1 - clamp((fussY - P4.y) / (figH * 1.6))) * .3;
     if (a > 0) { sc.fillStyle = `rgba(10,30,20,${a})`; sc.beginPath(); sc.ellipse(P4.x, fussY + 3, figH * .42, figH * .04, 0, 0, 7); sc.fill(); }
   }
   if (bodenTop < vh + 40 && figur2.visible) {
