@@ -81,7 +81,7 @@ function aufzaubern(x, y) {
   meldung.style.left = Math.max(12, Math.min(r.width - breite - 12, x - r.left - breite / 2)) + 'px';
   meldung.style.top = Math.max(8, y - r.top - 70) + 'px';
   meldung.classList.remove('an'); void meldung.offsetWidth; meldung.classList.add('an');
-  clearTimeout(meldungUhr); meldungUhr = setTimeout(() => meldung.classList.remove('an'), 3200);
+  clearTimeout(meldungUhr); meldungUhr = setTimeout(() => meldung.classList.remove("an"), 6500);
 }
 form.addEventListener('pointerdown', e => { if (!e.target.closest('.senden')) aufzaubern(e.clientX, e.clientY); });
 
