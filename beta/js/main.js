@@ -328,6 +328,10 @@ function sterneAnlegen() {
   for (let i = 0; i < n; i++) sterne.push({ fx: zufall(), fy: .02 + zufall() * .7, r: .5 + Math.pow(zufall(), 3) * 2.4, ph: zufall() * 7, k: 1.5 + zufall() * 3 });
 }
 const GLITZERFARBEN = ['#ffffff', '#a6f5ea', '#fff2b0', '#ffd27a'];
+// auf hellem Grund (Himmel, Dämmerung) leuchtet heller Glitzer nicht: dort dunkles Gold und Indigo, normal gemalt
+const GLITZER_DUNKEL = ['#7a4f0e', '#a8781f', '#4a3a9a', '#2b2152'];
+const HELLE_EBENEN = ['schweben', 'ankommen'];
+const aufHellem = y => HELLE_EBENEN.some(k => lage[k] && y >= lage[k].top && y < lage[k].top + lage[k].h);
 function streuen(x, y, n, art = 'streu') {
   if (teilchen.length > 1400) return;
   for (let i = 0; i < n; i++) {
@@ -1017,8 +1021,11 @@ function bild(nowMs) {
     const y = p.y - scrollY;
     if (y < -20 || y > vh + 20) continue;
     const a = clamp(p.leben, 0, 1) * (.45 + .55 * (.5 + .5 * Math.sin(tau * 4 + p.ph)));
-    sc.globalAlpha = a;
-    sc.fillStyle = p.art === 'funke' ? (p.f > .8 ? '#fff6c8' : '#ffd25a') : GLITZERFARBEN[Math.floor(p.f * GLITZERFARBEN.length)];
+    const dunkel = aufHellem(p.y);
+    sc.globalCompositeOperation = dunkel ? 'source-over' : 'lighter';
+    sc.globalAlpha = dunkel ? a * .85 : a;
+    sc.fillStyle = dunkel ? GLITZER_DUNKEL[Math.floor(p.f * GLITZER_DUNKEL.length)]
+      : p.art === 'funke' ? (p.f > .8 ? '#fff6c8' : '#ffd25a') : GLITZERFARBEN[Math.floor(p.f * GLITZERFARBEN.length)];
     if (p.r > 2.2) stern(sc, p.x, y, p.r * .55); else { sc.beginPath(); sc.arc(p.x, y, p.r, 0, 7); sc.fill(); }
   }
   teilchen = rest;
