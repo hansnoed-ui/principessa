@@ -28,7 +28,7 @@ const staub = $('#staub'), sc = staub.getContext('2d');
 const flach = $('#flach'), fc = flach.getContext('2d');
 const flach2 = $('#flach2'), fc2 = flach2.getContext('2d');
 const flach3 = $('#flach3'), fc3 = flach3.getContext('2d');
-const bildEl = $('.film'), boden = $('#boden');
+const bildEl = $('.film'), boden = $('#boden'), titelEl = $('.auftakt-titel');
 
 // Glitzerfüllung für den Titel
 {
@@ -529,6 +529,9 @@ function bild(nowMs) {
     if (tR >= T.rueckEnde) { modus = 'drin'; tI = 0; klopfUhr = -2.5; plopped = false; }
   }
 
+  // ---- Der Titel unter dem Film vergeht kurz vor dem Sprung
+  titelEl?.classList.toggle('weg', modus !== 'drin' || tA > AUFTAKT.sprung - 1.3);
+
   // ---- Der Film im Auftakt; die Lage der beiden im Film (Bildschirmpixel), eingefroren beim Sprung
   const bx = filmBox();
   if (bx.unten > -40) bildZeichnen();
@@ -884,8 +887,9 @@ function bild(nowMs) {
       P4.z = lerp(bx.h * .3, zz, e) + Math.sin(Math.PI * u) * figH * .8;
       skal4 = lerp(start4, 1, eio(seg(t4, T.plopp, T.plopp + .9))); tiefe4 = .06 + .94 * eback(seg(t4, T.plopp, T.plopp + .7), 1.1); extra4 = e * Math.PI * 2;
     } else {
-      P4.x = daempfe(P4.x, zx, P4.gelandet ? 2.2 : 1.5, dt);
-      P4.y = P4.gelandet ? zf : daempfe(P4.y, zf, 1.9, dt);
+      // eng hinter ihr her, damit er beim Herunterschweben nicht in sie hineingerät
+      P4.x = daempfe(P4.x, zx, P4.gelandet ? 2.2 : 9, dt);
+      P4.y = P4.gelandet ? zf : daempfe(P4.y, zf, 9, dt);
       P4.z = daempfe(P4.z, zz, 3, dt);
     }
     const x4alt = figur4.userData.x ?? P4.x; P4.vx = daempfe(P4.vx, (P4.x - x4alt) / Math.max(dt, 1e-3), 6, dt); figur4.userData.x = P4.x;
@@ -1006,7 +1010,8 @@ function bild(nowMs) {
   for (const p of teilchen) {
     if (p.art === 'funke' || p.art === 'zauber') { p.vy += (p.art === 'funke' ? 700 : -20) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.leben -= dt; }
     else {
-      if (p.art === 'streu') { p.vy += 40 * dtz; p.vx *= Math.exp(-1.2 * dtz); p.vy *= Math.exp(-.6 * dtz); p.leben -= dtz; }
+      // Mausglitzer: in der Nacht steht die Zeit fast still; die Spur verweilt dort nur leicht länger, nicht ewig
+      if (p.art === 'streu') { const dts = dt * Math.max(zeit, .6); p.vy += 40 * dts; p.vx *= Math.exp(-1.2 * dts); p.vy *= Math.exp(-.6 * dts); p.leben -= dts; }
       else { p.vx *= Math.exp(-1.5 * dtz); p.vy *= Math.exp(-1.5 * dtz); }
       if (zieht) {
         const dx = kx - p.x, dy = ky - p.y, d = Math.hypot(dx, dy);
