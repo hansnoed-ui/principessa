@@ -292,6 +292,12 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24' viewBox='0 0 60 24'%3E%3Cpath d='M0 24 L4 8 L7 24 L11 2 L14 24 L19 10 L22 24 L27 4 L30 24 L34 12 L37 24 L42 0 L45 24 L49 9 L52 24 L56 5 L60 24 Z' fill='%233e9868'/%3E%3C/svg%3E") repeat-x bottom / 60px 24px;
 }
 
+/* Am grossen Bildschirm darf der Text grösser sein; die Spalte wächst mit */
+@media (min-width: 1200px) {
+  .zauber { font-size: clamp(1.32em, .7em + 1.1vw, 2.3em); }
+  .ebene .inhalt { max-width: clamp(31rem, 24rem + 14vw, 46rem); }
+}
+
 @media (max-width: 700px) {
   .ebene { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 0; padding: 9vh 6vw 4vh; align-items: start; }
   .ebene > .inhalt.links, .ebene > .inhalt.rechts { grid-column: 1; grid-row: 1; justify-self: stretch; }
