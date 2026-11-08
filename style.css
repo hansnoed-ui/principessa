@@ -165,6 +165,8 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 /* Jede Ebene füllt genau einen Bildschirm; die Seite rastet sanft von Ebene zu Ebene */
 html { scroll-snap-type: y mandatory; }
 #augenblick, .ebene { scroll-snap-align: start; scroll-snap-stop: always; }
+/* In der offenen Bestellkarte rastet nichts ein: sonst kann der Browser beim Auswählen oder Tippen zur nächsten Ebene springen */
+html.karte-offen { scroll-snap-type: none; }
 .ebene {
   height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid;
