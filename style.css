@@ -440,7 +440,12 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
 .senden:hover, .senden:focus-visible { transform: translateY(-1px); box-shadow: 0 12px 24px -10px rgba(160, 110, 20, .9); }
 .hinweis-fehler { color: #a3122f; margin: -.6rem 0 1.2rem; }
 .danke { margin: 1rem 0 0; opacity: .85; }
-.ab-hinweis { margin: .8rem 0 0; font-size: .9rem; opacity: .7; }
+/* Ab wann bestellt werden kann: gut lesbar oben in der Karte, ohne beim Auswählen zu stören */
+.ab-datum {
+  display: inline-block; margin: -1rem 0 1.8rem; padding: .45rem .95rem;
+  border: 1px solid rgba(212, 164, 41, .7); border-radius: 999px;
+  background: #fff8e6; color: var(--linie); font-weight: 600; font-size: 1rem;
+}
 
 @media (max-width: 860px) {
   .produkte { grid-template-columns: 1fr; }
