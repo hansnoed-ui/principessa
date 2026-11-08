@@ -27,7 +27,7 @@ for (const absatz of document.querySelectorAll('.zauber')) {
   const sterne = () => {
     const box = absatz.getBoundingClientRect(), eltern = absatz.parentElement.getBoundingClientRect();
     spans.forEach((sp, i) => {
-      if (Math.random() > .3) return;
+      if (Math.random() > (absatz.dataset.start ? 1 : .3)) return;   // beim Titel funkelt jedes Wort
       const r = sp.getBoundingClientRect(), st = document.createElement('i');
       st.className = 'funkelstern';
       st.style.left = (r.left - eltern.left + Math.random() * r.width) + 'px';
@@ -45,7 +45,8 @@ for (const absatz of document.querySelectorAll('.zauber')) {
     dispatchEvent(new CustomEvent('zauber'));
   };
   // Absätze mit data-start zaubern erst, wenn dieses Ereignis kommt (der Titel unter dem Film wartet auf den Film)
-  if (absatz.dataset.start) { addEventListener(absatz.dataset.start, zaubern, { once: true }); continue; }
+  // …und glitzern bei «<ereignis>-welle» noch einmal auf (der Titel kurz vor dem Ausblenden)
+  if (absatz.dataset.start) { addEventListener(absatz.dataset.start, zaubern, { once: true }); addEventListener(absatz.dataset.start + '-welle', zaubern); continue; }
   new IntersectionObserver(([e]) => {
     sichtbar = e.isIntersecting;
     if (sichtbar && !uhr) { zaubern(); uhr = setInterval(() => sichtbar && !document.hidden && zaubern(), WELLE_ALLE); }
