@@ -6,8 +6,9 @@ Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt i
 
 ## Zwei Fassungen
 
-- **Alpha** (Wurzel, `/`, https://principesse.ch/): die bisherige Seite mit dem Tablet und dem Stadtbild.
-- **Beta** (`beta/`, https://principesse.ch/beta/): neuer Anfang mit einem kleinen Film (Turmzimmer, Aufwachen, Spaziergang), aus dem die Principessa und der Hund mit Krone springen. Eigene Kopien von `index.html`, `style.css` und `js/`; `assets/` und `vendor/` teilt sie mit Alpha.
+- **Hauptseite** (Wurzel, https://principesse.ch/): Anfang mit einem kleinen Film (Turmzimmer, Aufwachen, Spaziergang), aus dem die Principessa und der Hund mit Krone springen. Bis 8.11.2026 war das die Beta unter `beta/`; `beta/index.html` leitet alte Links hierher weiter.
+- **Alpha** (`alpha/`, https://principesse.ch/alpha/): die frühere Seite mit dem Tablet und dem Stadtbild. Eigene Kopien von `index.html`, `style.css` und `js/`; Bilder (`assets/`) und Three.js (`vendor/`) teilt sie mit der Hauptseite über `../`.
+- `CNAME` (Inhalt `principesse.ch`) nie löschen oder ändern, sonst fällt die Domain weg.
 
 ## Aufbau
 
@@ -17,7 +18,8 @@ Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt i
 - `assets/principessa3-*.png` – die dritte als Meerjungfrau, in vier Teilen zum Zusammensetzen
 - `js/figur.js` – die drei Principesse als Zeichnung und als 3D-Figuren
 - `js/main.js` – Herausspringen, Flug beim Scrollen, Treffen, Glitzer, Sterne, Landung und Wiese
-- `js/rahmen.js` – die Glanzstellen im Gemälde
+- `js/auftakt.js` – der Film im Auftakt: Turmzimmer, Aufwachen, Spaziergang, live gezeichnet
+- `alpha/js/rahmen.js` – die Glanzstellen im Gemälde der Alpha
 - `js/hintergrund.js` – Wolken, Mond und Sternschnuppe, Unterwasserlicht, Seegras, Fische, Blasen, Kleeblätter
 - `js/zauber.js` – verzauberter Text: Wörter erscheinen als Glitzer, danach laufen Glitzerwellen hindurch
 - `js/bestellen.js` – die Bestellkarte: Auswahl, Live-Vorschau und Bestellung per Mail
@@ -27,4 +29,4 @@ Lokal ansehen: im Ordner `python3 -m http.server` starten und `http://localhost:
 
 Veröffentlichen: in den Repo-Einstellungen unter *Pages* den Branch `main` mit Ordner `/` wählen.
 
-Nach jeder Änderung `./neue-version.sh` ausführen: Das hängt eine neue Versionsnummer an alle Dateien in `index.html`, damit Browser die neuen Dateien sofort laden statt bis zu zehn Minuten die alten aus dem Zwischenspeicher zu zeigen.
+Nach jeder Änderung `./neue-version.sh` ausführen: Das hängt eine neue Versionsnummer an alle Dateien in `index.html` und `alpha/index.html`, damit Browser die neuen Dateien sofort laden statt bis zu zehn Minuten die alten aus dem Zwischenspeicher zu zeigen.

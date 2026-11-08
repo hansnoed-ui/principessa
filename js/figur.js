@@ -29,28 +29,57 @@ export function kronenUmriss() {
     [0.11, b + .40], [0.16, b + .21], [0.22, b + .39], [0.28, b + .21], [0.42, b + .38], [0.36, b]];
 }
 
+// Kopf der ersten Principessa um die Mitte (kx, ky) in Pixeln; pose.augenZu = schläft, pose.kopf = Neigung in rad
+export function zeichneKopf(ctx, kx, ky, s, lw = 3, pose = {}) {
+  ctx.save(); ctx.translate(kx, ky); ctx.rotate(pose.kopf || 0);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.strokeStyle = C.linie; ctx.lineWidth = lw;
+  const X = x => x * s, Y = y => -(y - F.kopfY) * s;
+  ctx.fillStyle = C.kopf; ctx.beginPath(); ctx.ellipse(0, 0, F.krx * s, F.kry * s, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = C.linie;
+  for (const [ex, ey] of [[-0.27, 1.50], [0.2, 1.47]]) {
+    if (pose.augenZu) { ctx.lineWidth = lw * .9; ctx.beginPath(); ctx.arc(X(ex), Y(ey) - .02 * s, .055 * s, Math.PI * .15, Math.PI * .85); ctx.stroke(); ctx.lineWidth = lw; }
+    else { ctx.beginPath(); ctx.arc(X(ex), Y(ey), 0.03 * s, 0, 7); ctx.fill(); }
+  }
+  ctx.beginPath(); ctx.moveTo(X(-0.33), Y(1.42)); ctx.quadraticCurveTo(X(0), Y(1.24), X(0.36), Y(1.43)); ctx.stroke();
+  ctx.fillStyle = C.wange; ctx.lineWidth = lw * .7;
+  for (const [ex, ey] of [[-0.45, 1.42], [0.48, 1.40]]) { ctx.beginPath(); ctx.arc(X(ex), Y(ey), 0.075 * s, 0, 7); ctx.fill(); ctx.stroke(); }
+  ctx.restore();
+}
+// Krone der ersten Principessa; (cx, by) = Mitte der Füsse, wie bei zeichne()
+export function zeichneKrone(ctx, cx, by, s, lw = 3) {
+  const X = x => cx + x * s, Y = y => by - y * s;
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.strokeStyle = C.linie; ctx.lineWidth = lw;
+  const k = kronenUmriss();
+  ctx.beginPath(); k.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))); ctx.closePath();
+  ctx.fillStyle = C.gold; ctx.fill();
+  ctx.save(); ctx.clip();
+  glitzerFuellen(ctx, 'krone', ['#fff6c0', '#ffe066'], 420, 11, s, X(-0.4), Y(F.kroneBasis + .5), .9 * s, .6 * s);
+  ctx.restore();
+  ctx.stroke();
+  ctx.fillStyle = C.kugel;
+  for (const i of [1, 3, 5, 7, 9]) { ctx.beginPath(); ctx.arc(X(k[i][0]), Y(k[i][1] + 0.02), 0.05 * s, 0, 7); ctx.fill(); ctx.lineWidth = lw * .8; ctx.stroke(); }
+  ctx.restore();
+}
+
 // Zeichnet die Principessa; (cx, by) = Mitte der Füsse in Pixeln, s = Pixel pro lokaler Einheit
-export function zeichne(ctx, cx, by, s, lw = 3) {
+// pose = { beine: [links, rechts] Winkel in rad (+ = nach vorn), augenZu, kopf: Neigung, ohneKopf, ohneKrone }
+export function zeichne(ctx, cx, by, s, lw = 3, pose = {}) {
   const X = x => cx + x * s, Y = y => by - y * s;
   const r = rng(7);
   ctx.save();
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   ctx.strokeStyle = C.linie; ctx.lineWidth = lw;
-  for (const bx of F.beine) {
-    ctx.beginPath(); ctx.moveTo(X(bx), Y(F.beinOben)); ctx.lineTo(X(bx), Y(0.02)); ctx.lineTo(X(bx + F.fuss), Y(0.02)); ctx.stroke();
-  }
+  F.beine.forEach((bx, i) => {
+    const a = pose.beine?.[i] || 0, fx = bx + Math.sin(a) * F.beinOben, fy = F.beinOben - Math.cos(a) * F.beinOben + 0.02;
+    ctx.beginPath(); ctx.moveTo(X(bx), Y(F.beinOben)); ctx.lineTo(X(fx), Y(fy)); ctx.lineTo(X(fx + F.fuss), Y(fy)); ctx.stroke();
+  });
   const kleid = () => { ctx.beginPath(); ctx.moveTo(X(-F.rOben), Y(F.kleidOben)); ctx.lineTo(X(F.rOben), Y(F.kleidOben)); ctx.lineTo(X(F.rUnten), Y(F.kleidUnten)); ctx.lineTo(X(-F.rUnten), Y(F.kleidUnten)); ctx.closePath(); };
   ctx.save(); kleid(); ctx.clip();
   const bh = (F.kleidOben - F.kleidUnten) / STREIFEN.length;
   STREIFEN.forEach((k, i) => {
     const y1 = F.kleidOben - i * bh;
     ctx.fillStyle = C[k]; ctx.fillRect(X(-0.7), Y(y1) - 1, 1.4 * s, bh * s + 2);
-    if (k === 'tuerkis') {
-      for (let n = 0; n < 60; n++) {
-        ctx.fillStyle = r() < .5 ? '#ffffff' : '#9ff3e8';
-        ctx.beginPath(); ctx.arc(X(-0.6 + r() * 1.2), Y(y1 - r() * bh), (0.4 + r() * 1.3) * s / 165, 0, 7); ctx.fill();
-      }
-    }
+    if (k === 'tuerkis') glitzerFuellen(ctx, 'kleid', ['#ffffff', '#9ff3e8'], 150, 3, s, X(-0.7), Y(y1) - 1, 1.4 * s, bh * s + 2);
   });
   ctx.restore();
   kleid(); ctx.stroke();
@@ -60,22 +89,8 @@ export function zeichne(ctx, cx, by, s, lw = 3) {
   }
   ctx.lineWidth = lw;
   ctx.beginPath(); ctx.moveTo(X(-ARM.breite), Y(F.kleidOben)); ctx.quadraticCurveTo(X(-0.02), Y(F.kleidOben - 2 * ARM.tiefe), X(ARM.breite), Y(F.kleidOben)); ctx.stroke();
-  ctx.fillStyle = C.kopf; ctx.beginPath(); ctx.ellipse(X(0), Y(F.kopfY), F.krx * s, F.kry * s, 0, 0, 7); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = C.linie;
-  for (const [ex, ey] of [[-0.27, 1.50], [0.2, 1.47]]) { ctx.beginPath(); ctx.arc(X(ex), Y(ey), 0.03 * s, 0, 7); ctx.fill(); }
-  ctx.beginPath(); ctx.moveTo(X(-0.33), Y(1.42)); ctx.quadraticCurveTo(X(0), Y(1.24), X(0.36), Y(1.43)); ctx.stroke();
-  ctx.fillStyle = C.wange; ctx.lineWidth = lw * .7;
-  for (const [ex, ey] of [[-0.45, 1.42], [0.48, 1.40]]) { ctx.beginPath(); ctx.arc(X(ex), Y(ey), 0.075 * s, 0, 7); ctx.fill(); ctx.stroke(); }
-  ctx.lineWidth = lw;
-  const k = kronenUmriss();
-  ctx.beginPath(); k.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))); ctx.closePath();
-  ctx.fillStyle = C.gold; ctx.fill();
-  ctx.save(); ctx.clip();
-  for (let n = 0; n < 90; n++) { ctx.fillStyle = r() < .5 ? '#fff6c0' : '#ffe066'; ctx.beginPath(); ctx.arc(X(-0.33 + r() * .76), Y(F.kroneBasis + r() * .44), (0.5 + r() * 1.4) * s / 165, 0, 7); ctx.fill(); }
-  ctx.restore();
-  ctx.stroke();
-  ctx.fillStyle = C.kugel;
-  for (const i of [1, 3, 5, 7, 9]) { ctx.beginPath(); ctx.arc(X(k[i][0]), Y(k[i][1] + 0.02), 0.05 * s, 0, 7); ctx.fill(); ctx.lineWidth = lw * .8; ctx.stroke(); }
+  if (!pose.ohneKopf) zeichneKopf(ctx, X(0), Y(F.kopfY), s, lw, pose);
+  if (!pose.ohneKrone) zeichneKrone(ctx, cx, by, s, lw);
   ctx.restore();
 }
 
@@ -90,6 +105,29 @@ export function silhouette(ctx, cx, by, s) {
 
 // Lage der Figur in einem quadratischen Bild der Grösse g (Pixel)
 export const imBild = g => ({ cx: g / 2, by: g * 0.94, s: g * 0.37 });
+
+// Glitzer als Füllmuster: eine Kachel (256 px bei s = 165) wird einmal gezeichnet und dann gekachelt.
+// So kostet eine glitzernde Fläche eine Füllung statt hunderte Kreise. Die Kachel ist je Farbsatz gespeichert.
+const musterKacheln = new Map();
+export function glitzerMuster(ctx, name, farben, dichte, seed) {
+  let k = musterKacheln.get(name);
+  if (!k) {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'), r = rng(seed);
+    for (let i = 0; i < dichte; i++) {
+      g.fillStyle = farben[Math.floor(r() * farben.length)];
+      g.beginPath(); g.arc(r() * 256, r() * 256, (.4 + r() * 1.3) * 256 / 165, 0, 7); g.fill();
+    }
+    k = c; musterKacheln.set(name, k);
+  }
+  return ctx.createPattern(k, 'repeat');
+}
+// Füllt den aktuellen Pfad (schon geclippt) mit Glitzer in der Grösse s (Pixel je Einheit): Kachel = 256/165 Einheiten
+export function glitzerFuellen(ctx, name, farben, dichte, seed, s, x0, y0, w, h) {
+  const m = glitzerMuster(ctx, name, farben, dichte, seed);
+  if (m.setTransform) m.setTransform(new DOMMatrix([s / 165, 0, 0, s / 165, 0, 0]));
+  ctx.fillStyle = m; ctx.fillRect(x0, y0, w, h);
+}
 
 // ------------------------------------------------------------------ 3D
 function glitzerTextur(w, h, grund, glitzerZeilen, seed, gold = false) {
@@ -440,11 +478,11 @@ export function baueFigur4() {
   const kopfProfil = [[0, 0], [.3, 0], [.34, .1], [.33, .4], [.29, .7], [.23, .95], [.17, 1.12], [.12, 1.22], [0, 1.26]];
   const kopf = d => new THREE.LatheGeometry(kopfProfil.map(([x, y]) => new THREE.Vector2(x ? x + d : 0, y)), 48);
   const NEIG = .08;
-  mitKontur(kopf(0), kopf(KONTUR), fell, m => { m.rotation.z = -Math.PI / 2 - NEIG; m.position.set(.2, 1.0, 0); m.scale.z = .75; });
+  mitKontur(kopf(0), kopf(KONTUR), fell, m => { m.rotation.z = -Math.PI / 2 - NEIG; m.position.set(.2, 1.0, 0); m.scale.z = .66; });
   const nase = new THREE.Mesh(new THREE.SphereGeometry(.15, 24, 16), schwarz);
   nase.position.set(.2 + 1.24 * Math.cos(NEIG), 1.0 - 1.24 * Math.sin(NEIG), 0); nase.scale.z = .8; g.add(nase);
   const auge = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), schwarz);
-  auge.position.set(.32, 1.08, .25); auge.scale.set(.12, .095, .04); auge.rotation.z = -.25; g.add(auge);
+  auge.position.set(.32, 1.08, .225); auge.scale.set(.12, .095, .04); auge.rotation.z = -.25; g.add(auge);
 
   // Ohr: hängender Tropfen, flach, vorn am Körper
   const ohrProfil = [[0, 0], [.15, .03], [.25, .1], [.3, .2], [.31, .3], [.29, .45], [.23, .6], [.14, .75], [.04, .86], [0, .88]];
@@ -469,12 +507,14 @@ export function baueFigur4() {
     }
     geo.computeVertexNormals(); return geo;
   }
+  // Der Schwanz hängt als eigene Gruppe am Ansatz (-1.3, 1.05), damit er wedeln kann (schwanz.rotation.z)
+  const schwanz = new THREE.Group(); schwanz.position.set(-1.3, 1.05, 0); g.add(schwanz);
   const schwanzKurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-1.3, 1.05, 0), new THREE.Vector3(-1.52, 1.3, 0), new THREE.Vector3(-1.6, 1.62, 0),
-    new THREE.Vector3(-1.52, 1.92, 0), new THREE.Vector3(-1.36, 2.02, 0), new THREE.Vector3(-1.25, 1.96, 0)]);
-  mitKontur(kegelRohr(schwanzKurve, .09, .035), kegelRohr(schwanzKurve, .09, .035, KONTUR), fell, () => {});
-  const spitze = schwanzKurve.getPointAt(1);
-  mitKontur(new THREE.SphereGeometry(.035, 12, 8), new THREE.SphereGeometry(.035 + KONTUR, 12, 8), fell, m => { m.position.copy(spitze); });
+    new THREE.Vector3(0, 0, 0), new THREE.Vector3(-.22, .25, 0), new THREE.Vector3(-.3, .57, 0),
+    new THREE.Vector3(-.22, .87, 0), new THREE.Vector3(-.06, .97, 0), new THREE.Vector3(.05, .91, 0)]);
+  schwanz.add(new THREE.Mesh(kegelRohr(schwanzKurve, .09, .035), fell), new THREE.Mesh(kegelRohr(schwanzKurve, .09, .035, KONTUR), huelle));
+  const spitze = schwanzKurve.getPointAt(1), sp1 = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), fell), sp2 = new THREE.Mesh(new THREE.SphereGeometry(.035 + KONTUR, 12, 8), huelle);
+  sp1.position.copy(spitze); sp2.position.copy(spitze); schwanz.add(sp1, sp2);
 
   // Krone: kupferner, ovaler Zackenkranz über dem Kopfansatz
   const N = 6, SEG = N * 12, kg = new THREE.CylinderGeometry(1, 1, 1, SEG, 1, true), pos = kg.attributes.position;
@@ -493,34 +533,31 @@ export function baueFigur4() {
   const krone = new THREE.Mesh(kg, kroneMat);
   krone.position.set(-.05, 1.25, 0); krone.rotation.y = Math.PI / N; krone.rotation.z = .04; g.add(krone);
 
-  return { gruppe: g, kroneMat, fellMat: fell, auge };
+  return { gruppe: g, kroneMat, fellMat: fell, auge, schwanz };
 }
 
 // Der Hund flach gezeichnet, Seitenansicht nach rechts, in denselben Massen wie die 3D-Figur.
 // (cx, by) = Boden unter den Füssen in Pixeln, s = Pixel je Einheit.
 // pose = { beine: [hinten-fern, hinten-nah, vorn-fern, vorn-nah] Winkel in rad (+ = nach vorn),
-//          kopf: Neigung in rad (+ = nach unten), schwanz: Wedeln -1..1, ohr: Schwingen -1..1 }
+//          kopf: Neigung in rad (+ = nach unten), schwanz: Wedeln -1..1, ohr: Schwingen -1..1, augeZu: schläft }
 export function zeichneHund(ctx, cx, by, s, lw = 3, pose = {}) {
   const X = x => cx + x * s, Y = y => by - y * s;
   const beine = pose.beine || [0, 0, 0, 0], kopfN = pose.kopf || 0, wedel = pose.schwanz || 0, ohrS = pose.ohr || 0;
   const FELL = '#4e8f7e', LINIE = '#141014', KUPFER = '#c0652a';
   ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.strokeStyle = LINIE; ctx.lineWidth = lw;
   // Fellfläche: Grund, Glitzer und Blümchen innerhalb des Pfads, dann die Kontur
-  const fellFlaeche = (pfad, [x0, y0, x1, y1], seed, dicht = 1) => {
+  const fellFlaeche = (pfad, [x0, y0, x1, y1], seed, dicht = 1, kontur = pfad) => {
     ctx.save(); pfad(); ctx.clip();
     ctx.fillStyle = FELL; ctx.fillRect(X(x0) - 2, Y(y1) - 2, (x1 - x0) * s + 4, (y1 - y0) * s + 4);
     const q = rng(seed), fl = (x1 - x0) * (y1 - y0);
-    for (let i = 0; i < fl * 140 * dicht; i++) {
-      ctx.fillStyle = q() < .5 ? 'rgba(255,255,255,.85)' : 'rgba(166,245,234,.8)';
-      ctx.beginPath(); ctx.arc(X(x0 + q() * (x1 - x0)), Y(y0 + q() * (y1 - y0)), (.4 + q() * 1.3) * s / 165, 0, 7); ctx.fill();
-    }
+    glitzerFuellen(ctx, 'fell', ['rgba(255,255,255,.85)', 'rgba(166,245,234,.8)'], 340, 5, s, X(x0) - 2, Y(y1) - 2, (x1 - x0) * s + 4, (y1 - y0) * s + 4);
     for (let i = 0; i < fl * 7 * dicht; i++) {
       const x = X(x0 + q() * (x1 - x0)), y = Y(y0 + q() * (y1 - y0)), w = q();
       ctx.fillStyle = w < .55 ? '#f0b63a' : w < .8 ? '#3f58c8' : '#ffffff';
       ctx.beginPath(); ctx.arc(x, y, (.03 + q() * .025) * s, 0, 7); ctx.fill();
       if (w < .55) { ctx.fillStyle = '#ffe9a0'; ctx.beginPath(); ctx.arc(x, y, .012 * s, 0, 7); ctx.fill(); }
     }
-    ctx.restore(); pfad(); ctx.stroke();
+    ctx.restore(); kontur(); ctx.stroke();
   };
   // Ein Bein: hängt in der Hüfte (bx, .5) und dreht um den Winkel a; der Fuss zeigt nach vorn
   const bein = (bx, a) => {
@@ -555,14 +592,18 @@ export function zeichneHund(ctx, cx, by, s, lw = 3, pose = {}) {
     };
     fellFlaeche(pfad, [-1.75, 1.0, -1.0, 2.1], 101, 1.5);
   };
+  // Körper: Kapsel von hinten (-1.17) bis zur Brust (0), beide Enden rund wie in 3D
   const rumpf = () => {
-    ctx.beginPath(); ctx.moveTo(X(-1.17), Y(1.27)); ctx.lineTo(X(.35), Y(1.27)); ctx.lineTo(X(.35), Y(.41)); ctx.lineTo(X(-1.17), Y(.41));
+    ctx.beginPath(); ctx.moveTo(X(-1.17), Y(1.27)); ctx.lineTo(X(0), Y(1.27));
+    ctx.arc(X(0), Y(.84), .43 * s, -Math.PI / 2, Math.PI / 2, false); ctx.lineTo(X(-1.17), Y(.41));
     ctx.arc(X(-1.17), Y(.84), .43 * s, Math.PI / 2, Math.PI * 1.5, false); ctx.closePath();
   };
-  const kopf = () => {
-    ctx.beginPath(); ctx.moveTo(X(.2), Y(1.34)); ctx.quadraticCurveTo(X(.95), Y(1.3), X(1.4), Y(1.02));
-    ctx.quadraticCurveTo(X(1.52), Y(.9), X(1.4), Y(.78)); ctx.quadraticCurveTo(X(.95), Y(.68), X(.2), Y(.66)); ctx.closePath();
+  // Kopf: die Fläche ist geschlossen, die Kontur bleibt hinten offen (keine Kante vor dem Körper)
+  const kopfOffen = () => {
+    ctx.beginPath(); ctx.moveTo(X(.1), Y(1.33)); ctx.quadraticCurveTo(X(.95), Y(1.3), X(1.4), Y(1.02));
+    ctx.quadraticCurveTo(X(1.52), Y(.9), X(1.4), Y(.78)); ctx.quadraticCurveTo(X(.95), Y(.68), X(.1), Y(.67));
   };
+  const kopf = () => { kopfOffen(); ctx.closePath(); };
   const ohr = () => {
     const o = ohrS * .06;
     ctx.beginPath(); ctx.moveTo(X(-.13), Y(1.27));
@@ -576,9 +617,10 @@ export function zeichneHund(ctx, cx, by, s, lw = 3, pose = {}) {
   fellFlaeche(rumpf, [-1.62, .4, .4, 1.3], 103);
   bein(-.93, beine[1]); bein(.2, beine[3]);
   ctx.save(); ctx.translate(X(.2), Y(1.0)); ctx.rotate(kopfN); ctx.translate(-X(.2), -Y(1.0));
-  fellFlaeche(kopf, [.15, .6, 1.55, 1.4], 107, .8);
+  fellFlaeche(kopf, [.05, .6, 1.55, 1.4], 107, .8, kopfOffen);
   ctx.fillStyle = LINIE; ctx.beginPath(); ctx.arc(X(1.44), Y(.9), .15 * s, 0, 7); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(X(.32), Y(1.08), .12 * s, .095 * s, -.25, 0, 7); ctx.fill();
+  if (pose.augeZu) { ctx.lineWidth = lw * 1.6; ctx.beginPath(); ctx.arc(X(.32), Y(1.1), .1 * s, Math.PI * .1, Math.PI * .9); ctx.stroke(); ctx.lineWidth = lw; }
+  else { ctx.beginPath(); ctx.ellipse(X(.32), Y(1.08), .12 * s, .095 * s, -.25, 0, 7); ctx.fill(); }
   ctx.restore();
   fellFlaeche(ohr, [-.6, .35, .35, 1.3], 109);
   // Krone: Zackenband aus Kupfer mit Glitzer
@@ -587,12 +629,7 @@ export function zeichneHund(ctx, cx, by, s, lw = 3, pose = {}) {
     ctx.beginPath(); zacken.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))); ctx.closePath();
   };
   ctx.save(); kr(); ctx.clip(); ctx.fillStyle = KUPFER; ctx.fillRect(X(-.6), Y(1.7), 1.2 * s, .5 * s);
-  const q = rng(113);
-  for (let i = 0; i < 260; i++) {
-    const w = q();
-    ctx.fillStyle = w < .5 ? 'rgba(255,200,140,.9)' : w < .75 ? '#fff4d8' : 'rgba(120,50,15,.6)';
-    ctx.beginPath(); ctx.arc(X(-.51 + q() * .92), Y(1.27 + q() * .37), (.4 + q() * 1.4) * s / 165, 0, 7); ctx.fill();
-  }
+  glitzerFuellen(ctx, 'kupfer', ['rgba(255,200,140,.9)', 'rgba(255,200,140,.9)', '#fff4d8', 'rgba(120,50,15,.6)'], 1000, 113, s, X(-.6), Y(1.7), 1.2 * s, .5 * s);
   ctx.restore(); kr(); ctx.stroke();
   ctx.restore();
 }

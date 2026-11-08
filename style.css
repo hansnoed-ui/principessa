@@ -80,27 +80,25 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   position: relative;
   height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid; place-items: start center;
-  padding: 11vh 5vw 8vh;
+  padding: 17vh 5vw 8vh;
   background: var(--e-abend);
 }
-/* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
-.tablet {
+/* der Film: Querformat 16:9, schmaler dunkler Rand, leises Leuchten */
+.film {
   position: relative; z-index: 2;
-  width: min(56vw, 440px, calc(50vh * .744 + 12px));
-  width: min(56vw, 440px, calc(50dvh * .744 + 12px));
-  padding: clamp(4px, .45vw, 6px);
-  border-radius: clamp(16px, 1.8vw, 24px);
+  /* etwa die Fläche des früheren Stadtbilds im Tablet */
+  width: min(64vw, 660px, calc(40vh * 16 / 9));
+  width: min(64vw, 660px, calc(40dvh * 16 / 9));
+  padding: clamp(2px, .22vw, 3px);
+  border-radius: clamp(12px, 1.4vw, 19px);
   background: #18181c;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, .12),
     0 50px 80px -40px rgba(0, 0, 0, .8),
     0 0 140px rgba(255, 196, 228, .22);
 }
-.tablet::before {
-  content: ""; position: absolute; top: 50%; right: -2px; width: 3px; height: 9%;
-  transform: translateY(-50%); border-radius: 2px; background: #2b2b31;
-}
-.kopfbild { width: 100%; aspect-ratio: 1200 / 1613; position: relative; border-radius: clamp(12px, 1.4vw, 19px); overflow: hidden; background: #000; }
+.leinwand { width: 100%; aspect-ratio: 16 / 9; position: relative; border-radius: clamp(10px, 1.2vw, 17px); overflow: hidden; background: #151840; }
+.leinwand canvas { width: 100%; height: 100%; display: block; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .signatur {
   position: absolute; z-index: 2;
@@ -115,8 +113,7 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   line-height: 1.2;
 }
 .signatur strong { display: block; font-weight: 600; font-size: 1.55em; letter-spacing: .01em; }
-.signatur span { display: block; opacity: .85; }
-.kopfbild canvas { width: 100%; height: 100%; display: block; }
+.signatur span { display: block; opacity: .85; font-weight: 400; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Titel: Märchenschrift mit Glitzerfüllung */
@@ -301,14 +298,16 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .ebene .inhalt { max-width: clamp(31rem, 24rem + 14vw, 46rem); }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700px) and (orientation: portrait) {
   .ebene { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 0; padding: 9vh 6vw 4vh; align-items: start; }
   .ebene > .inhalt.links, .ebene > .inhalt.rechts { grid-column: 1; grid-row: 1; justify-self: stretch; }
   .ebene > .inhalt.links ~ .platz, .ebene > .inhalt.rechts ~ .platz { grid-column: 1; grid-row: 2; margin: 2vh 0 0; }
   .ebene .inhalt { max-width: none; }
   .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
-  #augenblick { padding: 11vh 4vw 8vh; }
-  .tablet { width: min(64vw, calc(50dvh * .744 + 12px)); }
+  #augenblick { padding: 14vh 0 8vh; }
+  /* auf dem Handy: der Film randlos über die ganze Breite */
+  .film { width: 100vw; padding: 0; border-radius: 0; box-shadow: 0 0 120px rgba(255, 196, 228, .18); }
+  .leinwand { border-radius: 0; }
   #ankommen .inhalt { padding: 8vh 6vw 0; }
 }
 
@@ -547,6 +546,14 @@ html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none;
 @keyframes titelglitzer { to { background-position: 160px 80px, -240% 0; } }
 @media (prefers-reduced-motion: reduce) { .signatur strong { animation: none; } }
 
+/* Mauszeiger: ein goldener Glitzerstern mit dunkler Kontur, auf hellem und dunklem Grund sichtbar.
+   Über Links, Knöpfen und Wahlfeldern bleibt die Hand, Textfelder behalten den Textzeiger. */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 2 Q15 13 26 14 Q15 15 14 26 Q13 15 2 14 Q13 13 14 2Z' fill='%23f3d27a' stroke='%232a2152' stroke-width='1.4' stroke-linejoin='round'/%3E%3Ccircle cx='14' cy='14' r='1.6' fill='%23fff8dc'/%3E%3C/svg%3E") 14 14, auto; }
+  a, button, label, .wahl, .pille, .tupfer, .motivwahl { cursor: pointer; }
+  input[type="text"], input[type="email"], input:not([type]), textarea { cursor: text; }
+}
+
 /* Meldung, die sich bei jedem Klick ins Formular aufzaubert */
 .karte-innen { position: relative; }
 .zauber-meldung {
@@ -576,3 +583,31 @@ html.gesperrt, html.gesperrt body { overflow: hidden; overscroll-behavior: none;
   .zauber-meldung span { opacity: 1; filter: none; transform: none; }
   .zauber-meldung.an span, .zauber-meldung.an i { animation: none; }
 }
+
+/* Titel unter dem Film: erscheint mit Glitzer (zauber.js) und vergeht kurz vor dem Sprung */
+#augenblick { align-content: start; }
+.auftakt-titel {
+  position: relative; z-index: 2; margin: 9vh 0 0; text-align: center; color: var(--creme);
+  font-family: var(--serif); font-style: normal; font-weight: 400; font-size: clamp(1.4rem, 1rem + 1.6vw, 2.5rem); line-height: 1.2;
+  font-variation-settings: "SOFT" 0, "WONK" 0, "opsz" 48; letter-spacing: .01em;   /* aufrecht, ohne Schnörkel */
+  transition: opacity 1s ease, transform 1s ease;
+}
+.auftakt-titel.weg { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+@media (max-width: 700px) and (orientation: portrait) { .auftakt-titel { margin-top: 7vh; padding: 0 6vw; } }
+
+/* Handy quer: wenig Höhe. Zweispaltig wie am Desktop, aber alles nach der Höhe bemessen */
+@media (orientation: landscape) and (max-height: 520px) {
+  .signatur { top: 10px; left: 14px; font-size: .78rem; }
+  #augenblick { padding: 15vh 4vw 4vh; }
+  .film { width: min(62vw, calc(48dvh * 16 / 9)); }
+  .auftakt-titel { margin-top: 4vh; font-size: clamp(1rem, .6rem + 2.4vh, 1.5rem); }
+  .ebene { padding: 0 6vw; gap: 3vw; }
+  .zauber { font-size: clamp(1rem, .55rem + 2.6vh, 1.3rem); line-height: 1.4; }
+  .zauber .satz + .satz { margin-top: .35em; }
+  .liegt { width: min(34dvh, 220px); margin-top: .6rem; }
+  .platz { margin: 10vh 0; }
+  #ankommen .inhalt { padding: 6vh 6vw 0; min-height: calc(var(--vh, 100dvh) - max(26svh, 90px)); }
+  #ankommen .boden { height: 26svh; min-height: 90px; }
+}
+
+.auftakt-titel .satz + .satz { margin-top: .1em; }
