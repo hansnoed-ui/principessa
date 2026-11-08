@@ -2,17 +2,17 @@
 
 Eine Principessa entspringt einem Augenblick und trägt seinen Zauber durch vier Ebenen nach unten.
 
-Ein One-Pager: Die Principessa löst sich aus ihrem gezeichneten Bild, springt in 3D heraus und fliegt beim Scrollen über die Seite nach unten – durch Schweben, Glitzer, Verweilen und Ankommen.
+Ein One-Pager: Ein kleiner Film zeigt die Principessa und den Hund mit Krone beim Aufwachen im Turm und beim Spaziergang; am Ende springen beide in 3D aus dem Film und fliegen beim Scrollen über die Seite nach unten – durch Schweben, Glitzer, Verweilen und Ankommen.
 
 ## Aufbau
 
 - `index.html`, `style.css` – die Seite: Titelbild, Ebenen, Wiese und Bestellkarte
-- `assets/kopfbild.jpg` – das Titelbild, aus dem die erste Principessa springt
+- `js/auftakt.js` – der Film im Auftakt: Turmzimmer, Aufwachen, Spaziergang, live gezeichnet
+- `assets/kopfbild.jpg` – das Gemälde mit der Stadt (zurzeit nicht auf der Seite)
 - `assets/principessa2-figur.png` – die zweite Principessa, aus ihrem Gemälde gelöst
 - `assets/principessa3-*.png` – die dritte als Meerjungfrau, in vier Teilen zum Zusammensetzen
-- `js/figur.js` – die drei Principesse als Zeichnung und als 3D-Figuren
+- `js/figur.js` – die drei Principesse und der Hund mit Krone als Zeichnung und als 3D-Figuren
 - `js/main.js` – Herausspringen, Flug beim Scrollen, Treffen, Glitzer, Sterne, Landung und Wiese
-- `js/rahmen.js` – die Glanzstellen im Gemälde
 - `js/hintergrund.js` – Wolken, Mond und Sternschnuppe, Unterwasserlicht, Seegras, Fische, Blasen, Kleeblätter
 - `js/zauber.js` – verzauberter Text: Wörter erscheinen als Glitzer, danach laufen Glitzerwellen hindurch
 - `js/bestellen.js` – die Bestellkarte: Auswahl, Live-Vorschau und Bestellung per Mail

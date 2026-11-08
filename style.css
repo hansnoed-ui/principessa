@@ -80,27 +80,24 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
   position: relative;
   height: 100vh; height: 100dvh; height: var(--vh, 100dvh);
   display: grid; place-items: start center;
-  padding: 11vh 5vw 8vh;
+  padding: 13vh 5vw 8vh;
   background: var(--e-abend);
 }
-/* das Tablet: hochformatig, schmaler Rand, leises Leuchten */
-.tablet {
+/* der Film: Querformat 16:9, schmaler dunkler Rand, leises Leuchten */
+.film {
   position: relative; z-index: 2;
-  width: min(56vw, 440px, calc(50vh * .744 + 12px));
-  width: min(56vw, 440px, calc(50dvh * .744 + 12px));
+  width: min(86vw, 1180px, calc(52vh * 16 / 9));
+  width: min(86vw, 1180px, calc(52dvh * 16 / 9));
   padding: clamp(4px, .45vw, 6px);
-  border-radius: clamp(16px, 1.8vw, 24px);
+  border-radius: clamp(14px, 1.6vw, 22px);
   background: #18181c;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, .12),
     0 50px 80px -40px rgba(0, 0, 0, .8),
     0 0 140px rgba(255, 196, 228, .22);
 }
-.tablet::before {
-  content: ""; position: absolute; top: 50%; right: -2px; width: 3px; height: 9%;
-  transform: translateY(-50%); border-radius: 2px; background: #2b2b31;
-}
-.kopfbild { width: 100%; aspect-ratio: 1200 / 1613; position: relative; border-radius: clamp(12px, 1.4vw, 19px); overflow: hidden; background: #000; }
+.leinwand { width: 100%; aspect-ratio: 16 / 9; position: relative; border-radius: clamp(10px, 1.2vw, 17px); overflow: hidden; background: #151840; }
+.leinwand canvas { width: 100%; height: 100%; display: block; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .signatur {
   position: absolute; z-index: 2;
@@ -116,7 +113,6 @@ h2 { font-size: clamp(2.4rem, 1.8rem + 3vw, 4.2rem); }
 }
 .signatur strong { display: block; font-weight: 600; font-size: 1.55em; letter-spacing: .01em; }
 .signatur span { display: block; opacity: .85; }
-.kopfbild canvas { width: 100%; height: 100%; display: block; }
 .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Titel: Märchenschrift mit Glitzerfüllung */
@@ -305,7 +301,7 @@ blockquote cite { font-style: normal; font-size: .8rem; letter-spacing: .1em; te
   .ebene .inhalt { max-width: none; }
   .liegt { width: min(46vw, 24dvh); margin: 1.2rem auto 0; }
   #augenblick { padding: 11vh 4vw 8vh; }
-  .tablet { width: min(64vw, calc(50dvh * .744 + 12px)); }
+  .film { width: 92vw; }
   #ankommen .inhalt { padding: 12vh 6vw 0; }
 }
 
