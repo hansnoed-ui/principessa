@@ -29,6 +29,9 @@ const flach = $('#flach'), fc = flach.getContext('2d');
 const flach2 = $('#flach2'), fc2 = flach2.getContext('2d');
 const flach3 = $('#flach3'), fc3 = flach3.getContext('2d');
 const bildEl = $('.film'), boden = $('#boden'), titelEl = $('.auftakt-titel');
+// Seitenhintergrund des Auftakts: von der Nachtfarbe (--e-abend) zu einem etwas helleren Morgenton
+const augenblickEl = $('#augenblick'), NACHT_RGB = [0x2b, 0x21, 0x52], TAG_RGB = [0x46, 0x37, 0x6c];
+let hellStand = -1;
 
 // Glitzerfüllung für den Titel
 {
@@ -529,6 +532,14 @@ function bild(nowMs) {
     if (tR >= T.rueckEnde) { modus = 'drin'; tI = 0; klopfUhr = -2.5; plopped = false; }
   }
 
+  // ---- Wird es im Film Tag, hellt sich auch der Seitenhintergrund leicht auf (einfarbig, kein Verlauf)
+  {
+    const u = glatt(AUFTAKT.hell[0], AUFTAKT.hell[1], tA);
+    if (u !== hellStand) {
+      hellStand = u;
+      augenblickEl.style.backgroundColor = `rgb(${NACHT_RGB.map((v, i) => Math.round(v + (TAG_RGB[i] - v) * u)).join(',')})`;
+    }
+  }
   // ---- Der Titel unter dem Film vergeht kurz vor dem Sprung
   titelEl?.classList.toggle('weg', modus !== 'drin' || tA > AUFTAKT.sprung - 1.3);
   // er erscheint, wenn im Film das Schütteln mit Glitzer beginnt
